@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>📊 Matplotlib Complete API Tree</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 20px; }
+  h1 { text-align: center; font-size: 1.6rem; color: #68d391; margin-bottom: 6px; font-weight: 800; }
+  .subtitle { text-align: center; font-size: 0.78rem; color: #718096; margin-bottom: 18px; }
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap; }
+  .controls input { padding: 8px 16px; border-radius: 8px; border: 1px solid #2d3748; background: #1a202c; color: #e2e8f0; font-size: 0.85rem; outline: none; width: 340px; }
+  .controls input:focus { border-color: #68d391; }
+  .btn { padding: 8px 14px; border-radius: 8px; border: 1px solid #2d3748; background: #1a202c; color: #90cdf4; font-size: 0.78rem; cursor: pointer; }
+  .btn:hover { background: #2d3748; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: #718096; }
+  .badge { font-size: 0.6rem; padding: 2px 7px; border-radius: 20px; font-weight: 700; white-space: nowrap; }
+  .b-ns { background: #2b4a7a; color: #90cdf4; }
+  .b-cl { background: #2d4a2d; color: #68d391; }
+  .b-fn { background: #4a3a1e; color: #f6ad55; }
+  .b-at { background: #3a2d4a; color: #b794f4; }
+  .b-sec { background: #1a2a3a; color: #63b3ed; }
+  .tree-root { max-width: 1100px; margin: 0 auto; }
+  .ns-node { margin: 6px 0; }
+  .ns-header { display: flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 9px; padding: 8px 14px; background: #1a202c; border: 1px solid #2d3748; transition: background 0.15s; }
+  .ns-header:hover { background: #232b38; border-color: #68d39144; }
+  .toggle { font-size: 0.65rem; color: #718096; min-width: 12px; transition: transform 0.18s; }
+  .toggle.open { transform: rotate(90deg); }
+  .ns-label { font-size: 0.95rem; font-weight: 700; color: #e2e8f0; flex: 1; }
+  .ns-desc { font-size: 0.72rem; color: #718096; text-align: right; max-width: 300px; }
+  .ns-children { padding-left: 28px; border-left: 2px solid #2d3748; margin-left: 18px; }
+  .ns-children.closed { display: none; }
+  .sec-node { margin: 4px 0; }
+  .sec-header { display: flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 7px; padding: 5px 10px; transition: background 0.13s; }
+  .sec-header:hover { background: #1a202c; }
+  .sec-label { font-size: 0.82rem; font-weight: 600; color: #90cdf4; flex: 1; }
+  .sec-children { padding-left: 20px; border-left: 1px solid #2d3748; margin-left: 14px; }
+  .sec-children.closed { display: none; }
+  .leaf { display: flex; align-items: flex-start; gap: 8px; padding: 4px 10px 4px 14px; border-radius: 5px; margin: 2px 0; font-size: 0.76rem; transition: background 0.1s; }
+  .leaf:hover { background: #1a202c; }
+  .leaf .lname { font-weight: 600; color: #cbd5e0; min-width: 260px; }
+  .leaf .ldesc { color: #718096; font-size: 0.7rem; }
+  .leaf.highlight { background: #2d2a00 !important; }
+  .leaf.hidden { display: none; }
+</style>
+<style>
+/* ── WHITE THEME OVERRIDE ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+body {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, #94a3b8 1.5px, transparent 1.5px);
+  background-size: 28px 28px;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+.back-home {
+  position: relative; z-index: 2;
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-bottom: 20px; padding: 7px 14px;
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  background: rgba(255,255,255,0.9); color: #475569;
+  font-size: 0.78rem; font-weight: 600; text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.back-home:hover { border-color: #16a34a; color: #16a34a; }
+h1, .subtitle, .controls, .legend, .tree-root { position: relative; z-index: 1; }
+h1 { color: #16a34a !important; }
+.subtitle { color: #64748b !important; }
+.controls input {
+  background: #f8fafc !important; border-color: #cbd5e0 !important;
+  color: #1e293b !important;
+}
+.controls input:focus { border-color: #16a34a !important; }
+.controls input::placeholder { color: #94a3b8; }
+.btn { background: #f8fafc !important; border-color: #cbd5e0 !important; color: #16a34a !important; }
+.btn:hover { background: #f0fdf4 !important; border-color: #86efac !important; }
+.legend-item { color: #64748b !important; }
+.b-ns { background: #dbeafe !important; color: #1d4ed8 !important; }
+.b-cl { background: #dcfce7 !important; color: #15803d !important; }
+.b-fn { background: #fef3c7 !important; color: #92400e !important; }
+.b-at { background: #ede9fe !important; color: #5b21b6 !important; }
+.b-sec { background: #e0f2fe !important; color: #075985 !important; }
+.ns-header { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+.ns-header:hover { background: #f0fdf4 !important; border-color: #86efac !important; }
+.ns-label { color: #0f172a !important; }
+.ns-desc { color: #64748b !important; }
+.toggle { color: #94a3b8 !important; }
+.ns-children { border-left-color: #e2e8f0 !important; }
+.sec-header:hover { background: #f8fafc !important; }
+.sec-label { color: #15803d !important; }
+.sec-children { border-left-color: #e2e8f0 !important; }
+.leaf:hover { background: #f0fdf4 !important; }
+.leaf .lname { color: #1e293b !important; }
+.leaf .ldesc { color: #64748b !important; }
+.leaf.highlight { background: #fef9c3 !important; }
+</style>
+</head>
+<body>
+<a class="back-home" href="index.html">← Home</a>
+<h1>📊 Matplotlib — Complete API Reference Tree</h1>
+<p class="subtitle">Click any section to expand/collapse &nbsp;•&nbsp; Use search to filter</p>
+<div class="controls">
+  <input id="search" type="text" placeholder="Search: e.g. scatter, colorbar, subplot, legend..." oninput="filterTree(this.value)"/>
+  <button class="btn" onclick="expandAll()">Expand All</button>
+  <button class="btn" onclick="collapseAll()">Collapse All</button>
+</div>
+<div class="legend">
+  <div class="legend-item"><span class="badge b-ns">NS</span> Module</div>
+  <div class="legend-item"><span class="badge b-cl">CL</span> Class</div>
+  <div class="legend-item"><span class="badge b-fn">FN</span> Function</div>
+  <div class="legend-item"><span class="badge b-at">AT</span> Attribute/Property</div>
+</div>
+<div class="tree-root" id="tree"></div>
+<script>
+const DATA = [
+  { label:"matplotlib.pyplot (plt)", desc:"State-machine interface — most common entry point", secs:[
+    { title:"Figure & Axes Creation", leaves:[
+      {t:"FN",n:"plt.figure(num, figsize, dpi, facecolor, tight_layout)",d:"Create new Figure"},
+      {t:"FN",n:"plt.subplot(nrows, ncols, index, **kwargs)",d:"Add subplot to current figure"},
+      {t:"FN",n:"plt.subplots(nrows, ncols, sharex, sharey, figsize, squeeze)",d:"Create figure + array of Axes"},
+      {t:"FN",n:"plt.subplot2grid(shape, loc, rowspan, colspan, fig)",d:"Place subplot on grid"},
+      {t:"FN",n:"plt.axes(rect, projection, polar)",d:"Add axes at specific position"},
+      {t:"FN",n:"plt.subplot_mosaic(mosaic, sharex, sharey, figsize)",d:"Named subplots via string/list"},
+      {t:"FN",n:"plt.subplots_adjust(left, bottom, right, top, wspace, hspace)",d:"Adjust spacing between subplots"},
+      {t:"FN",n:"plt.tight_layout(pad, w_pad, h_pad, rect)",d:"Auto-adjust layout to avoid overlap"},
+      {t:"FN",n:"plt.gcf() / plt.gca()",d:"Get current figure / axes"},
+      {t:"FN",n:"plt.sca(ax)",d:"Set current axes"},
+      {t:"FN",n:"plt.clf() / plt.cla() / plt.close(fig)",d:"Clear figure / axes / close figure"},
+      {t:"FN",n:"plt.ion() / plt.ioff()",d:"Interactive mode on/off"},
+    ]},
+    { title:"Basic Plot Types", leaves:[
+      {t:"FN",n:"plt.plot(x, y, fmt, color, linewidth, linestyle, marker, label)",d:"Line / marker plot"},
+      {t:"FN",n:"plt.scatter(x, y, s, c, cmap, alpha, marker, linewidths)",d:"Scatter plot"},
+      {t:"FN",n:"plt.bar(x, height, width, bottom, color, align, label)",d:"Vertical bar chart"},
+      {t:"FN",n:"plt.barh(y, width, height, left, color, align)",d:"Horizontal bar chart"},
+      {t:"FN",n:"plt.hist(x, bins, range, density, weights, cumulative, histtype, color)",d:"Histogram"},
+      {t:"FN",n:"plt.hist2d(x, y, bins, range, density, cmap)",d:"2D histogram (heatmap)"},
+      {t:"FN",n:"plt.boxplot(x, notch, vert, patch_artist, showfliers, whis)",d:"Box and whisker plot"},
+      {t:"FN",n:"plt.violinplot(dataset, positions, vert, widths, showmeans)",d:"Violin plot"},
+      {t:"FN",n:"plt.pie(x, labels, autopct, colors, explode, shadow, startangle)",d:"Pie chart"},
+      {t:"FN",n:"plt.errorbar(x, y, yerr, xerr, fmt, ecolor, elinewidth, capsize)",d:"Plot with error bars"},
+      {t:"FN",n:"plt.stem(x, y, linefmt, markerfmt, basefmt)",d:"Stem plot"},
+      {t:"FN",n:"plt.step(x, y, where, color, linewidth)",d:"Step / staircase plot"},
+      {t:"FN",n:"plt.fill_between(x, y1, y2, where, interpolate, alpha, color)",d:"Fill between two curves"},
+      {t:"FN",n:"plt.fill_betweenx(y, x1, x2, where, alpha)",d:"Fill between horizontally"},
+      {t:"FN",n:"plt.stackplot(x, *args, labels, colors, baseline)",d:"Stacked area plot"},
+      {t:"FN",n:"plt.broken_barh(xranges, yrange, facecolors)",d:"Broken horizontal bar"},
+      {t:"FN",n:"plt.eventplot(positions, orientation, lineoffsets, linelengths)",d:"Event / spike plot"},
+      {t:"FN",n:"plt.hexbin(x, y, gridsize, C, reduce_C_function, cmap)",d:"Hexagonal binning"},
+    ]},
+    { title:"Statistical & Specialized Plots", leaves:[
+      {t:"FN",n:"plt.contour(X, Y, Z, levels, colors, cmap, linewidths)",d:"Contour lines"},
+      {t:"FN",n:"plt.contourf(X, Y, Z, levels, cmap, alpha)",d:"Filled contours"},
+      {t:"FN",n:"plt.imshow(X, cmap, norm, aspect, interpolation, origin, extent)",d:"Display image / 2D data"},
+      {t:"FN",n:"plt.pcolor(X, Y, C, cmap, shading, norm)",d:"Pseudocolor mesh"},
+      {t:"FN",n:"plt.pcolormesh(X, Y, C, cmap, shading, norm)",d:"Faster pseudocolor mesh"},
+      {t:"FN",n:"plt.quiver(X, Y, U, V, C, scale, width, headwidth)",d:"Vector field arrows"},
+      {t:"FN",n:"plt.streamplot(X, Y, U, V, density, color, cmap, linewidth)",d:"Stream lines / flow field"},
+      {t:"FN",n:"plt.specgram(x, NFFT, Fs, cmap, sides, scale)",d:"Spectrogram"},
+      {t:"FN",n:"plt.magnitude_spectrum / phase_spectrum / angle_spectrum / cohere",d:"Signal analysis plots"},
+      {t:"FN",n:"plt.xcorr(x, y, normed, usevlines, maxlags)",d:"Cross-correlation"},
+      {t:"FN",n:"plt.acorr(x, normed, usevlines, maxlags)",d:"Autocorrelation"},
+      {t:"FN",n:"plt.spy(Z, precision, marker, markersize, aspect, origin)",d:"Sparsity pattern"},
+      {t:"FN",n:"plt.matshow(A, fignum)",d:"Display matrix as image"},
+      {t:"FN",n:"plt.polar(theta, r, **kwargs)",d:"Polar plot (shortcut)"},
+    ]},
+    { title:"3D Plots (via mpl_toolkits)", leaves:[
+      {t:"FN",n:"fig.add_subplot(111, projection='3d')",d:"Create 3D axes"},
+      {t:"FN",n:"ax.plot_surface(X, Y, Z, cmap, rstride, cstride, alpha)",d:"3D surface plot"},
+      {t:"FN",n:"ax.plot_wireframe(X, Y, Z, rstride, cstride)",d:"3D wireframe"},
+      {t:"FN",n:"ax.scatter3D(xs, ys, zs, c, cmap, marker)",d:"3D scatter"},
+      {t:"FN",n:"ax.plot3D(xs, ys, zs, fmt)",d:"3D line plot"},
+      {t:"FN",n:"ax.bar3d(x, y, z, dx, dy, dz, color)",d:"3D bar chart"},
+      {t:"FN",n:"ax.contour3D(X, Y, Z, levels)",d:"3D contour"},
+      {t:"FN",n:"ax.quiver(X, Y, Z, U, V, W)",d:"3D vector field"},
+      {t:"FN",n:"ax.view_init(elev, azim)",d:"Set 3D viewing angle"},
+    ]},
+    { title:"Axes Customization", leaves:[
+      {t:"FN",n:"plt.xlabel(xlabel, fontsize, labelpad) / plt.ylabel()",d:"Axis labels"},
+      {t:"FN",n:"plt.title(label, fontsize, loc, pad, fontweight)",d:"Plot title"},
+      {t:"FN",n:"plt.suptitle(t, x, y, fontsize, fontweight)",d:"Figure-level title"},
+      {t:"FN",n:"plt.xlim(left, right) / plt.ylim(bottom, top)",d:"Set axis limits"},
+      {t:"FN",n:"plt.xticks(ticks, labels, rotation, fontsize) / plt.yticks()",d:"Set tick positions / labels"},
+      {t:"FN",n:"plt.xscale(value) / plt.yscale(value)",d:"'linear', 'log', 'symlog', 'logit'"},
+      {t:"FN",n:"plt.legend(handles, labels, loc, ncol, fontsize, title, frameon)",d:"Add/customize legend"},
+      {t:"FN",n:"plt.grid(visible, which, axis, color, linestyle, linewidth, alpha)",d:"Toggle/style grid"},
+      {t:"FN",n:"plt.axhline(y, xmin, xmax, color, linestyle) / plt.axvline()",d:"Horizontal/vertical reference line"},
+      {t:"FN",n:"plt.axhspan(ymin, ymax, xmin, xmax, alpha, color) / axvspan()",d:"Colored span region"},
+      {t:"FN",n:"plt.annotate(text, xy, xytext, arrowprops, fontsize)",d:"Add annotation with arrow"},
+      {t:"FN",n:"plt.text(x, y, s, fontsize, color, ha, va, rotation, transform)",d:"Add text at coordinates"},
+      {t:"FN",n:"plt.colorbar(mappable, ax, cax, orientation, label, shrink, pad)",d:"Add color bar"},
+      {t:"FN",n:"plt.clim(vmin, vmax)",d:"Set colorbar limits"},
+      {t:"FN",n:"plt.invert_xaxis() / plt.invert_yaxis()",d:"Invert axis direction"},
+      {t:"FN",n:"plt.margins(x, y, tight)",d:"Set margins around data"},
+      {t:"FN",n:"plt.tick_params(axis, which, direction, length, width, color, labelsize)",d:"Fine-tune tick appearance"},
+      {t:"FN",n:"plt.locator_params(axis, nbins, min_n_ticks, tight)",d:"Control auto tick placement"},
+      {t:"FN",n:"plt.minorticks_on() / plt.minorticks_off()",d:"Show/hide minor ticks"},
+    ]},
+    { title:"Output & Display", leaves:[
+      {t:"FN",n:"plt.show(block)",d:"Display figure (blocks in non-interactive)"},
+      {t:"FN",n:"plt.savefig(fname, dpi, bbox_inches, pad_inches, facecolor, format, transparent)",d:"Save to file"},
+      {t:"FN",n:"plt.draw() / plt.pause(interval)",d:"Force draw / pause and draw"},
+      {t:"FN",n:"plt.rcParams['figure.figsize'] = [w, h]",d:"Set default figure size globally"},
+      {t:"FN",n:"plt.rc(group, **kwargs)",d:"Set style parameters"},
+      {t:"FN",n:"plt.rcdefaults()",d:"Reset to defaults"},
+      {t:"FN",n:"plt.style.use(style) / plt.style.context(style)",d:"Apply named style sheet"},
+      {t:"FN",n:"plt.style.available",d:"List available styles"},
+    ]},
+  ]},
+  { label:"matplotlib.figure.Figure", desc:"Top-level container for all plot elements", secs:[
+    { title:"Figure Methods", leaves:[
+      {t:"FN",n:"fig.add_axes(rect, projection, polar)",d:"Add axes at [left, bottom, width, height]"},
+      {t:"FN",n:"fig.add_subplot(nrows, ncols, index, **kwargs)",d:"Add subplot"},
+      {t:"FN",n:"fig.subplots(nrows, ncols, sharex, sharey)",d:"Add grid of subplots"},
+      {t:"FN",n:"fig.subplot_mosaic(mosaic, sharex, sharey)",d:"Named layout"},
+      {t:"FN",n:"fig.add_gridspec(nrows, ncols, **kwargs)",d:"Create GridSpec for layout"},
+      {t:"FN",n:"fig.get_axes() / fig.axes",d:"List of all axes"},
+      {t:"FN",n:"fig.set_size_inches(w, h, forward) / fig.get_size_inches()",d:"Set/get figure size"},
+      {t:"FN",n:"fig.set_dpi(val) / fig.get_dpi()",d:"Set/get resolution"},
+      {t:"FN",n:"fig.suptitle(t, x, y, fontsize, fontweight)",d:"Figure-level title"},
+      {t:"FN",n:"fig.tight_layout(pad, w_pad, h_pad)",d:"Auto layout"},
+      {t:"FN",n:"fig.colorbar(mappable, ax, cax, orientation)",d:"Add colorbar"},
+      {t:"FN",n:"fig.savefig(fname, dpi, bbox_inches, format)",d:"Save figure"},
+      {t:"FN",n:"fig.canvas.draw() / fig.canvas.flush_events()",d:"Force redraw"},
+      {t:"FN",n:"fig.clear() / fig.clf()",d:"Clear all axes"},
+    ]},
+  ]},
+  { label:"matplotlib.axes.Axes", desc:"Individual plot area — all ax.* methods", secs:[
+    { title:"Plot Methods on Axes", leaves:[
+      {t:"FN",n:"ax.plot(x, y, fmt, color, lw, ls, marker, label, alpha)",d:"Line/marker plot"},
+      {t:"FN",n:"ax.scatter(x, y, s, c, cmap, norm, alpha, marker)",d:"Scatter plot"},
+      {t:"FN",n:"ax.bar(x, height, width, bottom, color, label)",d:"Vertical bars"},
+      {t:"FN",n:"ax.barh(y, width, height, left, color)",d:"Horizontal bars"},
+      {t:"FN",n:"ax.hist(x, bins, range, density, histtype, color, label)",d:"Histogram"},
+      {t:"FN",n:"ax.boxplot(x, notch, vert, patch_artist, showfliers)",d:"Box plot"},
+      {t:"FN",n:"ax.violinplot(dataset, positions, vert, showmeans)",d:"Violin plot"},
+      {t:"FN",n:"ax.pie(x, labels, autopct, explode, colors)",d:"Pie chart"},
+      {t:"FN",n:"ax.errorbar(x, y, yerr, xerr, fmt, capsize)",d:"Error bars"},
+      {t:"FN",n:"ax.fill_between(x, y1, y2, where, alpha, color)",d:"Shaded region between lines"},
+      {t:"FN",n:"ax.stackplot(x, *args, labels, colors, baseline)",d:"Stacked area"},
+      {t:"FN",n:"ax.step(x, y, where)",d:"Step / staircase"},
+      {t:"FN",n:"ax.stem(x, y, linefmt, markerfmt)",d:"Stem plot"},
+      {t:"FN",n:"ax.contour(X, Y, Z, levels, cmap) / ax.contourf()",d:"Contour / filled contour"},
+      {t:"FN",n:"ax.imshow(X, cmap, aspect, interpolation, extent, origin)",d:"Show 2D array as image"},
+      {t:"FN",n:"ax.pcolormesh(X, Y, C, cmap, shading)",d:"Pseudocolor mesh"},
+      {t:"FN",n:"ax.quiver(X, Y, U, V, scale, color)",d:"Vector field arrows"},
+      {t:"FN",n:"ax.streamplot(X, Y, U, V, density, color)",d:"Stream lines"},
+      {t:"FN",n:"ax.hexbin(x, y, gridsize, C, cmap)",d:"Hexagonal binning"},
+      {t:"FN",n:"ax.eventplot(positions, orientation)",d:"Event tick plot"},
+      {t:"FN",n:"ax.broken_barh(xranges, yrange)",d:"Broken horizontal bar"},
+      {t:"FN",n:"ax.spy(Z, precision, markersize)",d:"Sparsity pattern"},
+    ]},
+    { title:"Axes Customization Methods", leaves:[
+      {t:"FN",n:"ax.set_xlabel(xlabel, fontsize, labelpad) / ax.set_ylabel()",d:"Axis labels"},
+      {t:"FN",n:"ax.set_title(label, fontsize, loc, pad)",d:"Axes title"},
+      {t:"FN",n:"ax.set_xlim(left, right) / ax.set_ylim(bottom, top)",d:"Axis limits"},
+      {t:"FN",n:"ax.get_xlim() / ax.get_ylim()",d:"Get current limits"},
+      {t:"FN",n:"ax.set_xticks(ticks, labels, minor) / ax.set_yticks()",d:"Set tick positions"},
+      {t:"FN",n:"ax.set_xticklabels(labels, fontsize, rotation) / ax.set_yticklabels()",d:"Set tick labels"},
+      {t:"FN",n:"ax.set_xscale(value) / ax.set_yscale(value)",d:"'linear','log','symlog','logit'"},
+      {t:"FN",n:"ax.legend(handles, labels, loc, ncol, fontsize, title, bbox_to_anchor)",d:"Add legend"},
+      {t:"FN",n:"ax.get_legend_handles_labels()",d:"Return handles and labels for legend"},
+      {t:"FN",n:"ax.grid(visible, which, axis, color, linestyle, linewidth)",d:"Show/style grid"},
+      {t:"FN",n:"ax.axhline(y, xmin, xmax) / ax.axvline(x, ymin, ymax)",d:"Reference lines"},
+      {t:"FN",n:"ax.axhspan(ymin, ymax) / ax.axvspan(xmin, xmax)",d:"Shaded spans"},
+      {t:"FN",n:"ax.annotate(text, xy, xytext, arrowprops, fontsize)",d:"Annotate with arrow"},
+      {t:"FN",n:"ax.text(x, y, s, fontsize, color, ha, va, transform)",d:"Add text"},
+      {t:"FN",n:"ax.add_patch(patch)",d:"Add Artist patch (circle, rect, etc.)"},
+      {t:"FN",n:"ax.tick_params(axis, which, direction, length, width, labelsize, rotation)",d:"Tick style"},
+      {t:"FN",n:"ax.xaxis.set_major_locator(locator) / set_minor_locator()",d:"Set tick placement algorithm"},
+      {t:"FN",n:"ax.xaxis.set_major_formatter(formatter) / set_minor_formatter()",d:"Set tick label format"},
+      {t:"FN",n:"ax.invert_xaxis() / ax.invert_yaxis()",d:"Flip axis direction"},
+      {t:"FN",n:"ax.set_aspect(aspect, adjustable, anchor)",d:"Equal axes / specific ratio"},
+      {t:"FN",n:"ax.margins(x, y, tight)",d:"Set margins around data"},
+      {t:"FN",n:"ax.spines['top'].set_visible(False)",d:"Hide plot borders"},
+      {t:"FN",n:"ax.twinx() / ax.twiny()",d:"Create twin axes with shared axis"},
+      {t:"FN",n:"ax.cla()",d:"Clear axes"},
+      {t:"FN",n:"ax.set_visible(bool) / ax.set_alpha(alpha)",d:"Show/hide axes / set transparency"},
+      {t:"FN",n:"ax.set_facecolor(color)",d:"Background color of axes"},
+    ]},
+  ]},
+  { label:"matplotlib.patches", desc:"Shapes and patches for adding to axes", secs:[
+    { title:"Patch Classes", leaves:[
+      {t:"CL",n:"patches.Rectangle(xy, width, height, angle, color, alpha, linewidth)",d:"Rectangle / square"},
+      {t:"CL",n:"patches.Circle(xy, radius, color, alpha, linewidth)",d:"Circle"},
+      {t:"CL",n:"patches.Ellipse(xy, width, height, angle, color)",d:"Ellipse"},
+      {t:"CL",n:"patches.FancyArrowPatch(posA, posB, arrowstyle, connectionstyle, color)",d:"Arrow with fancy styles"},
+      {t:"CL",n:"patches.FancyBboxPatch(xy, width, height, boxstyle, color)",d:"Rounded/fancy box"},
+      {t:"CL",n:"patches.Arc(xy, width, height, angle, theta1, theta2)",d:"Arc segment"},
+      {t:"CL",n:"patches.Wedge(center, r, theta1, theta2, width, color)",d:"Pie slice / wedge"},
+      {t:"CL",n:"patches.Polygon(xy, closed, color, alpha)",d:"General polygon"},
+      {t:"CL",n:"patches.PathPatch(path, color, linewidth, fill)",d:"Arbitrary path"},
+      {t:"CL",n:"patches.RegularPolygon(xy, numVertices, radius, orientation)",d:"Regular n-gon"},
+      {t:"CL",n:"patches.Annulus(xy, r, width, color)",d:"Ring / annulus"},
+      {t:"FN",n:"ax.add_patch(patch)",d:"Add patch to axes"},
+      {t:"FN",n:"ax.add_collection(collection)",d:"Add PatchCollection for many shapes"},
+      {t:"CL",n:"collections.PatchCollection(patches, cmap, norm, alpha)",d:"Efficient many-patch rendering"},
+    ]},
+  ]},
+  { label:"matplotlib.colors", desc:"Color mapping, normalization, colormaps", secs:[
+    { title:"Colormaps & Norms", leaves:[
+      {t:"FN",n:"plt.get_cmap(name, lut) / matplotlib.colormaps[name]",d:"Get colormap by name"},
+      {t:"CL",n:"colors.Normalize(vmin, vmax, clip)",d:"Linear normalize to [0,1]"},
+      {t:"CL",n:"colors.LogNorm(vmin, vmax, clip)",d:"Log-scale normalization"},
+      {t:"CL",n:"colors.SymLogNorm(linthresh, linscale, vmin, vmax)",d:"Symmetric log around zero"},
+      {t:"CL",n:"colors.PowerNorm(gamma, vmin, vmax)",d:"Power-law normalization"},
+      {t:"CL",n:"colors.BoundaryNorm(boundaries, ncolors, clip, extend)",d:"Normalize to discrete bins"},
+      {t:"CL",n:"colors.CenteredNorm(vcenter, halfrange, clip)",d:"Center around arbitrary midpoint"},
+      {t:"CL",n:"colors.TwoSlopeNorm(vcenter, vmin, vmax)",d:"Different scales above/below vcenter"},
+      {t:"FN",n:"colors.to_rgb(c) / colors.to_rgba(c) / colors.to_hex(c)",d:"Convert color to format"},
+      {t:"FN",n:"colors.is_color_like(c)",d:"Check if valid color spec"},
+      {t:"CL",n:"colors.ListedColormap(colors, name, N)",d:"Colormap from list of colors"},
+      {t:"CL",n:"colors.LinearSegmentedColormap.from_list(name, colors, N)",d:"Smooth colormap from list"},
+      {t:"FN",n:"cm.ScalarMappable(norm, cmap)",d:"Map scalar data to colors"},
+    ]},
+  ]},
+  { label:"matplotlib.ticker", desc:"Tick locators and formatters", secs:[
+    { title:"Tick Locators", leaves:[
+      {t:"CL",n:"ticker.AutoLocator()",d:"Automatic 'nice' tick placement"},
+      {t:"CL",n:"ticker.MultipleLocator(base)",d:"Ticks at multiples of base"},
+      {t:"CL",n:"ticker.FixedLocator(locs)",d:"Ticks at specified positions"},
+      {t:"CL",n:"ticker.MaxNLocator(nbins, integer, steps)",d:"At most N ticks"},
+      {t:"CL",n:"ticker.LinearLocator(numticks)",d:"Exactly N evenly spaced"},
+      {t:"CL",n:"ticker.LogLocator(base, subs, numticks)",d:"Ticks for log scale"},
+      {t:"CL",n:"ticker.NullLocator()",d:"No ticks"},
+      {t:"CL",n:"ticker.IndexLocator(base, offset)",d:"Ticks at index positions"},
+      {t:"CL",n:"ticker.AutoMinorLocator(n)",d:"N minor ticks between major"},
+    ]},
+    { title:"Tick Formatters", leaves:[
+      {t:"CL",n:"ticker.FormatStrFormatter(fmt)",d:"Python format string e.g. '%0.2f'"},
+      {t:"CL",n:"ticker.StrMethodFormatter(fmt)",d:"str.format style"},
+      {t:"CL",n:"ticker.FuncFormatter(func)",d:"Custom function (val, pos) → str"},
+      {t:"CL",n:"ticker.ScalarFormatter(useOffset, useMathText)",d:"Default scalar formatter"},
+      {t:"CL",n:"ticker.LogFormatter(base, labelOnlyBase)",d:"Log scale formatter"},
+      {t:"CL",n:"ticker.PercentFormatter(xmax, decimals, symbol)",d:"Percentage labels"},
+      {t:"CL",n:"ticker.NullFormatter()",d:"No tick labels"},
+      {t:"CL",n:"ticker.EngFormatter(unit, places)",d:"Engineering notation (k, M, G…)"},
+      {t:"CL",n:"ticker.LogFormatterSciNotation()",d:"Scientific notation for log"},
+      {t:"CL",n:"ticker.FixedFormatter(seq)",d:"Fixed label strings"},
+    ]},
+  ]},
+  { label:"matplotlib.dates", desc:"Date/time axis handling", secs:[
+    { title:"Date Locators & Formatters", leaves:[
+      {t:"CL",n:"mdates.YearLocator(base, month, day, tz)",d:"Ticks at year boundaries"},
+      {t:"CL",n:"mdates.MonthLocator(bymonth, bymonthday, interval)",d:"Ticks at month boundaries"},
+      {t:"CL",n:"mdates.WeekdayLocator(byweekday, interval)",d:"Ticks on weekdays"},
+      {t:"CL",n:"mdates.DayLocator(bymonthday, interval)",d:"Ticks at day boundaries"},
+      {t:"CL",n:"mdates.HourLocator(byhour, interval)",d:"Ticks at hour boundaries"},
+      {t:"CL",n:"mdates.MinuteLocator(byminute, interval)",d:"Ticks at minute boundaries"},
+      {t:"CL",n:"mdates.AutoDateLocator(tz, minticks, maxticks)",d:"Auto choose appropriate level"},
+      {t:"CL",n:"mdates.DateFormatter(fmt, tz)",d:"strftime-style format string"},
+      {t:"CL",n:"mdates.AutoDateFormatter(locator, tz, defaultfmt)",d:"Auto formatter matching locator"},
+      {t:"CL",n:"mdates.ConciseDateFormatter(locator, tz)",d:"Compact date labels"},
+      {t:"FN",n:"mdates.date2num(d) / mdates.num2date(x)",d:"Convert datetime ↔ float"},
+    ]},
+  ]},
+  { label:"matplotlib.gridspec", desc:"Advanced subplot layout control", secs:[
+    { title:"GridSpec Tools", leaves:[
+      {t:"CL",n:"GridSpec(nrows, ncols, figure, left, right, top, bottom, wspace, hspace)",d:"Grid for subplots"},
+      {t:"CL",n:"GridSpecFromSubplotSpec(nrows, ncols, subplot_spec, wspace, hspace)",d:"Nested GridSpec"},
+      {t:"CL",n:"SubplotSpec",d:"Specifies location in GridSpec"},
+      {t:"FN",n:"fig.add_subplot(gs[i, j])",d:"Add axes at GridSpec position"},
+      {t:"FN",n:"fig.add_subplot(gs[0:2, 1:])",d:"Span multiple cells via slicing"},
+      {t:"CL",n:"ConstrainedLayout → fig.set_layout_engine('constrained')",d:"Auto space avoiding overlap"},
+      {t:"FN",n:"fig.add_gridspec(nrows, ncols, width_ratios, height_ratios)",d:"Create GridSpec from figure"},
+    ]},
+  ]},
+  { label:"matplotlib.animation", desc:"Create animated plots", secs:[
+    { title:"Animation Classes", leaves:[
+      {t:"CL",n:"animation.FuncAnimation(fig, func, frames, init_func, interval, blit, repeat)",d:"Animate by calling func each frame"},
+      {t:"CL",n:"animation.ArtistAnimation(fig, artists, interval, blit, repeat)",d:"Animate pre-created artists"},
+      {t:"FN",n:"anim.save(filename, writer, fps, dpi, extra_args)",d:"Save to file (mp4, gif, etc.)"},
+      {t:"FN",n:"anim.to_html5_video() / anim.to_jshtml()",d:"Embed in Jupyter notebook"},
+      {t:"CL",n:"animation.FFMpegWriter(fps, codec, bitrate)",d:"FFmpeg writer"},
+      {t:"CL",n:"animation.PillowWriter(fps)",d:"GIF via Pillow"},
+      {t:"CL",n:"animation.ImageMagickWriter(fps)",d:"GIF via ImageMagick"},
+    ]},
+  ]},
+  { label:"matplotlib.text & font", desc:"Text, annotations, math rendering", secs:[
+    { title:"Text & Math", leaves:[
+      {t:"CL",n:"text.Text(x, y, text, fontsize, fontweight, fontstyle, color, ha, va, rotation)",d:"Text artist"},
+      {t:"FN",n:"ax.text(x, y, s, transform=ax.transAxes)",d:"Axes-relative text position"},
+      {t:"FN",n:"ax.annotate(text, xy, xytext, xycoords, arrowprops, fontsize)",d:"Arrow annotation"},
+      {t:"CL",n:"text.Annotation(text, xy, xytext, xycoords, arrowprops)",d:"Annotation artist"},
+      {t:"FN",n:"matplotlib.rc('font', family='serif', size=12)",d:"Set font globally"},
+      {t:"AT",n:"plt.rcParams['font.family'] / 'font.size' / 'font.weight'",d:"Font rcParams"},
+      {t:"AT",n:"matplotlib.mathtext — r'$\\alpha + \\beta$'",d:"LaTeX-style math rendering"},
+      {t:"FN",n:"matplotlib.font_manager.fontManager.findfont(prop)",d:"Find font by properties"},
+      {t:"CL",n:"font_manager.FontProperties(family, style, size, weight)",d:"Font specification object"},
+    ]},
+  ]},
+  { label:"matplotlib.widgets", desc:"Interactive GUI widgets in plot windows", secs:[
+    { title:"Widget Classes", leaves:[
+      {t:"CL",n:"widgets.Slider(ax, label, valmin, valmax, valinit, orientation)",d:"Draggable slider"},
+      {t:"CL",n:"widgets.RangeSlider(ax, label, valmin, valmax, valinit)",d:"Two-handle range slider"},
+      {t:"CL",n:"widgets.Button(ax, label, color, hovercolor)",d:"Clickable button"},
+      {t:"CL",n:"widgets.CheckButtons(ax, labels, actives)",d:"Multi-checkbox"},
+      {t:"CL",n:"widgets.RadioButtons(ax, labels, active)",d:"Radio button group"},
+      {t:"CL",n:"widgets.TextBox(ax, label, initial, color, hovercolor)",d:"Text input box"},
+      {t:"CL",n:"widgets.SpanSelector(ax, onselect, direction, minspan)",d:"Select span on axis"},
+      {t:"CL",n:"widgets.RectangleSelector(ax, onselect, button, interactive)",d:"Select rectangle region"},
+      {t:"CL",n:"widgets.EllipseSelector / PolygonSelector / LassoSelector",d:"Other region selectors"},
+      {t:"CL",n:"widgets.Cursor(ax, useblit, color, linewidth)",d:"Crosshair cursor"},
+      {t:"CL",n:"widgets.MultiCursor(canvas, axes, useblit, horizOn, vertOn)",d:"Multi-axes cursor"},
+    ]},
+  ]},
+];
+
+function buildTree(data, container) {
+  data.forEach(ns => {
+    const nsNode = document.createElement('div'); nsNode.className = 'ns-node';
+    const nsHeader = document.createElement('div'); nsHeader.className = 'ns-header';
+    nsHeader.innerHTML = `<span class="toggle">▶</span><span class="badge b-ns">NS</span><span class="ns-label">${ns.label}</span><span class="ns-desc">${ns.desc}</span>`;
+    const nsChildren = document.createElement('div'); nsChildren.className = 'ns-children closed';
+    nsHeader.addEventListener('click', () => { const o=!nsChildren.classList.contains('closed'); nsChildren.classList.toggle('closed',o); nsHeader.querySelector('.toggle').classList.toggle('open',!o); });
+    ns.secs.forEach(sec => {
+      const secNode = document.createElement('div'); secNode.className='sec-node';
+      const secHeader = document.createElement('div'); secHeader.className='sec-header';
+      secHeader.innerHTML=`<span class="toggle">▶</span><span class="badge b-sec">§</span><span class="sec-label">${sec.title}</span>`;
+      const secChildren = document.createElement('div'); secChildren.className='sec-children closed';
+      secHeader.addEventListener('click',()=>{ const o=!secChildren.classList.contains('closed'); secChildren.classList.toggle('closed',o); secHeader.querySelector('.toggle').classList.toggle('open',!o); });
+      sec.leaves.forEach(leaf=>{
+        const bMap={FN:'b-fn',CL:'b-cl',AT:'b-at'};
+        const el=document.createElement('div'); el.className='leaf';
+        el.dataset.search=(leaf.n+' '+leaf.d).toLowerCase();
+        el.innerHTML=`<span class="badge ${bMap[leaf.t]||'b-fn'}">${leaf.t}</span><span class="lname">${leaf.n}</span><span class="ldesc">${leaf.d}</span>`;
+        secChildren.appendChild(el);
+      });
+      secNode.appendChild(secHeader); secNode.appendChild(secChildren); nsChildren.appendChild(secNode);
+    });
+    nsNode.appendChild(nsHeader); nsNode.appendChild(nsChildren); container.appendChild(nsNode);
+  });
+}
+function expandAll(){ document.querySelectorAll('.ns-children,.sec-children').forEach(c=>c.classList.remove('closed')); document.querySelectorAll('.toggle').forEach(t=>t.classList.add('open')); }
+function collapseAll(){ document.querySelectorAll('.ns-children,.sec-children').forEach(c=>c.classList.add('closed')); document.querySelectorAll('.toggle').forEach(t=>t.classList.remove('open')); }
+function filterTree(q){
+  q=q.toLowerCase().trim();
+  if(!q){ document.querySelectorAll('.leaf').forEach(l=>{l.classList.remove('hidden','highlight');}); document.querySelectorAll('.ns-children,.sec-children').forEach(c=>c.classList.add('closed')); document.querySelectorAll('.toggle').forEach(t=>t.classList.remove('open')); return; }
+  document.querySelectorAll('.leaf').forEach(leaf=>{
+    const match=leaf.dataset.search&&leaf.dataset.search.includes(q);
+    leaf.classList.toggle('hidden',!match); leaf.classList.toggle('highlight',match);
+    if(match){ let p=leaf.parentElement; while(p&&p.id!=='tree'){ if(p.classList.contains('sec-children')||p.classList.contains('ns-children')){ p.classList.remove('closed'); const prev=p.previousElementSibling; if(prev){const tog=prev.querySelector('.toggle');if(tog)tog.classList.add('open');} } p=p.parentElement; } }
+  });
+}
+buildTree(DATA, document.getElementById('tree'));
+</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+[
+  {
+    "icon": "🔢",
+    "name": "NumPy",
+    "libs": "numpy",
+    "desc": "Numerical computing, N-dimensional arrays, linear algebra, FFT, random, and broadcasting.",
+    "file": "numpy_tree.html",
+    "accent": "#3b82f6",
+    "accentLight": "#bfdbfe"
+  },
+  {
+    "icon": "🐼",
+    "name": "Pandas",
+    "libs": "pandas",
+    "desc": "DataFrames, Series, groupby, merging, time series, IO, and data wrangling tools.",
+    "file": "pandas_tree.html",
+    "accent": "#f97316",
+    "accentLight": "#fed7aa"
+  },
+  {
+    "icon": "🤖",
+    "name": "Scikit-learn",
+    "libs": "sklearn",
+    "desc": "ML algorithms, preprocessing, pipelines, model selection, metrics, and cross-validation.",
+    "file": "sklearn_tree.html",
+    "accent": "#ec4899",
+    "accentLight": "#fbcfe8"
+  },
+  {
+    "icon": "📊",
+    "name": "Matplotlib",
+    "libs": "matplotlib",
+    "desc": "2D plotting, figures, axes, colormaps, animations, backends, and pyplot API.",
+    "file": "matplotlib_tree.html",
+    "accent": "#22c55e",
+    "accentLight": "#bbf7d0"
+  },
+  {
+    "icon": "🌊",
+    "name": "Seaborn",
+    "libs": "seaborn",
+    "desc": "Statistical visualization, themes, distribution plots, categorical plots, and facet grids.",
+    "file": "seaborn_tree.html",
+    "accent": "#06b6d4",
+    "accentLight": "#a5f3fc"
+  },
+  {
+    "icon": "🔥",
+    "name": "PyTorch",
+    "libs": "torch",
+    "desc": "Tensors, autograd, neural network modules, optimizers, CUDA, and TorchScript.",
+    "file": "pytorch_tree.html",
+    "accent": "#ef4444",
+    "accentLight": "#fecaca"
+  },
+  {
+    "icon": "🔗",
+    "name": "AI & Scientific Stack",
+    "libs": "LangChain · SciPy · LangGraph · Google ADK",
+    "desc": "LLM chains, agents, tools, scientific computing, graph-based workflows, and AI agent SDKs.",
+    "file": "lang Chain, Sci py, Google ADK, Lang Graph.html",
+    "accent": "#8b5cf6",
+    "accentLight": "#ddd6fe"
+  }
+]

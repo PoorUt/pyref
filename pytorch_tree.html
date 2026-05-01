@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🔥 PyTorch Complete API Tree</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0f1117;
+    color: #e2e8f0;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.6rem;
+    color: #ee4c2c;
+    margin-bottom: 6px;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+  .subtitle { text-align: center; font-size: 0.78rem; color: #718096; margin-bottom: 18px; }
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap; }
+  .controls input {
+    padding: 8px 16px; border-radius: 8px; border: 1px solid #2d3748;
+    background: #1a202c; color: #e2e8f0; font-size: 0.85rem; outline: none; width: 340px;
+  }
+  .controls input:focus { border-color: #ee4c2c; }
+  .btn {
+    padding: 8px 14px; border-radius: 8px; border: 1px solid #2d3748;
+    background: #1a202c; color: #90cdf4; font-size: 0.78rem; cursor: pointer;
+  }
+  .btn:hover { background: #2d3748; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: #718096; }
+  .badge {
+    font-size: 0.6rem; padding: 2px 7px; border-radius: 20px; font-weight: 700; white-space: nowrap;
+  }
+  .b-ns   { background: #2b4a7a; color: #90cdf4; }
+  .b-sec  { background: #1a2a3a; color: #63b3ed; }
+  .b-cl   { background: #2d4a2d; color: #68d391; }
+  .b-fn   { background: #4a3a1e; color: #f6ad55; }
+  .b-tl   { background: #3a2d4a; color: #b794f4; }
+  .b-op   { background: #4a2d2d; color: #fc8181; }
+  .b-ls   { background: #2d3d4a; color: #63b3ed; }
+  .tree-root { max-width: 1100px; margin: 0 auto; }
+  .ns-node { margin: 6px 0; }
+  .ns-header {
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    border-radius: 9px; padding: 8px 14px;
+    background: #1a202c; border: 1px solid #2d3748;
+    transition: background 0.15s;
+  }
+  .ns-header:hover { background: #232b38; border-color: #ee4c2c44; }
+  .toggle { font-size: 0.65rem; color: #718096; min-width: 12px; transition: transform 0.18s; }
+  .toggle.open { transform: rotate(90deg); }
+  .ns-label { font-size: 0.95rem; font-weight: 700; color: #e2e8f0; flex: 1; }
+  .ns-desc { font-size: 0.72rem; color: #718096; text-align: right; max-width: 300px; }
+  .ns-children { padding-left: 28px; border-left: 2px solid #2d3748; margin-left: 18px; overflow: hidden; }
+  .ns-children.closed { display: none; }
+  .sec-node { margin: 4px 0; }
+  .sec-header {
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    border-radius: 7px; padding: 5px 10px; transition: background 0.13s;
+  }
+  .sec-header:hover { background: #1a202c; }
+  .sec-label { font-size: 0.82rem; font-weight: 600; color: #90cdf4; flex: 1; }
+  .sec-children { padding-left: 20px; border-left: 1px solid #2d3748; margin-left: 14px; overflow: hidden; }
+  .sec-children.closed { display: none; }
+  .leaf {
+    display: flex; align-items: flex-start; gap: 8px; padding: 4px 10px 4px 14px;
+    border-radius: 5px; margin: 2px 0; font-size: 0.76rem; color: #a0aec0;
+    transition: background 0.1s;
+  }
+  .leaf:hover { background: #1a202c; }
+  .leaf .lname { font-weight: 600; color: #cbd5e0; min-width: 220px; }
+  .leaf .ldesc { color: #718096; font-size: 0.7rem; }
+  .leaf.highlight { background: #2d2a00 !important; }
+  .leaf.hidden { display: none; }
+</style>
+<style>
+/* ── WHITE THEME OVERRIDE ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+body {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, #94a3b8 1.5px, transparent 1.5px);
+  background-size: 28px 28px;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+.back-home {
+  position: relative; z-index: 2;
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-bottom: 20px; padding: 7px 14px;
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  background: rgba(255,255,255,0.9); color: #475569;
+  font-size: 0.78rem; font-weight: 600; text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.back-home:hover { border-color: #dc2626; color: #dc2626; }
+h1, .subtitle, .controls, .legend, .tree-root { position: relative; z-index: 1; }
+h1 { color: #dc2626 !important; letter-spacing: 1px; }
+.subtitle { color: #64748b !important; }
+.controls input {
+  background: #f8fafc !important; border-color: #cbd5e0 !important;
+  color: #1e293b !important;
+}
+.controls input:focus { border-color: #dc2626 !important; }
+.controls input::placeholder { color: #94a3b8; }
+.btn { background: #f8fafc !important; border-color: #cbd5e0 !important; color: #dc2626 !important; }
+.btn:hover { background: #fef2f2 !important; border-color: #fca5a5 !important; }
+.legend-item { color: #64748b !important; }
+.b-ns { background: #dbeafe !important; color: #1d4ed8 !important; }
+.b-cl { background: #dcfce7 !important; color: #15803d !important; }
+.b-fn { background: #fef3c7 !important; color: #92400e !important; }
+.b-tl { background: #ede9fe !important; color: #5b21b6 !important; }
+.b-op { background: #fee2e2 !important; color: #991b1b !important; }
+.b-ls { background: #e0f2fe !important; color: #075985 !important; }
+.b-sec { background: #e0f2fe !important; color: #075985 !important; }
+.ns-header { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+.ns-header:hover { background: #fef2f2 !important; border-color: #fca5a5 !important; }
+.ns-label { color: #0f172a !important; }
+.ns-desc { color: #64748b !important; }
+.toggle { color: #94a3b8 !important; }
+.ns-children { border-left-color: #e2e8f0 !important; }
+.sec-header:hover { background: #f8fafc !important; }
+.sec-label { color: #b91c1c !important; }
+.sec-children { border-left-color: #e2e8f0 !important; }
+.leaf { color: #475569 !important; }
+.leaf:hover { background: #fef2f2 !important; }
+.leaf .lname { color: #1e293b !important; }
+.leaf .ldesc { color: #64748b !important; }
+.leaf.highlight { background: #fef9c3 !important; }
+</style>
+</head>
+<body>
+<a class="back-home" href="index.html">← Home</a>
+<h1>🔥 PyTorch — Complete API Reference Tree</h1>
+<p class="subtitle">Click any section to expand/collapse &nbsp;•&nbsp; Use search to filter by name or description</p>
+<div class="controls">
+  <input id="search" type="text" placeholder="Search: e.g. Adam, Conv2d, autograd, loss..." oninput="filterTree(this.value)"/>
+  <button class="btn" onclick="expandAll()">Expand All</button>
+  <button class="btn" onclick="collapseAll()">Collapse All</button>
+</div>
+<div class="legend">
+  <div class="legend-item"><span class="badge b-ns">NS</span> Namespace</div>
+  <div class="legend-item"><span class="badge b-cl">CL</span> Class</div>
+  <div class="legend-item"><span class="badge b-fn">FN</span> Function</div>
+  <div class="legend-item"><span class="badge b-tl">TL</span> Tool/Utility</div>
+  <div class="legend-item"><span class="badge b-op">OP</span> Optimizer</div>
+  <div class="legend-item"><span class="badge b-ls">LS</span> Loss Function</div>
+</div>
+<div class="tree-root" id="tree"></div>
+<script>
+const DATA = [
+  { label:"torch", desc:"Core namespace — tensors, math, device management, serialization", secs:[
+    { title:"Tensor Creation", leaves:[
+      {t:"FN",n:"torch.tensor(data)",d:"Create tensor from Python list, NumPy array, etc."},
+      {t:"FN",n:"torch.zeros(size) / torch.ones(size)",d:"Filled with 0s or 1s"},
+      {t:"FN",n:"torch.full(size, fill_value)",d:"Fill with specific scalar"},
+      {t:"FN",n:"torch.rand(size)",d:"Uniform random [0,1)"},
+      {t:"FN",n:"torch.randn(size)",d:"Normal distribution (mean=0, std=1)"},
+      {t:"FN",n:"torch.randint(low, high, size)",d:"Random integers"},
+      {t:"FN",n:"torch.arange(start, end, step)",d:"Like Python range"},
+      {t:"FN",n:"torch.linspace(start, end, steps)",d:"Evenly spaced values"},
+      {t:"FN",n:"torch.eye(n)",d:"Identity matrix"},
+      {t:"FN",n:"torch.empty(size)",d:"Uninitialized memory"},
+      {t:"FN",n:"torch.from_numpy(ndarray)",d:"NumPy → Tensor (shared memory)"},
+      {t:"FN",n:"torch.zeros_like(t) / ones_like(t)",d:"Same shape/dtype as t"},
+      {t:"FN",n:"torch.clone(t)",d:"Deep copy"},
+    ]},
+    { title:"Tensor Class (torch.Tensor) — Attributes", leaves:[
+      {t:"CL",n:".shape / .size()",d:"Tuple of dimensions"},
+      {t:"CL",n:".ndim / .dim()",d:"Number of dimensions"},
+      {t:"CL",n:".dtype",d:"e.g. torch.float32, torch.int64"},
+      {t:"CL",n:".device",d:"cpu / cuda:0 etc."},
+      {t:"CL",n:".requires_grad",d:"Is gradient tracked?"},
+      {t:"CL",n:".grad",d:"Accumulated gradient after backward()"},
+      {t:"CL",n:".grad_fn",d:"Node in computation graph"},
+      {t:"CL",n:".is_leaf",d:"True if created by user (not ops)"},
+      {t:"CL",n:".data",d:"Raw tensor data without autograd"},
+      {t:"CL",n:".T / .mT",d:"Transpose / matrix transpose"},
+    ]},
+    { title:"Tensor Class — Indexing & Reshaping", leaves:[
+      {t:"CL",n:"t[i, j] / t[:, 1:3]",d:"Standard indexing & slicing"},
+      {t:"CL",n:".view(shape)",d:"Reshape (requires contiguous)"},
+      {t:"CL",n:".reshape(shape)",d:"Reshape (copies if needed)"},
+      {t:"CL",n:".contiguous()",d:"Force contiguous memory layout"},
+      {t:"CL",n:".permute(*dims)",d:"Reorder dimensions"},
+      {t:"CL",n:".transpose(dim0, dim1)",d:"Swap two dimensions"},
+      {t:"CL",n:".squeeze(dim)",d:"Remove size-1 dimensions"},
+      {t:"CL",n:".unsqueeze(dim)",d:"Insert size-1 dimension"},
+      {t:"CL",n:".expand(size)",d:"Broadcast without copy"},
+      {t:"CL",n:".repeat(*sizes)",d:"Tile tensor"},
+      {t:"CL",n:".flatten(start, end)",d:"Flatten dims to 1D"},
+      {t:"FN",n:"torch.cat(tensors, dim)",d:"Concatenate along dim"},
+      {t:"FN",n:"torch.stack(tensors, dim)",d:"Stack along new dim"},
+      {t:"FN",n:"torch.chunk(t, n, dim)",d:"Split into n equal chunks"},
+      {t:"FN",n:"torch.split(t, sizes, dim)",d:"Split by sizes"},
+    ]},
+    { title:"Tensor Class — Type & Device", leaves:[
+      {t:"CL",n:".to(device=..., dtype=...)",d:"Move/cast in one call"},
+      {t:"CL",n:".cuda() / .cpu()",d:"Move to GPU or CPU"},
+      {t:"CL",n:".float() / .double() / .half() / .int()",d:"Quick dtype cast"},
+      {t:"CL",n:".type(dtype)",d:"Cast to dtype string"},
+      {t:"CL",n:".item()",d:"Scalar Python value from 1-element tensor"},
+      {t:"CL",n:".numpy()",d:"Tensor → NumPy (CPU, no grad)"},
+      {t:"CL",n:".tolist()",d:"Tensor → Python list"},
+    ]},
+    { title:"Tensor Class — Math & Reductions", leaves:[
+      {t:"CL",n:".add() .sub() .mul() .div()",d:"Element-wise arithmetic"},
+      {t:"CL",n:".matmul(t) or @",d:"Matrix multiplication"},
+      {t:"CL",n:".sum(dim) / .mean(dim) / .prod(dim)",d:"Reductions"},
+      {t:"CL",n:".max(dim) / .min(dim) / .argmax() / .argmin()",d:"Max/min with indices"},
+      {t:"CL",n:".std(dim) / .var(dim)",d:"Statistics"},
+      {t:"CL",n:".norm(p, dim)",d:"p-norm"},
+      {t:"CL",n:".clamp(min, max)",d:"Clip values"},
+      {t:"CL",n:".abs() / .sign() / .pow(n)",d:"Element math"},
+      {t:"CL",n:".log() / .exp() / .sqrt()",d:"Element transcendentals"},
+      {t:"CL",n:".masked_fill(mask, val)",d:"Fill where mask is True"},
+      {t:"FN",n:"torch.where(cond, x, y)",d:"Conditional element selection"},
+      {t:"FN",n:"torch.einsum(equation, *tensors)",d:"Einstein summation convention"},
+    ]},
+    { title:"Tensor Class — Autograd", leaves:[
+      {t:"CL",n:".backward(gradient=None)",d:"Compute gradients via backprop"},
+      {t:"CL",n:".detach()",d:"Remove from computation graph"},
+      {t:"CL",n:".detach_()",d:"In-place detach"},
+      {t:"CL",n:".requires_grad_(True)",d:"Enable gradient tracking in-place"},
+    ]},
+    { title:"Math & Linear Algebra", leaves:[
+      {t:"FN",n:"torch.matmul(a, b)",d:"General matrix multiply (broadcasts)"},
+      {t:"FN",n:"torch.mm(a, b)",d:"Strict 2D matrix multiply"},
+      {t:"FN",n:"torch.bmm(a, b)",d:"Batched matrix multiply"},
+      {t:"FN",n:"torch.linalg.svd()",d:"Singular value decomposition"},
+      {t:"FN",n:"torch.linalg.qr()",d:"QR decomposition"},
+      {t:"FN",n:"torch.linalg.eig() / eigh()",d:"Eigenvalues/vectors"},
+      {t:"FN",n:"torch.linalg.solve()",d:"Solve Ax = b"},
+      {t:"FN",n:"torch.linalg.inv()",d:"Matrix inverse"},
+      {t:"FN",n:"torch.linalg.norm()",d:"Matrix/vector norm"},
+      {t:"FN",n:"torch.linalg.det() / slogdet()",d:"Determinant"},
+      {t:"FN",n:"torch.fft.fft() / ifft() / rfft()",d:"Fourier transforms"},
+      {t:"FN",n:"torch.cumsum(t, dim) / cumprod(t, dim)",d:"Cumulative ops"},
+      {t:"FN",n:"torch.sort(t, dim) / argsort()",d:"Sorting"},
+      {t:"FN",n:"torch.topk(t, k)",d:"Top-k values & indices"},
+      {t:"FN",n:"torch.unique(t)",d:"Unique elements"},
+      {t:"FN",n:"torch.histc(t, bins)",d:"Histogram"},
+    ]},
+    { title:"Device & CUDA Management", leaves:[
+      {t:"FN",n:"torch.cuda.is_available()",d:"Check if GPU is accessible"},
+      {t:"FN",n:"torch.cuda.device_count()",d:"Number of GPUs"},
+      {t:"FN",n:"torch.cuda.current_device()",d:"Index of active GPU"},
+      {t:"FN",n:"torch.cuda.get_device_name(i)",d:"GPU model name"},
+      {t:"FN",n:"torch.cuda.memory_allocated()",d:"Memory used by tensors"},
+      {t:"FN",n:"torch.cuda.memory_reserved()",d:"Total memory reserved"},
+      {t:"FN",n:"torch.cuda.empty_cache()",d:"Release unused cached memory"},
+      {t:"FN",n:"torch.device('cuda:0' / 'cpu' / 'mps')",d:"Create device object"},
+      {t:"FN",n:"torch.set_default_device(device)",d:"Global default device"},
+      {t:"FN",n:"torch.backends.cudnn.benchmark = True",d:"Optimize conv for fixed sizes"},
+    ]},
+    { title:"Serialization", leaves:[
+      {t:"FN",n:"torch.save(obj, path)",d:"Serialize tensor/model/dict"},
+      {t:"FN",n:"torch.load(path, map_location)",d:"Deserialize"},
+      {t:"FN",n:"model.state_dict()",d:"Ordered dict of parameters"},
+      {t:"FN",n:"model.load_state_dict(state_dict)",d:"Restore parameters"},
+    ]},
+    { title:"Random & Reproducibility", leaves:[
+      {t:"FN",n:"torch.manual_seed(seed)",d:"Set global RNG seed"},
+      {t:"FN",n:"torch.cuda.manual_seed_all(seed)",d:"Set GPU RNG seeds"},
+      {t:"FN",n:"torch.Generator()",d:"Isolated RNG object"},
+      {t:"FN",n:"torch.bernoulli(p)",d:"Bernoulli samples"},
+      {t:"FN",n:"torch.multinomial(weights, n)",d:"Weighted sampling"},
+      {t:"FN",n:"torch.normal(mean, std)",d:"Normal samples"},
+    ]},
+  ]},
+  { label:"torch.nn", desc:"Neural network layers, containers, losses — stateful modules", secs:[
+    { title:"Base Classes", leaves:[
+      {t:"CL",n:"nn.Module",d:"Base for ALL models — implement forward()"},
+      {t:"CL",n:"nn.Parameter",d:"Tensor automatically registered as parameter"},
+      {t:"CL",n:"nn.Sequential(*layers)",d:"Chain layers; calls them in order"},
+      {t:"CL",n:"nn.ModuleList([...])",d:"List of modules tracked by PyTorch"},
+      {t:"CL",n:"nn.ModuleDict({...})",d:"Dict of modules tracked by PyTorch"},
+      {t:"CL",n:"nn.ParameterList / ParameterDict",d:"Like above but for parameters"},
+    ]},
+    { title:"nn.Module — Key Methods", leaves:[
+      {t:"CL",n:".forward(x)",d:"Define computation (called via __call__)"},
+      {t:"CL",n:".parameters() / named_parameters()",d:"Iterator over learnable weights"},
+      {t:"CL",n:".state_dict() / load_state_dict()",d:"Save/restore state"},
+      {t:"CL",n:".train() / .eval()",d:"Toggle training/inference mode"},
+      {t:"CL",n:".to(device/dtype)",d:"Move all parameters"},
+      {t:"CL",n:".zero_grad()",d:"Clear all .grad fields"},
+      {t:"CL",n:".apply(fn)",d:"Recursively apply function to submodules"},
+      {t:"CL",n:".requires_grad_(False)",d:"Freeze all parameters"},
+      {t:"CL",n:".children() / named_children()",d:"Direct submodules"},
+      {t:"CL",n:".modules() / named_modules()",d:"All submodules recursively"},
+      {t:"CL",n:".register_buffer(name, tensor)",d:"Non-trainable persistent state"},
+      {t:"CL",n:".register_forward_hook(fn)",d:"Hook on forward output"},
+      {t:"CL",n:".register_backward_hook(fn)",d:"Hook on backward"},
+    ]},
+    { title:"Linear & Embedding Layers", leaves:[
+      {t:"CL",n:"nn.Linear(in_features, out_features, bias=True)",d:"y = xW^T + b"},
+      {t:"CL",n:"nn.Bilinear(in1, in2, out)",d:"y = x1 A x2 + b"},
+      {t:"CL",n:"nn.Embedding(num_embeddings, embedding_dim)",d:"Lookup table"},
+      {t:"CL",n:"nn.EmbeddingBag(num_emb, dim, mode)",d:"Sum/mean/max over bag"},
+      {t:"CL",n:"nn.Identity()",d:"Pass input unchanged"},
+      {t:"CL",n:"nn.LazyLinear(out_features)",d:"Infers in_features at first forward"},
+    ]},
+    { title:"Convolutional Layers", leaves:[
+      {t:"CL",n:"nn.Conv1d(in_ch, out_ch, kernel_size, stride, padding)",d:"1D convolution"},
+      {t:"CL",n:"nn.Conv2d(in_ch, out_ch, kernel_size, ...)",d:"2D convolution (images)"},
+      {t:"CL",n:"nn.Conv3d(in_ch, out_ch, kernel_size, ...)",d:"3D convolution (video/volume)"},
+      {t:"CL",n:"nn.ConvTranspose1d/2d/3d",d:"Transposed (fractionally-strided) conv"},
+      {t:"CL",n:"nn.Unfold(kernel_size) / Fold()",d:"Extract/combine sliding patches"},
+      {t:"CL",n:"nn.LazyConv2d(out_ch, kernel_size)",d:"Auto-infer in_channels"},
+    ]},
+    { title:"Recurrent Layers", leaves:[
+      {t:"CL",n:"nn.RNN(input_size, hidden_size, num_layers)",d:"Vanilla RNN"},
+      {t:"CL",n:"nn.LSTM(input_size, hidden_size, ...)",d:"Long Short-Term Memory"},
+      {t:"CL",n:"nn.GRU(input_size, hidden_size, ...)",d:"Gated Recurrent Unit"},
+      {t:"CL",n:"nn.RNNCell(input, hidden)",d:"Single RNN step"},
+      {t:"CL",n:"nn.LSTMCell(input, hidden)",d:"Single LSTM step"},
+      {t:"CL",n:"nn.GRUCell(input, hidden)",d:"Single GRU step"},
+    ]},
+    { title:"Attention & Transformer Layers", leaves:[
+      {t:"CL",n:"nn.MultiheadAttention(embed_dim, num_heads)",d:"Scaled dot-product multi-head attention"},
+      {t:"CL",n:"nn.Transformer(d_model, nhead, ...)",d:"Full encoder-decoder transformer"},
+      {t:"CL",n:"nn.TransformerEncoder(encoder_layer, num_layers)",d:"Stack of encoder layers"},
+      {t:"CL",n:"nn.TransformerDecoder(decoder_layer, num_layers)",d:"Stack of decoder layers"},
+      {t:"CL",n:"nn.TransformerEncoderLayer(d_model, nhead, ...)",d:"Self-attn + FFN + LayerNorm"},
+      {t:"CL",n:"nn.TransformerDecoderLayer(d_model, nhead, ...)",d:"Self-attn + Cross-attn + FFN"},
+    ]},
+    { title:"Normalization Layers", leaves:[
+      {t:"CL",n:"nn.BatchNorm1d/2d/3d(num_features)",d:"Normalize over batch"},
+      {t:"CL",n:"nn.LayerNorm(normalized_shape)",d:"Normalize over feature dims"},
+      {t:"CL",n:"nn.GroupNorm(num_groups, num_channels)",d:"Normalize over groups"},
+      {t:"CL",n:"nn.InstanceNorm1d/2d/3d(num_features)",d:"Normalize per sample per channel"},
+      {t:"CL",n:"nn.LocalResponseNorm(size)",d:"Local contrast normalization"},
+      {t:"CL",n:"nn.SyncBatchNorm(num_features)",d:"BatchNorm across processes (DDP)"},
+    ]},
+    { title:"Pooling Layers", leaves:[
+      {t:"CL",n:"nn.MaxPool1d/2d/3d(kernel, stride, padding)",d:"Max pooling"},
+      {t:"CL",n:"nn.AvgPool1d/2d/3d(kernel, stride, padding)",d:"Average pooling"},
+      {t:"CL",n:"nn.AdaptiveMaxPool1d/2d/3d(output_size)",d:"Adaptive max to target size"},
+      {t:"CL",n:"nn.AdaptiveAvgPool1d/2d/3d(output_size)",d:"Adaptive avg to target size"},
+      {t:"CL",n:"nn.MaxUnpool2d(kernel, stride)",d:"Inverse of MaxPool (with indices)"},
+      {t:"CL",n:"nn.FractionalMaxPool2d(kernel, output_ratio)",d:"Fractional max pool"},
+      {t:"CL",n:"nn.LPPool2d(norm_type, kernel)",d:"Power-average pooling"},
+    ]},
+    { title:"Activation Functions", leaves:[
+      {t:"CL",n:"nn.ReLU(inplace=False)",d:"max(0, x) — most common"},
+      {t:"CL",n:"nn.LeakyReLU(negative_slope)",d:"Allows small negative slope"},
+      {t:"CL",n:"nn.PReLU(num_parameters)",d:"Learnable slope"},
+      {t:"CL",n:"nn.RReLU(lower, upper)",d:"Random slope (training regularization)"},
+      {t:"CL",n:"nn.ELU(alpha)",d:"Exponential linear unit"},
+      {t:"CL",n:"nn.SELU()",d:"Self-normalizing ELU"},
+      {t:"CL",n:"nn.GELU()",d:"Gaussian error LU — used in transformers"},
+      {t:"CL",n:"nn.SiLU()",d:"Sigmoid-weighted linear (Swish)"},
+      {t:"CL",n:"nn.Mish()",d:"Self-regularizing activation"},
+      {t:"CL",n:"nn.Sigmoid()",d:"σ(x) — outputs (0,1)"},
+      {t:"CL",n:"nn.Tanh()",d:"tanh(x) — outputs (-1,1)"},
+      {t:"CL",n:"nn.Softmax(dim) / LogSoftmax(dim)",d:"Probability distribution"},
+      {t:"CL",n:"nn.Softplus(beta) / Softshrink(lambd)",d:"Smooth/shrink"},
+      {t:"CL",n:"nn.Hardswish() / Hardsigmoid()",d:"Mobile-optimized approximations"},
+      {t:"CL",n:"nn.GLU(dim)",d:"Gated linear unit"},
+      {t:"CL",n:"nn.Threshold(threshold, value)",d:"Custom hard threshold"},
+    ]},
+    { title:"Dropout / Regularization", leaves:[
+      {t:"CL",n:"nn.Dropout(p=0.5)",d:"Zero random elements"},
+      {t:"CL",n:"nn.Dropout2d(p)",d:"Zero random channels"},
+      {t:"CL",n:"nn.Dropout3d(p)",d:"Zero random 3D channels"},
+      {t:"CL",n:"nn.AlphaDropout(p)",d:"SELU-compatible dropout"},
+      {t:"CL",n:"nn.FeatureAlphaDropout(p)",d:"Channel-wise alpha dropout"},
+    ]},
+    { title:"Loss Functions (nn.*Loss)", leaves:[
+      {t:"LS",n:"nn.MSELoss(reduction='mean')",d:"Mean Squared Error — regression"},
+      {t:"LS",n:"nn.L1Loss(reduction='mean')",d:"Mean Absolute Error — robust regression"},
+      {t:"LS",n:"nn.SmoothL1Loss(beta)",d:"Huber loss variant"},
+      {t:"LS",n:"nn.HuberLoss(delta)",d:"Huber loss — smooth L1"},
+      {t:"LS",n:"nn.CrossEntropyLoss(weight, ignore_index)",d:"Softmax + NLL — classification"},
+      {t:"LS",n:"nn.NLLLoss(weight, ignore_index)",d:"Negative log-likelihood"},
+      {t:"LS",n:"nn.BCELoss(weight)",d:"Binary cross entropy (needs sigmoid)"},
+      {t:"LS",n:"nn.BCEWithLogitsLoss(pos_weight)",d:"Sigmoid + BCE — numerically stable"},
+      {t:"LS",n:"nn.KLDivLoss(reduction, log_target)",d:"KL divergence"},
+      {t:"LS",n:"nn.CTCLoss(blank)",d:"CTC loss for seq2seq (speech/OCR)"},
+      {t:"LS",n:"nn.TripletMarginLoss(margin, p)",d:"Triplet loss for metric learning"},
+      {t:"LS",n:"nn.CosineEmbeddingLoss(margin)",d:"Cosine similarity loss"},
+      {t:"LS",n:"nn.MarginRankingLoss(margin)",d:"Pairwise ranking"},
+      {t:"LS",n:"nn.MultiLabelMarginLoss()",d:"Multi-label classification"},
+      {t:"LS",n:"nn.MultiMarginLoss(p, margin)",d:"Multi-class margin"},
+      {t:"LS",n:"nn.PoissonNLLLoss(log_input)",d:"Poisson negative log-likelihood"},
+      {t:"LS",n:"nn.GaussianNLLLoss(full, eps)",d:"Gaussian negative log-likelihood"},
+    ]},
+    { title:"Padding, Upsampling & Misc Layers", leaves:[
+      {t:"CL",n:"nn.ZeroPad2d(padding)",d:"Pad with zeros"},
+      {t:"CL",n:"nn.ReflectionPad1d/2d(padding)",d:"Reflect boundary"},
+      {t:"CL",n:"nn.ReplicationPad1d/2d/3d(padding)",d:"Replicate boundary"},
+      {t:"CL",n:"nn.ConstantPad1d/2d/3d(padding, value)",d:"Fill with constant"},
+      {t:"CL",n:"nn.Upsample(size, scale_factor, mode)",d:"Resize feature maps"},
+      {t:"CL",n:"nn.PixelShuffle(upscale_factor)",d:"Sub-pixel convolution upscale"},
+      {t:"CL",n:"nn.PixelUnshuffle(downscale_factor)",d:"Inverse of PixelShuffle"},
+      {t:"CL",n:"nn.Flatten(start_dim, end_dim)",d:"Flatten dimensions"},
+      {t:"CL",n:"nn.Unflatten(dim, unflattened_size)",d:"Reshape flat to multi-dim"},
+      {t:"CL",n:"nn.ChannelShuffle(groups)",d:"Inter-group channel shuffle"},
+    ]},
+  ]},
+  { label:"torch.nn.functional (F)", desc:"Stateless function versions of all nn layers — pass weights explicitly", secs:[
+    { title:"Activations & Losses", leaves:[
+      {t:"FN",n:"F.relu() / F.leaky_relu() / F.elu() / F.gelu()",d:"Activation functions"},
+      {t:"FN",n:"F.sigmoid() / F.tanh() / F.softmax(t, dim)",d:"Classic activations"},
+      {t:"FN",n:"F.cross_entropy(input, target)",d:"CrossEntropyLoss as function"},
+      {t:"FN",n:"F.mse_loss() / F.l1_loss() / F.huber_loss()",d:"Regression losses"},
+      {t:"FN",n:"F.binary_cross_entropy() / F.binary_cross_entropy_with_logits()",d:"BCE variants"},
+      {t:"FN",n:"F.nll_loss() / F.kl_div() / F.poisson_nll_loss()",d:"Other losses"},
+      {t:"FN",n:"F.one_hot(tensor, num_classes)",d:"One-hot encoding"},
+    ]},
+    { title:"Layer Functions", leaves:[
+      {t:"FN",n:"F.linear(input, weight, bias)",d:"Fully connected — explicit weights"},
+      {t:"FN",n:"F.conv2d(input, weight, bias, stride, padding)",d:"2D conv — explicit kernel"},
+      {t:"FN",n:"F.conv_transpose2d(input, weight, ...)",d:"Transposed conv"},
+      {t:"FN",n:"F.max_pool2d() / F.avg_pool2d()",d:"Pooling functions"},
+      {t:"FN",n:"F.adaptive_avg_pool2d() / adaptive_max_pool2d()",d:"Adaptive pooling"},
+      {t:"FN",n:"F.batch_norm(input, running_mean, ...)",d:"Batch normalization"},
+      {t:"FN",n:"F.layer_norm(input, normalized_shape, ...)",d:"Layer normalization"},
+      {t:"FN",n:"F.dropout(input, p, training)",d:"Dropout function"},
+      {t:"FN",n:"F.embedding(input, weight)",d:"Embedding lookup"},
+    ]},
+    { title:"Attention & Utilities", leaves:[
+      {t:"FN",n:"F.scaled_dot_product_attention(q, k, v, attn_mask)",d:"FlashAttention-backed — fastest attention"},
+      {t:"FN",n:"F.multi_head_attention_forward(...)",d:"Low-level MHA function"},
+      {t:"FN",n:"F.pad(input, pad, mode, value)",d:"Pad tensor"},
+      {t:"FN",n:"F.interpolate(input, size, mode)",d:"Resize / upsample"},
+      {t:"FN",n:"F.normalize(input, p=2, dim=1)",d:"Lp normalize"},
+      {t:"FN",n:"F.cosine_similarity(x1, x2, dim)",d:"Cosine distance"},
+      {t:"FN",n:"F.pairwise_distance(x1, x2, p)",d:"Pairwise Lp distance"},
+      {t:"FN",n:"F.grid_sample(input, grid)",d:"Spatial transformer sampling"},
+      {t:"FN",n:"F.affine_grid(theta, size)",d:"Affine transform grid"},
+    ]},
+  ]},
+  { label:"torch.optim", desc:"Gradient-based parameter optimizers + LR schedulers", secs:[
+    { title:"Optimizers", leaves:[
+      {t:"OP",n:"optim.SGD(params, lr, momentum, weight_decay)",d:"Stochastic gradient descent + Nesterov"},
+      {t:"OP",n:"optim.Adam(params, lr=1e-3, betas, eps)",d:"Adaptive moment estimation"},
+      {t:"OP",n:"optim.AdamW(params, lr, weight_decay)",d:"Adam with decoupled weight decay"},
+      {t:"OP",n:"optim.RMSprop(params, lr, alpha, momentum)",d:"RMS gradient normalization"},
+      {t:"OP",n:"optim.Adagrad(params, lr, lr_decay)",d:"Accumulate squared gradients"},
+      {t:"OP",n:"optim.Adadelta(params, rho, eps)",d:"No learning rate Adagrad variant"},
+      {t:"OP",n:"optim.Adamax(params, lr, betas)",d:"Adam with L-inf norm"},
+      {t:"OP",n:"optim.NAdam(params, lr, betas)",d:"Nesterov-Adam"},
+      {t:"OP",n:"optim.RAdam(params, lr, betas)",d:"Rectified Adam — variance fix"},
+      {t:"OP",n:"optim.LBFGS(params, lr, max_iter)",d:"Quasi-Newton full-batch"},
+      {t:"OP",n:"optim.SparseAdam(params, lr, betas)",d:"For sparse gradients (embeddings)"},
+      {t:"OP",n:"optim.Rprop(params, lr, etas)",d:"Resilient backprop"},
+      {t:"OP",n:"optim.ASGD(params, lr, lambd, alpha)",d:"Averaged SGD"},
+    ]},
+    { title:"Optimizer Key Methods", leaves:[
+      {t:"CL",n:".step(closure=None)",d:"Update parameters based on .grad"},
+      {t:"CL",n:".zero_grad(set_to_none=True)",d:"Clear gradients"},
+      {t:"CL",n:".state_dict() / load_state_dict()",d:"Save/restore optimizer state"},
+      {t:"CL",n:".add_param_group(param_group)",d:"Add new group (e.g., different LR)"},
+      {t:"CL",n:".param_groups",d:"List of dicts with params + hyperparams"},
+    ]},
+    { title:"LR Schedulers (torch.optim.lr_scheduler)", leaves:[
+      {t:"CL",n:"StepLR(optimizer, step_size, gamma)",d:"Decay by gamma every step_size epochs"},
+      {t:"CL",n:"MultiStepLR(optimizer, milestones, gamma)",d:"Decay at specific epoch milestones"},
+      {t:"CL",n:"ExponentialLR(optimizer, gamma)",d:"Decay by gamma every epoch"},
+      {t:"CL",n:"CosineAnnealingLR(optimizer, T_max, eta_min)",d:"Cosine annealing"},
+      {t:"CL",n:"CosineAnnealingWarmRestarts(optimizer, T_0)",d:"Cosine with periodic restarts"},
+      {t:"CL",n:"ReduceLROnPlateau(optimizer, mode, factor)",d:"Reduce when metric stops improving"},
+      {t:"CL",n:"CyclicLR(optimizer, base_lr, max_lr)",d:"Triangular cyclic LR"},
+      {t:"CL",n:"OneCycleLR(optimizer, max_lr, total_steps)",d:"1-cycle super-convergence policy"},
+      {t:"CL",n:"LinearLR(optimizer, start_factor, end_factor)",d:"Linear interpolation"},
+      {t:"CL",n:"ConstantLR(optimizer, factor, total_iters)",d:"Multiply by constant factor"},
+      {t:"CL",n:"PolynomialLR(optimizer, total_iters, power)",d:"Polynomial decay"},
+      {t:"CL",n:"WarmupDecay (custom / via LinearLR + scheduler)",d:"Warmup then decay"},
+      {t:"CL",n:"ChainedScheduler([sched1, sched2, ...])",d:"Apply multiple schedulers"},
+      {t:"CL",n:"SequentialLR(optimizer, schedulers, milestones)",d:"Switch schedulers at milestones"},
+      {t:"CL",n:"LambdaLR(optimizer, lr_lambda)",d:"Custom function λ(epoch) → multiplier"},
+      {t:"CL",n:".step() / .get_last_lr()",d:"Advance / query current LR"},
+    ]},
+  ]},
+  { label:"torch.autograd", desc:"Automatic differentiation engine — reverse mode AD", secs:[
+    { title:"Core API", leaves:[
+      {t:"FN",n:"tensor.backward(gradient)",d:"Entry point — compute all .grad via chain rule"},
+      {t:"FN",n:"torch.autograd.grad(outputs, inputs)",d:"Compute specific gradients only"},
+      {t:"FN",n:"torch.no_grad()",d:"Context manager — disable gradient tracking"},
+      {t:"FN",n:"torch.enable_grad()",d:"Re-enable inside no_grad context"},
+      {t:"FN",n:"torch.inference_mode()",d:"Like no_grad but also disables view tracking"},
+      {t:"CL",n:"autograd.Function",d:"Custom op — implement .forward() and .backward()"},
+      {t:"FN",n:"torch.autograd.set_detect_anomaly(True)",d:"Debug NaN/Inf in gradients"},
+    ]},
+    { title:"Higher-Order Derivatives", leaves:[
+      {t:"FN",n:"torch.autograd.functional.jacobian(func, inputs)",d:"Full Jacobian matrix"},
+      {t:"FN",n:"torch.autograd.functional.hessian(func, inputs)",d:"Full Hessian matrix"},
+      {t:"FN",n:"torch.autograd.functional.vjp(func, inputs, v)",d:"Vector-Jacobian product"},
+      {t:"FN",n:"torch.autograd.functional.jvp(func, inputs, v)",d:"Jacobian-vector product"},
+      {t:"FN",n:"torch.autograd.functional.vhp(func, inputs, v)",d:"Vector-Hessian product"},
+    ]},
+    { title:"Graph & Profiling", leaves:[
+      {t:"FN",n:"torch.autograd.profiler.profile()",d:"Profile autograd execution"},
+      {t:"FN",n:"torch.autograd.profiler.emit_nvtx()",d:"NVTX markers for nsight"},
+      {t:"TL",n:"tensor.grad_fn.next_functions",d:"Traverse computation graph manually"},
+    ]},
+  ]},
+  { label:"torch.utils.data", desc:"Data loading and batching pipeline", secs:[
+    { title:"Dataset Classes", leaves:[
+      {t:"CL",n:"Dataset",d:"Abstract base — implement __len__() and __getitem__()"},
+      {t:"CL",n:"IterableDataset",d:"For streaming or very large datasets"},
+      {t:"CL",n:"TensorDataset(*tensors)",d:"Wraps tensors as dataset"},
+      {t:"CL",n:"ConcatDataset([ds1, ds2, ...])",d:"Concatenate multiple datasets"},
+      {t:"CL",n:"ChainDataset([ds1, ds2, ...])",d:"Chain iterable datasets"},
+      {t:"CL",n:"Subset(dataset, indices)",d:"Create view by index list"},
+      {t:"FN",n:"random_split(dataset, lengths)",d:"Split into train/val/test"},
+    ]},
+    { title:"DataLoader", leaves:[
+      {t:"CL",n:"DataLoader(dataset, batch_size, shuffle, ...)",d:"Core loader — manages batching"},
+      {t:"CL",n:"  num_workers=N",d:"Parallel loading processes"},
+      {t:"CL",n:"  collate_fn=fn",d:"Custom batch assembly"},
+      {t:"CL",n:"  pin_memory=True",d:"Faster GPU transfer"},
+      {t:"CL",n:"  prefetch_factor=N",d:"How many batches to pre-load"},
+      {t:"CL",n:"  persistent_workers=True",d:"Keep workers alive between epochs"},
+      {t:"FN",n:"default_collate(batch)",d:"Default merge: list → tensor"},
+    ]},
+    { title:"Samplers", leaves:[
+      {t:"CL",n:"RandomSampler(dataset)",d:"Random order sampling"},
+      {t:"CL",n:"SequentialSampler(dataset)",d:"Sequential order"},
+      {t:"CL",n:"WeightedRandomSampler(weights, num_samples)",d:"Class-balanced / imbalanced handling"},
+      {t:"CL",n:"BatchSampler(sampler, batch_size, drop_last)",d:"Batch indices from a sampler"},
+      {t:"CL",n:"DistributedSampler(dataset, num_replicas)",d:"For multi-GPU/DDP training"},
+    ]},
+  ]},
+  { label:"torchvision", desc:"Computer vision — models, transforms, datasets, ops", secs:[
+    { title:"torchvision.models — Classification", leaves:[
+      {t:"FN",n:"models.resnet18/34/50/101/152(weights=...)",d:"ResNet family"},
+      {t:"FN",n:"models.vgg11/13/16/19(weights=...)",d:"VGG family"},
+      {t:"FN",n:"models.efficientnet_b0 … b7 / v2_s/m/l",d:"EfficientNet family"},
+      {t:"FN",n:"models.mobilenet_v2 / v3_small / v3_large",d:"MobileNet — mobile optimized"},
+      {t:"FN",n:"models.vit_b_16 / vit_b_32 / vit_l_16 / vit_l_32",d:"Vision Transformer"},
+      {t:"FN",n:"models.swin_t / swin_s / swin_b",d:"Swin Transformer"},
+      {t:"FN",n:"models.densenet121/161/169/201",d:"DenseNet"},
+      {t:"FN",n:"models.alexnet / googlenet / inception_v3",d:"Classic architectures"},
+      {t:"FN",n:"models.convnext_tiny/small/base/large",d:"ConvNeXt family"},
+      {t:"FN",n:"models.maxvit_t",d:"MaxViT"},
+      {t:"FN",n:"weights=XXX.DEFAULT or IMAGENET1K_V1",d:"Pretrained weights system"},
+    ]},
+    { title:"torchvision.models — Detection & Segmentation", leaves:[
+      {t:"FN",n:"models.detection.faster_rcnn.fasterrcnn_resnet50_fpn()",d:"Faster R-CNN"},
+      {t:"FN",n:"models.detection.retinanet_resnet50_fpn()",d:"RetinaNet (focal loss)"},
+      {t:"FN",n:"models.detection.ssd300_vgg16()",d:"SSD"},
+      {t:"FN",n:"models.detection.fcos_resnet50_fpn()",d:"FCOS anchor-free"},
+      {t:"FN",n:"models.detection.detr_resnet50()",d:"DETR transformer detection"},
+      {t:"FN",n:"models.segmentation.fcn_resnet50/101()",d:"FCN segmentation"},
+      {t:"FN",n:"models.segmentation.deeplabv3_resnet50/101()",d:"DeepLabV3"},
+      {t:"FN",n:"models.segmentation.lraspp_mobilenet_v3_large()",d:"Lite R-ASPP mobile seg"},
+      {t:"FN",n:"models.video.r3d_18 / mc3_18 / r2plus1d_18",d:"Video classification"},
+    ]},
+    { title:"torchvision.transforms", leaves:[
+      {t:"CL",n:"transforms.Compose([t1, t2, ...])",d:"Pipeline of transforms"},
+      {t:"CL",n:"transforms.ToTensor()",d:"PIL/numpy → [0,1] float tensor"},
+      {t:"CL",n:"transforms.Normalize(mean, std)",d:"Standardize per channel"},
+      {t:"CL",n:"transforms.Resize(size)",d:"Resize to fixed size"},
+      {t:"CL",n:"transforms.CenterCrop(size)",d:"Crop from center"},
+      {t:"CL",n:"transforms.RandomCrop(size, padding)",d:"Random crop augmentation"},
+      {t:"CL",n:"transforms.RandomResizedCrop(size)",d:"Random crop + resize"},
+      {t:"CL",n:"transforms.RandomHorizontalFlip(p)",d:"Flip left-right"},
+      {t:"CL",n:"transforms.RandomVerticalFlip(p)",d:"Flip up-down"},
+      {t:"CL",n:"transforms.RandomRotation(degrees)",d:"Random rotate"},
+      {t:"CL",n:"transforms.ColorJitter(brightness, contrast, ...)",d:"Color augmentation"},
+      {t:"CL",n:"transforms.GaussianBlur(kernel_size, sigma)",d:"Blur augmentation"},
+      {t:"CL",n:"transforms.RandomErasing(p, scale)",d:"CutOut / random erase"},
+      {t:"CL",n:"transforms.AutoAugment(policy)",d:"Learned augmentation policy"},
+      {t:"CL",n:"transforms.RandAugment(num_ops, magnitude)",d:"Random augmentation"},
+      {t:"CL",n:"transforms.TrivialAugmentWide()",d:"No hyperparams augment"},
+      {t:"CL",n:"transforms.v2.* (new API)",d:"Supports bboxes, masks, keypoints too"},
+    ]},
+    { title:"torchvision.datasets", leaves:[
+      {t:"CL",n:"datasets.ImageFolder(root, transform)",d:"Custom: folder per class"},
+      {t:"CL",n:"datasets.DatasetFolder(root, loader, extensions)",d:"Generic folder dataset"},
+      {t:"CL",n:"datasets.CIFAR10 / CIFAR100",d:"32×32 benchmark"},
+      {t:"CL",n:"datasets.MNIST / FashionMNIST / KMNIST",d:"Handwritten digits/fashion"},
+      {t:"CL",n:"datasets.ImageNet(root, split)",d:"Large-scale 1000-class"},
+      {t:"CL",n:"datasets.COCO (Detection/Captions)",d:"MS-COCO via pycocotools"},
+      {t:"CL",n:"datasets.VOCDetection / VOCSegmentation",d:"Pascal VOC"},
+      {t:"CL",n:"datasets.CelebA / LSUN / STL10 / SVHN",d:"Face / scene / street-view"},
+      {t:"CL",n:"datasets.OxfordIIITPet / Flowers102 / Food101",d:"Fine-grained datasets"},
+    ]},
+    { title:"torchvision.ops", leaves:[
+      {t:"FN",n:"ops.nms(boxes, scores, iou_threshold)",d:"Non-max suppression"},
+      {t:"FN",n:"ops.batched_nms(boxes, scores, idxs, iou_thr)",d:"NMS per class"},
+      {t:"FN",n:"ops.roi_align(input, boxes, output_size)",d:"RoI align for detection"},
+      {t:"FN",n:"ops.roi_pool(input, boxes, output_size)",d:"RoI pooling"},
+      {t:"FN",n:"ops.box_iou(boxes1, boxes2)",d:"IoU matrix"},
+      {t:"FN",n:"ops.box_convert(boxes, in_fmt, out_fmt)",d:"xyxy / xywh / cxcywh"},
+      {t:"CL",n:"ops.FeaturePyramidNetwork(in_channels, out)",d:"FPN multi-scale features"},
+      {t:"CL",n:"ops.DeformConv2d(in_ch, out_ch, kernel)",d:"Deformable convolution"},
+      {t:"CL",n:"ops.FrozenBatchNorm2d(num_features)",d:"BN with frozen stats"},
+      {t:"FN",n:"ops.sigmoid_focal_loss(inputs, targets, ...)",d:"Focal loss for imbalance"},
+      {t:"FN",n:"ops.distance_box_iou_loss() / ciou_loss()",d:"Advanced box regression losses"},
+    ]},
+  ]},
+  { label:"torch.distributed", desc:"Multi-GPU and multi-node distributed training", secs:[
+    { title:"Process Groups & Collectives", leaves:[
+      {t:"FN",n:"dist.init_process_group(backend, init_method)",d:"Initialize — backend: nccl/gloo/mpi"},
+      {t:"FN",n:"dist.get_rank() / dist.get_world_size()",d:"Process index / total count"},
+      {t:"FN",n:"dist.all_reduce(tensor, op)",d:"Sum/avg gradients across all ranks"},
+      {t:"FN",n:"dist.reduce(tensor, dst, op)",d:"Reduce to single rank"},
+      {t:"FN",n:"dist.broadcast(tensor, src)",d:"Broadcast from src to all"},
+      {t:"FN",n:"dist.all_gather(tensor_list, tensor)",d:"Gather from all ranks"},
+      {t:"FN",n:"dist.scatter(tensor, scatter_list, src)",d:"Scatter from src to all"},
+      {t:"FN",n:"dist.barrier()",d:"Sync — wait for all processes"},
+      {t:"FN",n:"dist.destroy_process_group()",d:"Cleanup"},
+    ]},
+    { title:"Parallel Wrappers", leaves:[
+      {t:"CL",n:"nn.parallel.DistributedDataParallel(model, device_ids)",d:"DDP — recommended multi-GPU"},
+      {t:"CL",n:"nn.DataParallel(model, device_ids)",d:"Simple single-node (deprecated for DDP)"},
+      {t:"CL",n:"torch.distributed.fsdp.FullyShardedDataParallel",d:"FSDP — shard model + grads + optim"},
+      {t:"FN",n:"torch.multiprocessing.spawn(fn, nprocs)",d:"Launch DDP worker processes"},
+    ]},
+    { title:"RPC Framework", leaves:[
+      {t:"FN",n:"rpc.init_rpc(name, rank, world_size)",d:"Initialize RPC"},
+      {t:"FN",n:"rpc.rpc_sync(worker, fn, args)",d:"Synchronous remote call"},
+      {t:"FN",n:"rpc.rpc_async(worker, fn, args)",d:"Async remote call"},
+      {t:"CL",n:"rpc.RRef",d:"Reference to remote object"},
+    ]},
+  ]},
+  { label:"torch.jit / torch.compile", desc:"Model compilation, optimization, and export", secs:[
+    { title:"TorchScript", leaves:[
+      {t:"FN",n:"torch.jit.script(model_or_fn)",d:"Compile Python → TorchScript IR"},
+      {t:"FN",n:"torch.jit.trace(model, example_inputs)",d:"Trace execution path to script"},
+      {t:"FN",n:"torch.jit.save(scripted, path)",d:"Save scripted model"},
+      {t:"FN",n:"torch.jit.load(path)",d:"Load scripted model"},
+      {t:"FN",n:"torch.jit.freeze(scripted_module)",d:"Freeze constants for inference"},
+      {t:"FN",n:"torch.jit.optimize_for_inference(scripted)",d:"Apply inference optimizations"},
+    ]},
+    { title:"torch.compile (Dynamo — PyTorch 2.x)", leaves:[
+      {t:"FN",n:"torch.compile(model, backend='inductor')",d:"JIT compile with TorchInductor — key 2.0 feature"},
+      {t:"FN",n:"  backend='inductor'",d:"Default — best general performance"},
+      {t:"FN",n:"  backend='eager'",d:"No optimization — debugging"},
+      {t:"FN",n:"  backend='aot_eager'",d:"AOT Autograd only"},
+      {t:"FN",n:"  mode='reduce-overhead'",d:"Minimize overhead (good for small models)"},
+      {t:"FN",n:"  mode='max-autotune'",d:"Maximum optimization (slower compile)"},
+      {t:"FN",n:"  fullgraph=True",d:"Require full graph capture"},
+      {t:"FN",n:"torch._dynamo.explain(fn, *args)",d:"Debug what Dynamo captures"},
+      {t:"FN",n:"torch._dynamo.disable(fn)",d:"Opt a function out of compilation"},
+    ]},
+    { title:"Export", leaves:[
+      {t:"FN",n:"torch.export.export(model, args)",d:"Strict, portable export (new standard)"},
+      {t:"FN",n:"torch.onnx.export(model, args, path)",d:"Export to ONNX format"},
+      {t:"FN",n:"torch.onnx.dynamo_export(model, *args)",d:"Dynamo-based ONNX exporter"},
+    ]},
+  ]},
+  { label:"torch.amp — Mixed Precision", desc:"FP16/BF16 training for speed & memory savings", secs:[
+    { title:"AMP API", leaves:[
+      {t:"FN",n:"torch.autocast(device_type, dtype=torch.float16)",d:"Context: auto-cast ops to fp16/bf16"},
+      {t:"CL",n:"torch.cuda.amp.GradScaler(init_scale=2**16)",d:"Loss scaling to prevent fp16 underflow"},
+      {t:"CL",n:"scaler.scale(loss)",d:"Multiply loss by scale factor"},
+      {t:"CL",n:"scaler.step(optimizer)",d:"Unscale + optimizer.step()"},
+      {t:"CL",n:"scaler.update()",d:"Adjust scale factor"},
+      {t:"TL",n:"torch.backends.cuda.matmul.allow_tf32 = True",d:"Enable TF32 on Ampere+ GPUs"},
+    ]},
+  ]},
+  { label:"torch.profiler & Debugging", desc:"Performance profiling and debugging utilities", secs:[
+    { title:"Profiler", leaves:[
+      {t:"TL",n:"torch.profiler.profile(activities=[CPU, CUDA], ...)",d:"Main profiler context"},
+      {t:"TL",n:"torch.profiler.record_function('name')",d:"Label a code region"},
+      {t:"TL",n:"prof.key_averages().table()",d:"Print profiling summary"},
+      {t:"TL",n:"prof.export_chrome_trace('trace.json')",d:"View in chrome://tracing"},
+      {t:"TL",n:"prof.export_stacks('stacks.txt')",d:"Flamegraph-compatible"},
+      {t:"TL",n:"torch.profiler.schedule(wait, warmup, active)",d:"Multi-step profiling schedule"},
+      {t:"TL",n:"on_trace_ready=torch.profiler.tensorboard_trace_handler(...)",d:"Auto-export to TensorBoard"},
+    ]},
+    { title:"Debugging Utilities", leaves:[
+      {t:"TL",n:"torch.autograd.set_detect_anomaly(True)",d:"Finds NaN/Inf source in forward/backward"},
+      {t:"TL",n:"torch.testing.assert_close(a, b, atol, rtol)",d:"Numeric tensor equality check"},
+      {t:"TL",n:"torch.set_printoptions(precision, threshold, sci_mode)",d:"Control tensor display"},
+      {t:"TL",n:"tensor.register_hook(fn)",d:"Inspect gradient flowing through tensor"},
+      {t:"TL",n:"TORCH_LOGS='+dynamo' python ...",d:"Dynamo/compile debug logging (env var)"},
+      {t:"TL",n:"CUDA_LAUNCH_BLOCKING=1",d:"Synchronize CUDA for better error traces"},
+    ]},
+  ]},
+  { label:"torch.utils.tensorboard", desc:"Training visualization and experiment tracking", secs:[
+    { title:"SummaryWriter API", leaves:[
+      {t:"CL",n:"SummaryWriter(log_dir='runs/exp1')",d:"Create writer"},
+      {t:"FN",n:"writer.add_scalar(tag, value, global_step)",d:"Log loss, accuracy etc."},
+      {t:"FN",n:"writer.add_scalars(main_tag, tag_scalar_dict, step)",d:"Multiple scalars on one chart"},
+      {t:"FN",n:"writer.add_image(tag, img_tensor, step)",d:"Log single image"},
+      {t:"FN",n:"writer.add_images(tag, img_tensor, step)",d:"Log batch of images"},
+      {t:"FN",n:"writer.add_figure(tag, figure, step)",d:"Log matplotlib figure"},
+      {t:"FN",n:"writer.add_histogram(tag, values, step)",d:"Weight/gradient histograms"},
+      {t:"FN",n:"writer.add_graph(model, input_to_model)",d:"Computation graph visualization"},
+      {t:"FN",n:"writer.add_embedding(mat, metadata, ...)",d:"Embedding projector (UMAP/PCA/t-SNE)"},
+      {t:"FN",n:"writer.add_hparams(hparam_dict, metric_dict)",d:"Hyperparameter comparison"},
+      {t:"FN",n:"writer.add_audio(tag, snd_tensor, step, sr)",d:"Log audio"},
+      {t:"FN",n:"writer.add_video(tag, vid_tensor, step, fps)",d:"Log video"},
+      {t:"FN",n:"writer.close()",d:"Flush and close writer"},
+    ]},
+  ]},
+  { label:"torch.hub", desc:"Load pre-trained community models from GitHub", secs:[
+    { title:"Hub API", leaves:[
+      {t:"FN",n:"torch.hub.load(repo, model, *args, **kwargs)",d:"Load model from GitHub repo"},
+      {t:"FN",n:"torch.hub.list(repo, force_reload=False)",d:"List available entrypoints"},
+      {t:"FN",n:"torch.hub.help(repo, model)",d:"Show docstring for model"},
+      {t:"FN",n:"torch.hub.download_url_to_file(url, dst)",d:"Download file"},
+      {t:"TL",n:"torch.hub.set_dir(path)",d:"Set cache directory"},
+      {t:"TL",n:"hubconf.py",d:"File a repo needs to expose torch.hub models"},
+    ]},
+  ]},
+  { label:"torchaudio", desc:"Audio I/O, transforms, and pre-trained speech models", secs:[
+    { title:"I/O & Core", leaves:[
+      {t:"FN",n:"torchaudio.load(path)",d:"Load audio → (waveform tensor, sample_rate)"},
+      {t:"FN",n:"torchaudio.save(path, waveform, sample_rate)",d:"Save audio file"},
+      {t:"FN",n:"torchaudio.info(path)",d:"Audio metadata without loading"},
+      {t:"FN",n:"torchaudio.backend.set_audio_backend('sox'/'soundfile')",d:"Choose backend"},
+    ]},
+    { title:"torchaudio.transforms", leaves:[
+      {t:"CL",n:"transforms.Resample(orig_freq, new_freq)",d:"Change sample rate"},
+      {t:"CL",n:"transforms.MelSpectrogram(sample_rate, n_fft, ...)",d:"Log-Mel spectrogram"},
+      {t:"CL",n:"transforms.MFCC(sample_rate, n_mfcc)",d:"Mel-frequency cepstral coefficients"},
+      {t:"CL",n:"transforms.Spectrogram(n_fft, hop_length)",d:"Short-time Fourier spectrogram"},
+      {t:"CL",n:"transforms.AmplitudeToDB()",d:"Convert amplitude to dB"},
+      {t:"CL",n:"transforms.FrequencyMasking(freq_mask_param)",d:"SpecAugment frequency masking"},
+      {t:"CL",n:"transforms.TimeMasking(time_mask_param)",d:"SpecAugment time masking"},
+      {t:"CL",n:"transforms.TimeStretch(n_freq)",d:"Time stretching"},
+      {t:"CL",n:"transforms.Vol(gain)",d:"Volume adjustment"},
+    ]},
+    { title:"torchaudio.models", leaves:[
+      {t:"CL",n:"models.Wav2Vec2Model",d:"Self-supervised speech representation"},
+      {t:"CL",n:"models.HuBERTPretrainModel",d:"Hidden unit BERT for speech"},
+      {t:"CL",n:"models.RNNT",d:"RNN-T for streaming ASR"},
+      {t:"CL",n:"models.ConvTasNet",d:"Conv-TasNet speech separation"},
+      {t:"CL",n:"models.Tacotron2",d:"Text-to-speech synthesis"},
+      {t:"CL",n:"models.WaveRNN",d:"WaveRNN vocoder"},
+      {t:"FN",n:"pipelines.WAV2VEC2_ASR_BASE_960H",d:"Pre-trained ASR pipeline"},
+    ]},
+  ]},
+  { label:"torchtext", desc:"NLP text processing, tokenization, and datasets", secs:[
+    { title:"Data & Vocab", leaves:[
+      {t:"FN",n:"torchtext.datasets.AG_NEWS / IMDB / SST2 / ...",d:"Standard NLP benchmarks"},
+      {t:"FN",n:"torchtext.datasets.SQuAD1 / SQuAD2",d:"Question answering"},
+      {t:"FN",n:"torchtext.datasets.Multi30k / IWSLT2016",d:"Machine translation"},
+      {t:"FN",n:"torchtext.vocab.build_vocab_from_iterator(iterator)",d:"Build vocab from token iterator"},
+      {t:"CL",n:"torchtext.vocab.Vocab",d:"Vocabulary object with stoi/itos"},
+      {t:"FN",n:"torchtext.vocab.GloVe(name, dim)",d:"Pre-trained GloVe embeddings"},
+      {t:"FN",n:"torchtext.vocab.FastText(language)",d:"FastText embeddings"},
+    ]},
+    { title:"Tokenization & Transforms", leaves:[
+      {t:"FN",n:"torchtext.data.utils.get_tokenizer(tokenizer)",d:"basic_english / spacy / moses"},
+      {t:"CL",n:"torchtext.transforms.SentencePieceTokenizer(path)",d:"SentencePiece tokenization"},
+      {t:"CL",n:"torchtext.transforms.BERTTokenizer(vocab, ...)",d:"WordPiece for BERT"},
+      {t:"CL",n:"torchtext.transforms.VocabTransform(vocab)",d:"Tokens → indices"},
+      {t:"CL",n:"torchtext.transforms.ToTensor(padding_value)",d:"Indices → padded tensor"},
+      {t:"CL",n:"torchtext.transforms.Truncate(max_seq_len)",d:"Truncate sequences"},
+      {t:"CL",n:"torchtext.transforms.AddToken(token, begin=True)",d:"Add BOS/EOS tokens"},
+    ]},
+  ]},
+  { label:"torch.quantization", desc:"Post-training & quantization-aware training (INT8/INT4)", secs:[
+    { title:"Core API", leaves:[
+      {t:"FN",n:"torch.quantization.quantize_dynamic(model, {nn.Linear}, dtype)",d:"Dynamic quantization — easiest"},
+      {t:"FN",n:"torch.quantization.prepare(model, inplace=False)",d:"Insert observers for static quant"},
+      {t:"FN",n:"torch.quantization.convert(model, inplace=False)",d:"Replace modules with quantized versions"},
+      {t:"CL",n:"torch.quantization.QConfig(activation, weight)",d:"Quantization configuration"},
+      {t:"FN",n:"torch.quantization.get_default_qconfig('fbgemm'/'qnnpack')",d:"Platform default qconfig"},
+      {t:"CL",n:"torch.ao.quantization.QuantStub / DeQuantStub",d:"Mark quantization boundaries"},
+      {t:"FN",n:"torch.ao.quantization.quantize_fx.prepare_fx()",d:"FX graph-based preparation"},
+      {t:"FN",n:"torch.ao.quantization.quantize_fx.convert_fx()",d:"FX graph-based conversion"},
+    ]},
+  ]},
+  { label:"torch.fx", desc:"Python-level graph capture and transformation", secs:[
+    { title:"FX API", leaves:[
+      {t:"FN",n:"torch.fx.symbolic_trace(model)",d:"Capture model as FX graph"},
+      {t:"CL",n:"torch.fx.GraphModule",d:"Module wrapping an FX Graph"},
+      {t:"CL",n:"torch.fx.Graph",d:"Sequence of Node objects"},
+      {t:"CL",n:"torch.fx.Node",d:"Single operation in the graph"},
+      {t:"CL",n:"torch.fx.Tracer",d:"Customize tracing behavior"},
+      {t:"CL",n:"torch.fx.Interpreter",d:"Execute graph node by node"},
+      {t:"CL",n:"torch.fx.Transformer",d:"Base for graph rewriting"},
+    ]},
+  ]},
+];
+
+function buildTree(data, container) {
+  data.forEach(ns => {
+    const nsNode = document.createElement('div');
+    nsNode.className = 'ns-node';
+    const nsHeader = document.createElement('div');
+    nsHeader.className = 'ns-header';
+    nsHeader.innerHTML = `<span class="toggle">▶</span><span class="badge b-ns">NS</span><span class="ns-label">${ns.label}</span><span class="ns-desc">${ns.desc}</span>`;
+    const nsChildren = document.createElement('div');
+    nsChildren.className = 'ns-children closed';
+    nsHeader.addEventListener('click', () => {
+      const open = !nsChildren.classList.contains('closed');
+      nsChildren.classList.toggle('closed', open);
+      nsHeader.querySelector('.toggle').classList.toggle('open', !open);
+    });
+    ns.secs.forEach(sec => {
+      const secNode = document.createElement('div');
+      secNode.className = 'sec-node';
+      const secHeader = document.createElement('div');
+      secHeader.className = 'sec-header';
+      secHeader.innerHTML = `<span class="toggle">▶</span><span class="badge b-sec">§</span><span class="sec-label">${sec.title}</span>`;
+      const secChildren = document.createElement('div');
+      secChildren.className = 'sec-children closed';
+      secHeader.addEventListener('click', () => {
+        const open = !secChildren.classList.contains('closed');
+        secChildren.classList.toggle('closed', open);
+        secHeader.querySelector('.toggle').classList.toggle('open', !open);
+      });
+      sec.leaves.forEach(leaf => {
+        const bMap = {FN:'b-fn',CL:'b-cl',TL:'b-tl',OP:'b-op',LS:'b-ls'};
+        const el = document.createElement('div');
+        el.className = 'leaf';
+        el.dataset.search = (leaf.n + ' ' + leaf.d).toLowerCase();
+        el.innerHTML = `<span class="badge ${bMap[leaf.t]||'b-fn'}">${leaf.t}</span><span class="lname">${leaf.n}</span><span class="ldesc">${leaf.d}</span>`;
+        secChildren.appendChild(el);
+      });
+      secNode.appendChild(secHeader);
+      secNode.appendChild(secChildren);
+      nsChildren.appendChild(secNode);
+    });
+    nsNode.appendChild(nsHeader);
+    nsNode.appendChild(nsChildren);
+    container.appendChild(nsNode);
+  });
+}
+
+function expandAll() {
+  document.querySelectorAll('.ns-children,.sec-children').forEach(c => c.classList.remove('closed'));
+  document.querySelectorAll('.toggle').forEach(t => t.classList.add('open'));
+}
+function collapseAll() {
+  document.querySelectorAll('.ns-children,.sec-children').forEach(c => c.classList.add('closed'));
+  document.querySelectorAll('.toggle').forEach(t => t.classList.remove('open'));
+}
+
+function filterTree(q) {
+  q = q.toLowerCase().trim();
+  if (!q) {
+    document.querySelectorAll('.leaf').forEach(l => { l.classList.remove('hidden','highlight'); });
+    document.querySelectorAll('.ns-children,.sec-children').forEach(c => c.classList.add('closed'));
+    document.querySelectorAll('.toggle').forEach(t => t.classList.remove('open'));
+    return;
+  }
+  document.querySelectorAll('.leaf').forEach(leaf => {
+    const match = leaf.dataset.search && leaf.dataset.search.includes(q);
+    leaf.classList.toggle('hidden', !match);
+    leaf.classList.toggle('highlight', match);
+    if (match) {
+      let p = leaf.parentElement;
+      while (p && p.id !== 'tree') {
+        if (p.classList.contains('sec-children') || p.classList.contains('ns-children')) {
+          p.classList.remove('closed');
+          const prev = p.previousElementSibling;
+          if (prev) { const tog = prev.querySelector('.toggle'); if(tog) tog.classList.add('open'); }
+        }
+        p = p.parentElement;
+      }
+    }
+  });
+}
+
+buildTree(DATA, document.getElementById('tree'));
+</script>
+</body>
+</html>

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🔢 NumPy Complete API Tree</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 20px; }
+  h1 { text-align: center; font-size: 1.6rem; color: #4299e1; margin-bottom: 6px; font-weight: 800; }
+  .subtitle { text-align: center; font-size: 0.78rem; color: #718096; margin-bottom: 18px; }
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap; }
+  .controls input { padding: 8px 16px; border-radius: 8px; border: 1px solid #2d3748; background: #1a202c; color: #e2e8f0; font-size: 0.85rem; outline: none; width: 340px; }
+  .controls input:focus { border-color: #4299e1; }
+  .btn { padding: 8px 14px; border-radius: 8px; border: 1px solid #2d3748; background: #1a202c; color: #90cdf4; font-size: 0.78rem; cursor: pointer; }
+  .btn:hover { background: #2d3748; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: #718096; }
+  .badge { font-size: 0.6rem; padding: 2px 7px; border-radius: 20px; font-weight: 700; white-space: nowrap; }
+  .b-ns { background: #2b4a7a; color: #90cdf4; }
+  .b-cl { background: #2d4a2d; color: #68d391; }
+  .b-fn { background: #4a3a1e; color: #f6ad55; }
+  .b-at { background: #3a2d4a; color: #b794f4; }
+  .b-sec { background: #1a2a3a; color: #63b3ed; }
+  .tree-root { max-width: 1100px; margin: 0 auto; }
+  .ns-node { margin: 6px 0; }
+  .ns-header { display: flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 9px; padding: 8px 14px; background: #1a202c; border: 1px solid #2d3748; transition: background 0.15s; }
+  .ns-header:hover { background: #232b38; border-color: #4299e144; }
+  .toggle { font-size: 0.65rem; color: #718096; min-width: 12px; transition: transform 0.18s; }
+  .toggle.open { transform: rotate(90deg); }
+  .ns-label { font-size: 0.95rem; font-weight: 700; color: #e2e8f0; flex: 1; }
+  .ns-desc { font-size: 0.72rem; color: #718096; text-align: right; max-width: 300px; }
+  .ns-children { padding-left: 28px; border-left: 2px solid #2d3748; margin-left: 18px; }
+  .ns-children.closed { display: none; }
+  .sec-node { margin: 4px 0; }
+  .sec-header { display: flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 7px; padding: 5px 10px; transition: background 0.13s; }
+  .sec-header:hover { background: #1a202c; }
+  .sec-label { font-size: 0.82rem; font-weight: 600; color: #90cdf4; flex: 1; }
+  .sec-children { padding-left: 20px; border-left: 1px solid #2d3748; margin-left: 14px; }
+  .sec-children.closed { display: none; }
+  .leaf { display: flex; align-items: flex-start; gap: 8px; padding: 4px 10px 4px 14px; border-radius: 5px; margin: 2px 0; font-size: 0.76rem; transition: background 0.1s; }
+  .leaf:hover { background: #1a202c; }
+  .leaf .lname { font-weight: 600; color: #cbd5e0; min-width: 240px; }
+  .leaf .ldesc { color: #718096; font-size: 0.7rem; }
+  .leaf.highlight { background: #2d2a00 !important; }
+  .leaf.hidden { display: none; }
+</style>
+<style>
+/* ── WHITE THEME OVERRIDE ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+body {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, #94a3b8 1.5px, transparent 1.5px);
+  background-size: 28px 28px;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+.back-home {
+  position: relative; z-index: 2;
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-bottom: 20px; padding: 7px 14px;
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  background: rgba(255,255,255,0.9); color: #475569;
+  font-size: 0.78rem; font-weight: 600; text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.back-home:hover { border-color: #4299e1; color: #4299e1; }
+h1, .subtitle, .controls, .legend, .tree-root { position: relative; z-index: 1; }
+h1 { color: #4299e1 !important; }
+.subtitle { color: #64748b !important; }
+.controls input {
+  background: #f8fafc !important; border-color: #cbd5e0 !important;
+  color: #1e293b !important;
+}
+.controls input:focus { border-color: #4299e1 !important; }
+.controls input::placeholder { color: #94a3b8; }
+.btn { background: #f8fafc !important; border-color: #cbd5e0 !important; color: #3b82f6 !important; }
+.btn:hover { background: #eff6ff !important; border-color: #93c5fd !important; }
+.legend-item { color: #64748b !important; }
+.b-ns { background: #dbeafe !important; color: #1d4ed8 !important; }
+.b-cl { background: #dcfce7 !important; color: #15803d !important; }
+.b-fn { background: #fef3c7 !important; color: #92400e !important; }
+.b-at { background: #ede9fe !important; color: #5b21b6 !important; }
+.b-sec { background: #e0f2fe !important; color: #075985 !important; }
+.ns-header {
+  background: #f8fafc !important; border-color: #e2e8f0 !important;
+}
+.ns-header:hover { background: #eff6ff !important; border-color: #93c5fd !important; }
+.ns-label { color: #0f172a !important; }
+.ns-desc { color: #64748b !important; }
+.toggle { color: #94a3b8 !important; }
+.ns-children { border-left-color: #e2e8f0 !important; }
+.sec-header:hover { background: #f8fafc !important; }
+.sec-label { color: #2563eb !important; }
+.sec-children { border-left-color: #e2e8f0 !important; }
+.leaf:hover { background: #f0f9ff !important; }
+.leaf .lname { color: #1e293b !important; }
+.leaf .ldesc { color: #64748b !important; }
+.leaf.highlight { background: #fef9c3 !important; }
+</style>
+</head>
+<body>
+<a class="back-home" href="index.html">← Home</a>
+<h1>🔢 NumPy — Complete API Reference Tree</h1>
+<p class="subtitle">Click any section to expand/collapse &nbsp;•&nbsp; Use search to filter</p>
+<div class="controls">
+  <input id="search" type="text" placeholder="Search: e.g. reshape, linalg, fft, broadcast..." oninput="filterTree(this.value)"/>
+  <button class="btn" onclick="expandAll()">Expand All</button>
+  <button class="btn" onclick="collapseAll()">Collapse All</button>
+</div>
+<div class="legend">
+  <div class="legend-item"><span class="badge b-ns">NS</span> Namespace</div>
+  <div class="legend-item"><span class="badge b-cl">CL</span> Class</div>
+  <div class="legend-item"><span class="badge b-fn">FN</span> Function</div>
+  <div class="legend-item"><span class="badge b-at">AT</span> Attribute</div>
+</div>
+<div class="tree-root" id="tree"></div>
+<script>
+const DATA = [
+  { label:"numpy (np)", desc:"Core array creation, math, indexing, and utilities", secs:[
+    { title:"Array Creation", leaves:[
+      {t:"FN",n:"np.array(object, dtype, copy, order, ndmin)",d:"Create array from data"},
+      {t:"FN",n:"np.zeros(shape, dtype, order)",d:"Array of zeros"},
+      {t:"FN",n:"np.ones(shape, dtype, order)",d:"Array of ones"},
+      {t:"FN",n:"np.full(shape, fill_value, dtype)",d:"Array filled with scalar"},
+      {t:"FN",n:"np.empty(shape, dtype, order)",d:"Uninitialized array"},
+      {t:"FN",n:"np.eye(N, M, k, dtype)",d:"Identity / diagonal matrix"},
+      {t:"FN",n:"np.identity(n, dtype)",d:"Square identity matrix"},
+      {t:"FN",n:"np.arange(start, stop, step, dtype)",d:"Like range() for arrays"},
+      {t:"FN",n:"np.linspace(start, stop, num, endpoint, retstep)",d:"Evenly spaced values"},
+      {t:"FN",n:"np.logspace(start, stop, num, base, endpoint)",d:"Log-spaced values"},
+      {t:"FN",n:"np.geomspace(start, stop, num, endpoint)",d:"Geometric-spaced values"},
+      {t:"FN",n:"np.zeros_like(a) / np.ones_like(a) / np.full_like(a, val)",d:"Shaped like existing array"},
+      {t:"FN",n:"np.empty_like(prototype, dtype)",d:"Shape-matched uninit array"},
+      {t:"FN",n:"np.diag(v, k)",d:"Extract diagonal or make diag matrix"},
+      {t:"FN",n:"np.diagflat(v, k)",d:"Flatten and place on diagonal"},
+      {t:"FN",n:"np.tri(N, M, k, dtype)",d:"Lower triangle array"},
+      {t:"FN",n:"np.tril(m, k) / np.triu(m, k)",d:"Lower/upper triangle of matrix"},
+      {t:"FN",n:"np.vander(x, N, increasing)",d:"Vandermonde matrix"},
+      {t:"FN",n:"np.meshgrid(*xi, indexing, sparse)",d:"Coordinate matrices from 1D arrays"},
+      {t:"FN",n:"np.mgrid[...] / np.ogrid[...]",d:"Dense/open mesh grids"},
+      {t:"FN",n:"np.indices(dimensions, dtype, sparse)",d:"Array of indices"},
+      {t:"FN",n:"np.fromfunction(function, shape)",d:"Build from function of indices"},
+      {t:"FN",n:"np.fromiter(iterable, dtype, count)",d:"Build from iterator"},
+      {t:"FN",n:"np.frombuffer(buffer, dtype, count, offset)",d:"Build from buffer"},
+      {t:"FN",n:"np.load(file, allow_pickle) / np.save(file, arr)",d:"Load/save .npy file"},
+      {t:"FN",n:"np.loadtxt(fname, dtype, delimiter) / np.savetxt()",d:"Load/save text file"},
+      {t:"FN",n:"np.genfromtxt(fname, dtype, delimiter, filling_values)",d:"Load with missing value handling"},
+      {t:"FN",n:"np.savez(file, *args) / np.savez_compressed()",d:"Save multiple arrays (.npz)"},
+    ]},
+    { title:"ndarray Class — Attributes", leaves:[
+      {t:"AT",n:".shape",d:"Tuple of dimension sizes"},
+      {t:"AT",n:".ndim",d:"Number of dimensions"},
+      {t:"AT",n:".size",d:"Total number of elements"},
+      {t:"AT",n:".dtype",d:"Data type object"},
+      {t:"AT",n:".itemsize",d:"Size in bytes per element"},
+      {t:"AT",n:".nbytes",d:"Total bytes consumed"},
+      {t:"AT",n:".strides",d:"Bytes to step per dimension"},
+      {t:"AT",n:".data",d:"Python buffer pointing to array data"},
+      {t:"AT",n:".flat",d:"1D iterator over array"},
+      {t:"AT",n:".flags",d:"Memory layout flags (C_CONTIGUOUS, etc.)"},
+      {t:"AT",n:".real / .imag",d:"Real / imaginary parts"},
+      {t:"AT",n:".T",d:"Transposed view"},
+      {t:"AT",n:".base",d:"Base array if this is a view"},
+    ]},
+    { title:"ndarray Class — Methods", leaves:[
+      {t:"FN",n:".reshape(shape, order)",d:"New shape without copying"},
+      {t:"FN",n:".resize(new_shape, refcheck)",d:"Resize in-place"},
+      {t:"FN",n:".flatten(order)",d:"Flattened copy"},
+      {t:"FN",n:".ravel(order)",d:"Flattened view if possible"},
+      {t:"FN",n:".transpose(*axes) / .T",d:"Permute dimensions"},
+      {t:"FN",n:".swapaxes(axis1, axis2)",d:"Swap two axes"},
+      {t:"FN",n:".squeeze(axis)",d:"Remove size-1 dims"},
+      {t:"FN",n:".expand_dims → np.expand_dims(a, axis)",d:"Add size-1 dim"},
+      {t:"FN",n:".astype(dtype, order, casting, copy)",d:"Cast to new dtype"},
+      {t:"FN",n:".copy(order)",d:"Return copy"},
+      {t:"FN",n:".view(dtype)",d:"Reinterpret memory"},
+      {t:"FN",n:".tolist()",d:"Convert to Python list"},
+      {t:"FN",n:".tobytes(order)",d:"Raw bytes"},
+      {t:"FN",n:".tofile(fid, sep, format)",d:"Write raw data to file"},
+      {t:"FN",n:".fill(value)",d:"Fill array with scalar in-place"},
+      {t:"FN",n:".sort(axis, kind, order)",d:"Sort in-place"},
+      {t:"FN",n:".argsort(axis, kind, order)",d:"Indirect sort indices"},
+      {t:"FN",n:".searchsorted(v, side, sorter)",d:"Insertion point in sorted array"},
+      {t:"FN",n:".put(indices, values, mode)",d:"Set a.flat[indices] = values"},
+      {t:"FN",n:".take(indices, axis, out, mode)",d:"Select elements by index"},
+      {t:"FN",n:".compress(condition, axis)",d:"Select slices with boolean"},
+      {t:"FN",n:".choose(choices, out, mode)",d:"Construct from index array"},
+      {t:"FN",n:".diagonal(offset, axis1, axis2)",d:"Return specified diagonals"},
+      {t:"FN",n:".trace(offset, axis1, axis2, dtype)",d:"Sum along diagonal"},
+      {t:"FN",n:".dot(b, out)",d:"Dot product"},
+      {t:"FN",n:".sum(axis, dtype, keepdims) / .prod()",d:"Sum / product"},
+      {t:"FN",n:".mean(axis, dtype) / .std() / .var()",d:"Statistics"},
+      {t:"FN",n:".min(axis) / .max(axis) / .ptp(axis)",d:"Min/max/peak-to-peak"},
+      {t:"FN",n:".argmin(axis) / .argmax(axis)",d:"Index of min/max"},
+      {t:"FN",n:".cumsum(axis, dtype) / .cumprod()",d:"Cumulative sum/product"},
+      {t:"FN",n:".clip(a_min, a_max, out)",d:"Clip values"},
+      {t:"FN",n:".round(decimals, out) / .conj()",d:"Round / conjugate"},
+      {t:"FN",n:".nonzero()",d:"Indices of non-zero elements"},
+      {t:"FN",n:".any(axis) / .all(axis)",d:"Logical any/all"},
+      {t:"FN",n:".repeat(repeats, axis)",d:"Repeat elements"},
+      {t:"FN",n:".setfield(val, dtype, offset)",d:"Place value into field"},
+      {t:"FN",n:".dumps() / .dump(file)",d:"Pickle to bytes/file"},
+    ]},
+    { title:"Indexing & Slicing", leaves:[
+      {t:"FN",n:"a[i, j] / a[1:3, ::2]",d:"Basic / slice indexing"},
+      {t:"FN",n:"a[[0,2,4], :] (fancy indexing)",d:"Index with integer array"},
+      {t:"FN",n:"a[bool_array] (boolean indexing)",d:"Select where True"},
+      {t:"FN",n:"np.where(condition, x, y)",d:"Conditional element selection"},
+      {t:"FN",n:"np.nonzero(a) / np.argwhere(a)",d:"Indices of non-zero / True elements"},
+      {t:"FN",n:"np.take(a, indices, axis)",d:"Select along axis"},
+      {t:"FN",n:"np.compress(condition, a, axis)",d:"Select slices by boolean"},
+      {t:"FN",n:"np.choose(a, choices)",d:"Construct via index array"},
+      {t:"FN",n:"np.select(condlist, choicelist, default)",d:"Multiple condition select"},
+      {t:"FN",n:"np.extract(condition, arr)",d:"Return elements where cond is True"},
+      {t:"FN",n:"np.place(arr, mask, vals)",d:"Replace where mask is True"},
+      {t:"FN",n:"np.put(a, ind, v)",d:"Set a.flat[ind] = v"},
+      {t:"FN",n:"np.fill_diagonal(a, val, wrap)",d:"Fill main diagonal"},
+      {t:"FN",n:"np.ix_(*args)",d:"Open mesh for fancy indexing"},
+      {t:"FN",n:"np.index_exp[...] / np.s_[...]",d:"Build slice objects"},
+      {t:"FN",n:"np.unravel_index(indices, shape)",d:"Flat indices → multi-dim indices"},
+      {t:"FN",n:"np.ravel_multi_index(multi_index, dims)",d:"Multi-dim indices → flat"},
+      {t:"FN",n:"np.diag_indices(n) / np.diag_indices_from(arr)",d:"Diagonal index arrays"},
+      {t:"FN",n:"np.mask_indices(n, mask_func, k)",d:"Indices from mask function"},
+      {t:"FN",n:"np.tril_indices(n) / np.triu_indices(n)",d:"Lower/upper triangle indices"},
+    ]},
+    { title:"Shape Manipulation", leaves:[
+      {t:"FN",n:"np.reshape(a, newshape, order)",d:"Reshape array"},
+      {t:"FN",n:"np.ravel(a, order)",d:"Flatten to 1D view"},
+      {t:"FN",n:"np.ndarray.flatten(order)",d:"Flatten to 1D copy"},
+      {t:"FN",n:"np.transpose(a, axes)",d:"Permute axes"},
+      {t:"FN",n:"np.swapaxes(a, axis1, axis2)",d:"Swap two axes"},
+      {t:"FN",n:"np.moveaxis(a, source, destination)",d:"Move axes to new positions"},
+      {t:"FN",n:"np.rollaxis(a, axis, start)",d:"Roll axis backward"},
+      {t:"FN",n:"np.squeeze(a, axis)",d:"Remove axes of length 1"},
+      {t:"FN",n:"np.expand_dims(a, axis)",d:"Add axis"},
+      {t:"FN",n:"np.broadcast_to(array, shape)",d:"Broadcast to shape (read-only view)"},
+      {t:"FN",n:"np.broadcast_arrays(*args)",d:"Broadcast multiple arrays"},
+      {t:"FN",n:"np.atleast_1d / atleast_2d / atleast_3d(*arys)",d:"Ensure minimum dims"},
+      {t:"FN",n:"np.flip(m, axis) / np.fliplr(m) / np.flipud(m)",d:"Reverse along axis"},
+      {t:"FN",n:"np.rot90(m, k, axes)",d:"Rotate 90° k times"},
+      {t:"FN",n:"np.roll(a, shift, axis)",d:"Roll elements circularly"},
+    ]},
+    { title:"Joining & Splitting", leaves:[
+      {t:"FN",n:"np.concatenate((a1,a2,...), axis, out)",d:"Join along existing axis"},
+      {t:"FN",n:"np.stack(arrays, axis, out)",d:"Join along new axis"},
+      {t:"FN",n:"np.hstack(tup) / np.vstack(tup) / np.dstack(tup)",d:"Stack H / V / depth"},
+      {t:"FN",n:"np.column_stack(tup) / np.row_stack(tup)",d:"Stack 1D as columns / rows"},
+      {t:"FN",n:"np.block(arrays)",d:"Assemble from nested lists"},
+      {t:"FN",n:"np.split(ary, indices_or_sections, axis)",d:"Split into sub-arrays"},
+      {t:"FN",n:"np.hsplit(ary, n) / vsplit / dsplit",d:"Split H / V / depth"},
+      {t:"FN",n:"np.array_split(ary, indices_or_sections, axis)",d:"Split allowing unequal"},
+      {t:"FN",n:"np.tile(A, reps)",d:"Tile array reps times"},
+      {t:"FN",n:"np.repeat(a, repeats, axis)",d:"Repeat elements"},
+      {t:"FN",n:"np.append(arr, values, axis)",d:"Append values"},
+      {t:"FN",n:"np.insert(arr, obj, values, axis)",d:"Insert before index"},
+      {t:"FN",n:"np.delete(arr, obj, axis)",d:"Delete sub-arrays"},
+      {t:"FN",n:"np.pad(array, pad_width, mode, **kwargs)",d:"Pad array boundary"},
+    ]},
+    { title:"Math Functions", leaves:[
+      {t:"FN",n:"np.add / subtract / multiply / divide / power / mod",d:"Arithmetic ufuncs"},
+      {t:"FN",n:"np.floor_divide / true_divide / divmod",d:"Integer / float / both division"},
+      {t:"FN",n:"np.negative(x) / np.positive(x) / np.absolute(x)",d:"Sign operations"},
+      {t:"FN",n:"np.sqrt(x) / np.cbrt(x) / np.square(x)",d:"Root / square"},
+      {t:"FN",n:"np.exp(x) / np.exp2(x) / np.expm1(x)",d:"Exponential variants"},
+      {t:"FN",n:"np.log(x) / np.log2(x) / np.log10(x) / np.log1p(x)",d:"Logarithm variants"},
+      {t:"FN",n:"np.sin / cos / tan / arcsin / arccos / arctan / arctan2",d:"Trig / inverse trig"},
+      {t:"FN",n:"np.sinh / cosh / tanh / arcsinh / arccosh / arctanh",d:"Hyperbolic trig"},
+      {t:"FN",n:"np.degrees(x) / np.radians(x) / np.deg2rad / rad2deg",d:"Angle conversion"},
+      {t:"FN",n:"np.hypot(x1, x2)",d:"Euclidean distance"},
+      {t:"FN",n:"np.floor(x) / np.ceil(x) / np.trunc(x) / np.rint(x)",d:"Rounding"},
+      {t:"FN",n:"np.round(a, decimals) / np.around(a, decimals)",d:"Round to N decimals"},
+      {t:"FN",n:"np.fix(x)",d:"Round towards zero"},
+      {t:"FN",n:"np.sign(x)",d:"-1, 0, or 1"},
+      {t:"FN",n:"np.clip(a, a_min, a_max, out)",d:"Clip values to range"},
+      {t:"FN",n:"np.interp(x, xp, fp, left, right, period)",d:"1D linear interpolation"},
+      {t:"FN",n:"np.convolve(a, v, mode)",d:"1D convolution"},
+      {t:"FN",n:"np.correlate(a, v, mode)",d:"1D cross-correlation"},
+      {t:"FN",n:"np.heaviside(x1, x2)",d:"Heaviside step function"},
+      {t:"FN",n:"np.gcd(x1, x2) / np.lcm(x1, x2)",d:"GCD / LCM element-wise"},
+      {t:"FN",n:"np.i0(x)",d:"Modified Bessel function I0"},
+    ]},
+    { title:"Reductions & Statistics", leaves:[
+      {t:"FN",n:"np.sum(a, axis, dtype, keepdims)",d:"Sum"},
+      {t:"FN",n:"np.prod(a, axis, dtype, keepdims)",d:"Product"},
+      {t:"FN",n:"np.mean(a, axis, dtype, keepdims)",d:"Arithmetic mean"},
+      {t:"FN",n:"np.median(a, axis, keepdims)",d:"Median"},
+      {t:"FN",n:"np.average(a, axis, weights, returned)",d:"Weighted average"},
+      {t:"FN",n:"np.std(a, axis, dtype, ddof, keepdims)",d:"Standard deviation"},
+      {t:"FN",n:"np.var(a, axis, dtype, ddof, keepdims)",d:"Variance"},
+      {t:"FN",n:"np.min(a, axis, keepdims) / np.max()",d:"Min / max"},
+      {t:"FN",n:"np.amin(a) / np.amax(a)",d:"Array min/max (aliases)"},
+      {t:"FN",n:"np.nansum / nanmean / nanstd / nanvar / nanmin / nanmax",d:"NaN-safe versions"},
+      {t:"FN",n:"np.nanmedian / np.nanpercentile / np.nanquantile",d:"NaN-safe percentiles"},
+      {t:"FN",n:"np.percentile(a, q, axis, interpolation)",d:"Percentile"},
+      {t:"FN",n:"np.quantile(a, q, axis, method)",d:"Quantile"},
+      {t:"FN",n:"np.cumsum(a, axis, dtype) / np.cumprod()",d:"Cumulative sum/product"},
+      {t:"FN",n:"np.diff(a, n, axis, prepend, append)",d:"Nth discrete difference"},
+      {t:"FN",n:"np.gradient(f, *varargs, edge_order)",d:"Numerical gradient"},
+      {t:"FN",n:"np.trapz(y, x, dx, axis)",d:"Trapezoidal integration"},
+      {t:"FN",n:"np.histogram(a, bins, range, density, weights)",d:"1D histogram"},
+      {t:"FN",n:"np.histogram2d(x, y, bins, range, density)",d:"2D histogram"},
+      {t:"FN",n:"np.histogramdd(sample, bins, range, density)",d:"N-D histogram"},
+      {t:"FN",n:"np.bincount(x, weights, minlength)",d:"Count occurrences of values"},
+      {t:"FN",n:"np.digitize(x, bins, right)",d:"Bin membership indices"},
+      {t:"FN",n:"np.correlate(a, v, mode)",d:"Discrete cross-correlation"},
+      {t:"FN",n:"np.cov(m, y, rowvar, bias, ddof, fweights, aweights)",d:"Covariance matrix"},
+      {t:"FN",n:"np.corrcoef(x, y, rowvar)",d:"Pearson correlation coefficients"},
+    ]},
+    { title:"Sorting, Searching, Counting", leaves:[
+      {t:"FN",n:"np.sort(a, axis, kind, order)",d:"Return sorted copy"},
+      {t:"FN",n:"np.argsort(a, axis, kind, order)",d:"Indices that would sort"},
+      {t:"FN",n:"np.lexsort(keys, axis)",d:"Sort by multiple keys"},
+      {t:"FN",n:"np.searchsorted(a, v, side, sorter)",d:"Insertion points in sorted array"},
+      {t:"FN",n:"np.partition(a, kth, axis, kind, order)",d:"Partial sort around kth"},
+      {t:"FN",n:"np.argpartition(a, kth, axis, kind, order)",d:"Indices for partial sort"},
+      {t:"FN",n:"np.sort_complex(a)",d:"Sort complex by real then imag"},
+      {t:"FN",n:"np.argmin(a, axis) / np.argmax(a, axis)",d:"Index of min/max"},
+      {t:"FN",n:"np.nanargmin(a, axis) / np.nanargmax(a, axis)",d:"NaN-safe argmin/max"},
+      {t:"FN",n:"np.where(condition, x, y)",d:"Conditional pick from x or y"},
+      {t:"FN",n:"np.nonzero(a)",d:"Indices of non-zero elements"},
+      {t:"FN",n:"np.flatnonzero(a)",d:"Flattened non-zero indices"},
+      {t:"FN",n:"np.count_nonzero(a, axis)",d:"Count non-zero elements"},
+      {t:"FN",n:"np.argwhere(a)",d:"Indices of non-zero as (N, ndim) array"},
+    ]},
+    { title:"Logical Functions", leaves:[
+      {t:"FN",n:"np.any(a, axis, keepdims) / np.all()",d:"Any/all True"},
+      {t:"FN",n:"np.isnan(x) / np.isinf(x) / np.isfinite(x) / np.isneginf(x)",d:"Float specials"},
+      {t:"FN",n:"np.isreal(x) / np.iscomplex(x) / np.isrealobj(x)",d:"Complex checks"},
+      {t:"FN",n:"np.isscalar(element) / np.isarray(a)",d:"Type checks"},
+      {t:"FN",n:"np.logical_and / logical_or / logical_not / logical_xor",d:"Element-wise logical ops"},
+      {t:"FN",n:"np.array_equal(a1, a2, equal_nan) / np.array_equiv(a1, a2)",d:"Array equality"},
+      {t:"FN",n:"np.allclose(a, b, rtol, atol, equal_nan)",d:"Element-wise approximate equal"},
+      {t:"FN",n:"np.isclose(a, b, rtol, atol, equal_nan)",d:"Boolean array of close elements"},
+      {t:"FN",n:"np.in1d(ar1, ar2, assume_unique, invert)",d:"Element membership test"},
+      {t:"FN",n:"np.isin(element, test_elements, assume_unique, invert)",d:"N-D membership test"},
+    ]},
+    { title:"Set Operations", leaves:[
+      {t:"FN",n:"np.unique(ar, return_index, return_inverse, return_counts, axis)",d:"Unique elements & optional extras"},
+      {t:"FN",n:"np.union1d(ar1, ar2)",d:"Set union"},
+      {t:"FN",n:"np.intersect1d(ar1, ar2, assume_unique, return_indices)",d:"Set intersection"},
+      {t:"FN",n:"np.setdiff1d(ar1, ar2, assume_unique)",d:"Set difference (ar1 not in ar2)"},
+      {t:"FN",n:"np.setxor1d(ar1, ar2, assume_unique)",d:"Symmetric difference"},
+    ]},
+    { title:"String Operations (np.char.*)", leaves:[
+      {t:"FN",n:"np.char.add(x1, x2)",d:"Concatenate strings element-wise"},
+      {t:"FN",n:"np.char.multiply(a, i)",d:"Repeat string i times"},
+      {t:"FN",n:"np.char.upper(a) / .lower(a) / .capitalize(a) / .title(a)",d:"Case transforms"},
+      {t:"FN",n:"np.char.strip(a, chars) / .lstrip / .rstrip",d:"Strip whitespace/chars"},
+      {t:"FN",n:"np.char.split(a, sep, maxsplit)",d:"Split strings"},
+      {t:"FN",n:"np.char.join(sep, seq)",d:"Join strings with separator"},
+      {t:"FN",n:"np.char.replace(a, old, new, count)",d:"Replace substring"},
+      {t:"FN",n:"np.char.find(a, sub, start, end) / .index / .rfind",d:"Find substring"},
+      {t:"FN",n:"np.char.startswith(a, prefix) / .endswith(a, suffix)",d:"Prefix/suffix test"},
+      {t:"FN",n:"np.char.count(a, sub, start, end)",d:"Count occurrences"},
+      {t:"FN",n:"np.char.equal / not_equal / greater / less",d:"Element-wise string comparison"},
+    ]},
+    { title:"Random Module (np.random)", leaves:[
+      {t:"CL",n:"np.random.default_rng(seed)",d:"New-style Generator (preferred)"},
+      {t:"FN",n:"rng.random(size) / rng.standard_normal(size)",d:"Uniform [0,1) / standard normal"},
+      {t:"FN",n:"rng.integers(low, high, size)",d:"Random integers"},
+      {t:"FN",n:"rng.choice(a, size, replace, p)",d:"Random sample from array"},
+      {t:"FN",n:"rng.shuffle(x) / rng.permutation(x)",d:"Shuffle in-place / return permuted"},
+      {t:"FN",n:"rng.uniform(low, high, size)",d:"Uniform distribution"},
+      {t:"FN",n:"rng.normal(loc, scale, size)",d:"Normal distribution"},
+      {t:"FN",n:"rng.binomial(n, p, size)",d:"Binomial distribution"},
+      {t:"FN",n:"rng.poisson(lam, size)",d:"Poisson distribution"},
+      {t:"FN",n:"rng.exponential(scale, size)",d:"Exponential distribution"},
+      {t:"FN",n:"rng.beta / gamma / dirichlet / multivariate_normal",d:"Other distributions"},
+      {t:"FN",n:"np.random.seed(seed) [legacy]",d:"Legacy RNG seed"},
+      {t:"FN",n:"np.random.rand() / randn() / randint() [legacy]",d:"Legacy convenience functions"},
+    ]},
+    { title:"Linear Algebra (np.linalg)", leaves:[
+      {t:"FN",n:"np.linalg.dot(a, b) / np.dot(a, b)",d:"Dot product"},
+      {t:"FN",n:"np.linalg.matmul(x1, x2) / np.matmul / @",d:"Matrix multiplication"},
+      {t:"FN",n:"np.linalg.vdot(a, b)",d:"Dot with conjugation"},
+      {t:"FN",n:"np.linalg.inner(a, b) / np.inner",d:"Inner product"},
+      {t:"FN",n:"np.linalg.outer(a, b) / np.outer",d:"Outer product"},
+      {t:"FN",n:"np.linalg.tensordot(a, b, axes)",d:"Tensor contraction"},
+      {t:"FN",n:"np.einsum(subscripts, *operands)",d:"Einstein summation"},
+      {t:"FN",n:"np.linalg.matrix_power(M, n)",d:"Matrix raised to integer power"},
+      {t:"FN",n:"np.linalg.inv(a)",d:"Matrix inverse"},
+      {t:"FN",n:"np.linalg.pinv(a, rcond)",d:"Moore-Penrose pseudo-inverse"},
+      {t:"FN",n:"np.linalg.solve(a, b)",d:"Solve ax = b"},
+      {t:"FN",n:"np.linalg.lstsq(a, b, rcond)",d:"Least-squares solution"},
+      {t:"FN",n:"np.linalg.det(a)",d:"Determinant"},
+      {t:"FN",n:"np.linalg.slogdet(a)",d:"Sign and log determinant"},
+      {t:"FN",n:"np.linalg.norm(x, ord, axis, keepdims)",d:"Matrix or vector norm"},
+      {t:"FN",n:"np.linalg.matrix_rank(M, tol, hermitian)",d:"Rank of matrix"},
+      {t:"FN",n:"np.linalg.cond(x, p)",d:"Condition number"},
+      {t:"FN",n:"np.linalg.trace(a, offset, axis1, axis2)",d:"Sum along diagonal"},
+      {t:"FN",n:"np.linalg.eig(a)",d:"Eigenvalues and right eigenvectors"},
+      {t:"FN",n:"np.linalg.eigh(a, UPLO)",d:"Eigenvalues for symmetric/Hermitian"},
+      {t:"FN",n:"np.linalg.eigvals(a) / eigvalsh(a)",d:"Eigenvalues only"},
+      {t:"FN",n:"np.linalg.svd(a, full_matrices, compute_uv, hermitian)",d:"Singular value decomposition"},
+      {t:"FN",n:"np.linalg.qr(a, mode)",d:"QR decomposition"},
+      {t:"FN",n:"np.linalg.cholesky(a)",d:"Cholesky decomposition (L L^H = a)"},
+      {t:"FN",n:"np.linalg.multi_dot(arrays)",d:"Chain matrix products efficiently"},
+      {t:"FN",n:"np.linalg.cross(a, b, axisa, axisb, axisc, axis)",d:"Cross product"},
+      {t:"FN",n:"np.kron(a, b)",d:"Kronecker product"},
+    ]},
+    { title:"FFT (np.fft)", leaves:[
+      {t:"FN",n:"np.fft.fft(a, n, axis, norm)",d:"1D discrete Fourier transform"},
+      {t:"FN",n:"np.fft.ifft(a, n, axis, norm)",d:"Inverse 1D DFT"},
+      {t:"FN",n:"np.fft.rfft(a, n, axis, norm)",d:"DFT for real input"},
+      {t:"FN",n:"np.fft.irfft(a, n, axis, norm)",d:"Inverse DFT for real input"},
+      {t:"FN",n:"np.fft.fft2(a, s, axes, norm) / ifft2",d:"2D DFT / inverse"},
+      {t:"FN",n:"np.fft.fftn(a, s, axes, norm) / ifftn",d:"N-D DFT / inverse"},
+      {t:"FN",n:"np.fft.rfftn / irfftn",d:"N-D real DFT / inverse"},
+      {t:"FN",n:"np.fft.hfft / ihfft",d:"Hermitian symmetric DFT"},
+      {t:"FN",n:"np.fft.fftfreq(n, d) / rfftfreq(n, d)",d:"DFT sample frequencies"},
+      {t:"FN",n:"np.fft.fftshift(x) / ifftshift(x)",d:"Shift zero-frequency to center"},
+    ]},
+    { title:"Polynomial (np.polynomial)", leaves:[
+      {t:"CL",n:"np.polynomial.Polynomial(coef)",d:"Power series polynomial"},
+      {t:"CL",n:"np.polynomial.Chebyshev(coef)",d:"Chebyshev series"},
+      {t:"CL",n:"np.polynomial.Legendre(coef)",d:"Legendre series"},
+      {t:"CL",n:"np.polynomial.Laguerre(coef)",d:"Laguerre series"},
+      {t:"CL",n:"np.polynomial.Hermite / HermiteE(coef)",d:"Physicist/Probabilist Hermite"},
+      {t:"FN",n:"poly.roots() / poly.fit(x, y, deg)",d:"Roots / fit to data"},
+      {t:"FN",n:"poly.deriv(m) / poly.integ(m, k)",d:"Derivative / integral"},
+      {t:"FN",n:"np.polyfit(x, y, deg, rcond, full, w, cov)",d:"Least-squares polynomial fit (legacy)"},
+      {t:"FN",n:"np.polyval(p, x)",d:"Evaluate polynomial at x (legacy)"},
+      {t:"FN",n:"np.poly(seq_of_zeros)",d:"Return polynomial coefficients (legacy)"},
+      {t:"FN",n:"np.polyadd / polysub / polymul / polydiv",d:"Polynomial arithmetic (legacy)"},
+    ]},
+    { title:"Data Types (np.dtype & type objects)", leaves:[
+      {t:"CL",n:"np.dtype(obj)",d:"Describe memory layout of scalar type"},
+      {t:"AT",n:"np.bool_ / np.int8/16/32/64 / np.uint8/16/32/64",d:"Exact-width integer types"},
+      {t:"AT",n:"np.float16 / np.float32 / np.float64 / np.float128",d:"Floating point types"},
+      {t:"AT",n:"np.complex64 / np.complex128 / np.complex256",d:"Complex types"},
+      {t:"AT",n:"np.str_ / np.bytes_ / np.object_ / np.void",d:"String / object types"},
+      {t:"AT",n:"np.intp / np.intc / np.int_ / np.float_",d:"Platform-dependent aliases"},
+      {t:"FN",n:"np.finfo(dtype) / np.iinfo(dtype)",d:"Float/int machine limits"},
+      {t:"FN",n:"np.result_type(*args) / np.common_type(*arrays)",d:"Result type from promotion"},
+      {t:"FN",n:"np.can_cast(from_, to, casting)",d:"Is cast possible?"},
+      {t:"FN",n:"np.min_scalar_type(a)",d:"Smallest type for scalar"},
+      {t:"FN",n:"np.promote_types(type1, type2)",d:"Smallest common supertype"},
+      {t:"FN",n:"np.find_common_type(array_types, scalar_types)",d:"Common type for mixed lists"},
+    ]},
+    { title:"Memory & Structured Arrays", leaves:[
+      {t:"FN",n:"np.frompyfunc(func, nin, nout)",d:"Wrap Python function as ufunc"},
+      {t:"FN",n:"np.vectorize(pyfunc, otypes, excluded)",d:"Vectorize scalar function"},
+      {t:"FN",n:"np.apply_along_axis(func1d, axis, arr)",d:"Apply 1D function along axis"},
+      {t:"FN",n:"np.apply_over_axes(func, a, axes)",d:"Apply function over multiple axes"},
+      {t:"FN",n:"np.piecewise(x, condlist, funclist)",d:"Piecewise function"},
+      {t:"CL",n:"np.nditer(op, flags, op_flags)",d:"Efficient multi-array iterator"},
+      {t:"CL",n:"np.ndenumerate(arr)",d:"Iterator yielding (index, value) pairs"},
+      {t:"FN",n:"np.shares_memory(a, b, max_work) / np.may_share_memory()",d:"Check memory overlap"},
+      {t:"FN",n:"np.ascontiguousarray(a, dtype) / np.asfortranarray(a, dtype)",d:"Force C/Fortran order"},
+      {t:"FN",n:"np.require(a, dtype, requirements)",d:"Return array satisfying requirements"},
+      {t:"CL",n:"np.memmap(filename, dtype, mode, shape)",d:"Memory-mapped array from file"},
+      {t:"FN",n:"np.lib.stride_tricks.as_strided(x, shape, strides)",d:"Create view with custom strides"},
+    ]},
+    { title:"Miscellaneous Utilities", leaves:[
+      {t:"FN",n:"np.copy(a, order) / np.copyto(dst, src, casting, where)",d:"Copy arrays"},
+      {t:"FN",n:"np.broadcast(*args)",d:"Produce broadcast object"},
+      {t:"FN",n:"np.iter_addindex(a) → np.ndenumerate(a)",d:"Index enumeration"},
+      {t:"FN",n:"np.get_include()",d:"Path to numpy header files (C extensions)"},
+      {t:"FN",n:"np.show_config()",d:"Print build config"},
+      {t:"FN",n:"np.testing.assert_array_equal(x, y)",d:"Test array equality"},
+      {t:"FN",n:"np.testing.assert_allclose(actual, desired, rtol, atol)",d:"Test approx equality"},
+      {t:"FN",n:"np.testing.assert_array_less(x, y)",d:"Test element-wise less"},
+      {t:"AT",n:"np.__version__",d:"NumPy version string"},
+      {t:"AT",n:"np.pi / np.e / np.inf / np.nan / np.euler_gamma",d:"Mathematical constants"},
+      {t:"FN",n:"np.set_printoptions(precision, threshold, linewidth, suppress)",d:"Control array printing"},
+      {t:"FN",n:"np.get_printoptions()",d:"Get current print options"},
+      {t:"FN",n:"np.format_float_scientific / format_float_positional",d:"Format single float"},
+      {t:"FN",n:"np.printoptions(precision, suppress)",d:"Context manager for print options"},
+    ]},
+  ]},
+  { label:"numpy.ma", desc:"Masked arrays — handle missing/invalid data", secs:[
+    { title:"Masked Array API", leaves:[
+      {t:"CL",n:"np.ma.array(data, mask, fill_value)",d:"Create masked array"},
+      {t:"CL",n:"np.ma.MaskedArray",d:"Array subclass with mask"},
+      {t:"FN",n:"np.ma.masked_where(condition, a, copy)",d:"Mask where condition is True"},
+      {t:"FN",n:"np.ma.masked_equal / masked_not_equal / masked_greater / masked_less",d:"Comparison masking"},
+      {t:"FN",n:"np.ma.masked_invalid(a, copy)",d:"Mask NaN and Inf"},
+      {t:"FN",n:"np.ma.masked_outside(x, v1, v2)",d:"Mask outside range"},
+      {t:"FN",n:"np.ma.getdata(a, subok) / getmask(a) / getmaskarray(a)",d:"Extract data/mask"},
+      {t:"FN",n:"np.ma.filled(a, fill_value)",d:"Return filled copy"},
+      {t:"FN",n:"np.ma.is_masked(x) / is_maskarray(x)",d:"Check if masked"},
+      {t:"FN",n:"np.ma.count(a, axis) / count_masked(arr, axis)",d:"Count unmasked/masked"},
+      {t:"FN",n:"np.ma.compressed(x)",d:"Return non-masked data as 1D"},
+      {t:"FN",n:"np.ma.concatenate(arrays, axis)",d:"Concatenate masked arrays"},
+      {t:"AT",n:".data / .mask / .fill_value / .hardmask",d:"Key masked array attributes"},
+    ]},
+  ]},
+  { label:"numpy.lib", desc:"Extra utilities, stride tricks, array pad, etc.", secs:[
+    { title:"Useful lib functions", leaves:[
+      {t:"FN",n:"np.lib.stride_tricks.as_strided(x, shape, strides)",d:"Custom strided views"},
+      {t:"FN",n:"np.lib.stride_tricks.sliding_window_view(x, window_shape)",d:"Sliding window without copy"},
+      {t:"FN",n:"np.pad(array, pad_width, mode, **kwargs)",d:"Pad arrays (many modes)"},
+      {t:"FN",n:"np.lib.index_tricks.r_[...] / c_[...]",d:"Row/column stacking shortcut"},
+      {t:"FN",n:"np.lib.recfunctions.structured_to_unstructured(arr)",d:"Structured → regular array"},
+      {t:"FN",n:"np.lib.recfunctions.merge_arrays(seqarrays)",d:"Merge structured arrays"},
+      {t:"FN",n:"np.lib.recfunctions.append_fields(base, names, data)",d:"Add fields to structured array"},
+      {t:"FN",n:"np.lib.format.open_memmap(filename, dtype, mode, shape)",d:"Memory-mapped .npy file"},
+    ]},
+  ]},
+];
+
+function buildTree(data, container) {
+  data.forEach(ns => {
+    const nsNode = document.createElement('div'); nsNode.className = 'ns-node';
+    const nsHeader = document.createElement('div'); nsHeader.className = 'ns-header';
+    nsHeader.innerHTML = `<span class="toggle">▶</span><span class="badge b-ns">NS</span><span class="ns-label">${ns.label}</span><span class="ns-desc">${ns.desc}</span>`;
+    const nsChildren = document.createElement('div'); nsChildren.className = 'ns-children closed';
+    nsHeader.addEventListener('click', () => { const o=!nsChildren.classList.contains('closed'); nsChildren.classList.toggle('closed',o); nsHeader.querySelector('.toggle').classList.toggle('open',!o); });
+    ns.secs.forEach(sec => {
+      const secNode = document.createElement('div'); secNode.className='sec-node';
+      const secHeader = document.createElement('div'); secHeader.className='sec-header';
+      secHeader.innerHTML=`<span class="toggle">▶</span><span class="badge b-sec">§</span><span class="sec-label">${sec.title}</span>`;
+      const secChildren = document.createElement('div'); secChildren.className='sec-children closed';
+      secHeader.addEventListener('click',()=>{ const o=!secChildren.classList.contains('closed'); secChildren.classList.toggle('closed',o); secHeader.querySelector('.toggle').classList.toggle('open',!o); });
+      sec.leaves.forEach(leaf=>{
+        const bMap={FN:'b-fn',CL:'b-cl',AT:'b-at'};
+        const el=document.createElement('div'); el.className='leaf';
+        el.dataset.search=(leaf.n+' '+leaf.d).toLowerCase();
+        el.innerHTML=`<span class="badge ${bMap[leaf.t]||'b-fn'}">${leaf.t}</span><span class="lname">${leaf.n}</span><span class="ldesc">${leaf.d}</span>`;
+        secChildren.appendChild(el);
+      });
+      secNode.appendChild(secHeader); secNode.appendChild(secChildren); nsChildren.appendChild(secNode);
+    });
+    nsNode.appendChild(nsHeader); nsNode.appendChild(nsChildren); container.appendChild(nsNode);
+  });
+}
+function expandAll(){ document.querySelectorAll('.ns-children,.sec-children').forEach(c=>c.classList.remove('closed')); document.querySelectorAll('.toggle').forEach(t=>t.classList.add('open')); }
+function collapseAll(){ document.querySelectorAll('.ns-children,.sec-children').forEach(c=>c.classList.add('closed')); document.querySelectorAll('.toggle').forEach(t=>t.classList.remove('open')); }
+function filterTree(q){
+  q=q.toLowerCase().trim();
+  if(!q){ document.querySelectorAll('.leaf').forEach(l=>{l.classList.remove('hidden','highlight');}); document.querySelectorAll('.ns-children,.sec-children').forEach(c=>c.classList.add('closed')); document.querySelectorAll('.toggle').forEach(t=>t.classList.remove('open')); return; }
+  document.querySelectorAll('.leaf').forEach(leaf=>{
+    const match=leaf.dataset.search&&leaf.dataset.search.includes(q);
+    leaf.classList.toggle('hidden',!match); leaf.classList.toggle('highlight',match);
+    if(match){ let p=leaf.parentElement; while(p&&p.id!=='tree'){ if(p.classList.contains('sec-children')||p.classList.contains('ns-children')){ p.classList.remove('closed'); const prev=p.previousElementSibling; if(prev){const tog=prev.querySelector('.toggle');if(tog)tog.classList.add('open');} } p=p.parentElement; } }
+  });
+}
+buildTree(DATA, document.getElementById('tree'));
+</script>
+</body>
+</html>

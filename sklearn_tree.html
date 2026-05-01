@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🤖 Scikit-learn Complete API Tree</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 20px; }
+  h1 { text-align: center; font-size: 1.6rem; color: #f687b3; margin-bottom: 6px; font-weight: 800; }
+  .subtitle { text-align: center; font-size: 0.78rem; color: #718096; margin-bottom: 18px; }
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap; }
+  .controls input { padding: 8px 16px; border-radius: 8px; border: 1px solid #2d3748; background: #1a202c; color: #e2e8f0; font-size: 0.85rem; outline: none; width: 340px; }
+  .controls input:focus { border-color: #f687b3; }
+  .btn { padding: 8px 14px; border-radius: 8px; border: 1px solid #2d3748; background: #1a202c; color: #90cdf4; font-size: 0.78rem; cursor: pointer; }
+  .btn:hover { background: #2d3748; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: #718096; }
+  .badge { font-size: 0.6rem; padding: 2px 7px; border-radius: 20px; font-weight: 700; white-space: nowrap; }
+  .b-ns { background: #2b4a7a; color: #90cdf4; }
+  .b-cl { background: #2d4a2d; color: #68d391; }
+  .b-fn { background: #4a3a1e; color: #f6ad55; }
+  .b-es { background: #4a2d3a; color: #f687b3; }
+  .b-tf { background: #2d3d4a; color: #63b3ed; }
+  .b-sec { background: #1a2a3a; color: #63b3ed; }
+  .tree-root { max-width: 1100px; margin: 0 auto; }
+  .ns-node { margin: 6px 0; }
+  .ns-header { display: flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 9px; padding: 8px 14px; background: #1a202c; border: 1px solid #2d3748; transition: background 0.15s; }
+  .ns-header:hover { background: #232b38; border-color: #f687b344; }
+  .toggle { font-size: 0.65rem; color: #718096; min-width: 12px; transition: transform 0.18s; }
+  .toggle.open { transform: rotate(90deg); }
+  .ns-label { font-size: 0.95rem; font-weight: 700; color: #e2e8f0; flex: 1; }
+  .ns-desc { font-size: 0.72rem; color: #718096; text-align: right; max-width: 300px; }
+  .ns-children { padding-left: 28px; border-left: 2px solid #2d3748; margin-left: 18px; }
+  .ns-children.closed { display: none; }
+  .sec-node { margin: 4px 0; }
+  .sec-header { display: flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 7px; padding: 5px 10px; transition: background 0.13s; }
+  .sec-header:hover { background: #1a202c; }
+  .sec-label { font-size: 0.82rem; font-weight: 600; color: #90cdf4; flex: 1; }
+  .sec-children { padding-left: 20px; border-left: 1px solid #2d3748; margin-left: 14px; }
+  .sec-children.closed { display: none; }
+  .leaf { display: flex; align-items: flex-start; gap: 8px; padding: 4px 10px 4px 14px; border-radius: 5px; margin: 2px 0; font-size: 0.76rem; transition: background 0.1s; }
+  .leaf:hover { background: #1a202c; }
+  .leaf .lname { font-weight: 600; color: #cbd5e0; min-width: 260px; }
+  .leaf .ldesc { color: #718096; font-size: 0.7rem; }
+  .leaf.highlight { background: #2d2a00 !important; }
+  .leaf.hidden { display: none; }
+</style>
+<style>
+/* ── WHITE THEME OVERRIDE ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+body {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, #94a3b8 1.5px, transparent 1.5px);
+  background-size: 28px 28px;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+.back-home {
+  position: relative; z-index: 2;
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-bottom: 20px; padding: 7px 14px;
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  background: rgba(255,255,255,0.9); color: #475569;
+  font-size: 0.78rem; font-weight: 600; text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.back-home:hover { border-color: #db2777; color: #db2777; }
+h1, .subtitle, .controls, .legend, .tree-root { position: relative; z-index: 1; }
+h1 { color: #db2777 !important; }
+.subtitle { color: #64748b !important; }
+.controls input {
+  background: #f8fafc !important; border-color: #cbd5e0 !important;
+  color: #1e293b !important;
+}
+.controls input:focus { border-color: #db2777 !important; }
+.controls input::placeholder { color: #94a3b8; }
+.btn { background: #f8fafc !important; border-color: #cbd5e0 !important; color: #db2777 !important; }
+.btn:hover { background: #fdf2f8 !important; border-color: #f9a8d4 !important; }
+.legend-item { color: #64748b !important; }
+.b-ns { background: #dbeafe !important; color: #1d4ed8 !important; }
+.b-cl { background: #dcfce7 !important; color: #15803d !important; }
+.b-fn { background: #fef3c7 !important; color: #92400e !important; }
+.b-es { background: #fce7f3 !important; color: #9d174d !important; }
+.b-tf { background: #e0f2fe !important; color: #075985 !important; }
+.b-sec { background: #e0f2fe !important; color: #075985 !important; }
+.ns-header { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+.ns-header:hover { background: #fdf2f8 !important; border-color: #f9a8d4 !important; }
+.ns-label { color: #0f172a !important; }
+.ns-desc { color: #64748b !important; }
+.toggle { color: #94a3b8 !important; }
+.ns-children { border-left-color: #e2e8f0 !important; }
+.sec-header:hover { background: #f8fafc !important; }
+.sec-label { color: #be185d !important; }
+.sec-children { border-left-color: #e2e8f0 !important; }
+.leaf:hover { background: #fdf2f8 !important; }
+.leaf .lname { color: #1e293b !important; }
+.leaf .ldesc { color: #64748b !important; }
+.leaf.highlight { background: #fef9c3 !important; }
+</style>
+</head>
+<body>
+<a class="back-home" href="index.html">← Home</a>
+<h1>🤖 Scikit-learn — Complete API Reference Tree</h1>
+<p class="subtitle">Click any section to expand/collapse &nbsp;•&nbsp; Use search to filter</p>
+<div class="controls">
+  <input id="search" type="text" placeholder="Search: e.g. RandomForest, PCA, cross_val_score..." oninput="filterTree(this.value)"/>
+  <button class="btn" onclick="expandAll()">Expand All</button>
+  <button class="btn" onclick="collapseAll()">Collapse All</button>
+</div>
+<div class="legend">
+  <div class="legend-item"><span class="badge b-ns">NS</span> Module</div>
+  <div class="legend-item"><span class="badge b-es">ES</span> Estimator (fit/predict)</div>
+  <div class="legend-item"><span class="badge b-tf">TF</span> Transformer (fit/transform)</div>
+  <div class="legend-item"><span class="badge b-fn">FN</span> Function</div>
+  <div class="legend-item"><span class="badge b-cl">CL</span> Class/Utility</div>
+</div>
+<div class="tree-root" id="tree"></div>
+<script>
+const DATA = [
+  { label:"sklearn.linear_model", desc:"Linear models for regression and classification", secs:[
+    { title:"Regression", leaves:[
+      {t:"ES",n:"LinearRegression(fit_intercept, normalize)",d:"Ordinary least squares"},
+      {t:"ES",n:"Ridge(alpha, fit_intercept, solver)",d:"L2-regularized linear regression"},
+      {t:"ES",n:"RidgeCV(alphas, cv, scoring)",d:"Ridge with built-in cross-validation"},
+      {t:"ES",n:"Lasso(alpha, fit_intercept, max_iter)",d:"L1-regularized (sparse coefficients)"},
+      {t:"ES",n:"LassoCV(eps, n_alphas, cv)",d:"Lasso with CV along regularization path"},
+      {t:"ES",n:"ElasticNet(alpha, l1_ratio, fit_intercept)",d:"Combined L1+L2 regularization"},
+      {t:"ES",n:"ElasticNetCV(l1_ratio, eps, n_alphas, cv)",d:"ElasticNet with CV"},
+      {t:"ES",n:"BayesianRidge(n_iter, alpha_1, lambda_1)",d:"Bayesian linear regression"},
+      {t:"ES",n:"ARDRegression(n_iter, alpha_1)",d:"Automatic Relevance Determination"},
+      {t:"ES",n:"HuberRegressor(epsilon, max_iter, alpha)",d:"Robust to outliers"},
+      {t:"ES",n:"QuantileRegressor(quantile, alpha, solver)",d:"Quantile regression"},
+      {t:"ES",n:"TweedieRegressor(power, alpha, link)",d:"Generalized linear model"},
+      {t:"ES",n:"Lars(fit_intercept, n_nonzero_coefs)",d:"Least angle regression"},
+      {t:"ES",n:"LassoLars(alpha, fit_intercept)",d:"Lasso via LARS algorithm"},
+      {t:"ES",n:"OrthogonalMatchingPursuit(n_nonzero_coefs)",d:"Greedy OMP for sparse signals"},
+      {t:"ES",n:"PassiveAggressiveRegressor(C, max_iter)",d:"Online learning regressor"},
+      {t:"ES",n:"SGDRegressor(loss, penalty, alpha, l1_ratio)",d:"SGD with various losses"},
+    ]},
+    { title:"Classification", leaves:[
+      {t:"ES",n:"LogisticRegression(C, penalty, solver, multi_class)",d:"L1/L2 logistic regression"},
+      {t:"ES",n:"LogisticRegressionCV(Cs, cv, penalty, scoring)",d:"Logistic with cross-validation"},
+      {t:"ES",n:"SGDClassifier(loss, penalty, alpha, l1_ratio)",d:"SGD — many loss functions"},
+      {t:"ES",n:"Perceptron(penalty, alpha, fit_intercept)",d:"Classic perceptron"},
+      {t:"ES",n:"PassiveAggressiveClassifier(C, loss)",d:"Online learning classifier"},
+      {t:"ES",n:"RidgeClassifier(alpha, class_weight)",d:"Ridge regression as classifier"},
+    ]},
+  ]},
+  { label:"sklearn.ensemble", desc:"Ensemble methods — bagging, boosting, forests", secs:[
+    { title:"Tree Ensembles", leaves:[
+      {t:"ES",n:"RandomForestClassifier(n_estimators, max_depth, max_features, min_samples_split)",d:"Bagged decision trees — classification"},
+      {t:"ES",n:"RandomForestRegressor(n_estimators, max_depth, ...)",d:"Bagged decision trees — regression"},
+      {t:"ES",n:"ExtraTreesClassifier(n_estimators, max_features, ...)",d:"Extremely randomized trees — clf"},
+      {t:"ES",n:"ExtraTreesRegressor(n_estimators, max_features, ...)",d:"Extremely randomized trees — reg"},
+      {t:"ES",n:"GradientBoostingClassifier(n_estimators, learning_rate, max_depth, loss)",d:"Gradient boosting — classification"},
+      {t:"ES",n:"GradientBoostingRegressor(n_estimators, learning_rate, max_depth, loss)",d:"Gradient boosting — regression"},
+      {t:"ES",n:"HistGradientBoostingClassifier(max_iter, learning_rate, max_depth)",d:"Fast histogram-based GB — clf"},
+      {t:"ES",n:"HistGradientBoostingRegressor(max_iter, learning_rate, ...)",d:"Fast histogram-based GB — reg"},
+      {t:"ES",n:"AdaBoostClassifier(base_estimator, n_estimators, learning_rate)",d:"AdaBoost — classification"},
+      {t:"ES",n:"AdaBoostRegressor(base_estimator, n_estimators, loss)",d:"AdaBoost — regression"},
+      {t:"ES",n:"BaggingClassifier(base_estimator, n_estimators, max_samples)",d:"Bootstrap aggregating — clf"},
+      {t:"ES",n:"BaggingRegressor(base_estimator, n_estimators, ...)",d:"Bootstrap aggregating — reg"},
+    ]},
+    { title:"Voting & Stacking", leaves:[
+      {t:"ES",n:"VotingClassifier(estimators, voting, weights)",d:"Majority vote / soft proba combo"},
+      {t:"ES",n:"VotingRegressor(estimators, weights)",d:"Average predictions"},
+      {t:"ES",n:"StackingClassifier(estimators, final_estimator, cv)",d:"Meta-learner over base models"},
+      {t:"ES",n:"StackingRegressor(estimators, final_estimator, cv)",d:"Meta-learner regression"},
+      {t:"ES",n:"IsolationForest(n_estimators, contamination, max_features)",d:"Anomaly detection via isolation"},
+      {t:"ES",n:"RandomTreesEmbedding(n_estimators, max_depth, ...)",d:"Unsupervised transform to high-dim"},
+    ]},
+  ]},
+  { label:"sklearn.tree", desc:"Decision tree classifiers and regressors", secs:[
+    { title:"Decision Trees", leaves:[
+      {t:"ES",n:"DecisionTreeClassifier(criterion, max_depth, min_samples_split, class_weight)",d:"CART tree — classification"},
+      {t:"ES",n:"DecisionTreeRegressor(criterion, max_depth, min_samples_split)",d:"CART tree — regression"},
+      {t:"ES",n:"ExtraTreeClassifier(criterion, max_features, ...)",d:"Single extra-random tree — clf"},
+      {t:"ES",n:"ExtraTreeRegressor(criterion, max_features, ...)",d:"Single extra-random tree — reg"},
+      {t:"FN",n:"export_graphviz(decision_tree, out_file, feature_names, class_names)",d:"Export tree to Graphviz DOT format"},
+      {t:"FN",n:"export_text(decision_tree, feature_names, max_depth)",d:"Text representation of tree"},
+      {t:"FN",n:"plot_tree(decision_tree, feature_names, class_names, filled)",d:"Matplotlib plot of tree"},
+    ]},
+  ]},
+  { label:"sklearn.svm", desc:"Support vector machines for classification and regression", secs:[
+    { title:"SVM Estimators", leaves:[
+      {t:"ES",n:"SVC(C, kernel, degree, gamma, coef0, class_weight)",d:"C-Support Vector Classification"},
+      {t:"ES",n:"NuSVC(nu, kernel, degree, gamma, class_weight)",d:"Nu-Support Vector Classification"},
+      {t:"ES",n:"LinearSVC(penalty, loss, C, class_weight, max_iter)",d:"Linear SVC (faster, liblinear)"},
+      {t:"ES",n:"SVR(kernel, degree, gamma, C, epsilon)",d:"Support Vector Regression"},
+      {t:"ES",n:"NuSVR(nu, C, kernel, degree, gamma)",d:"Nu-Support Vector Regression"},
+      {t:"ES",n:"LinearSVR(C, loss, epsilon, max_iter)",d:"Linear SVR (faster, liblinear)"},
+      {t:"ES",n:"OneClassSVM(kernel, degree, gamma, nu)",d:"Unsupervised outlier detection"},
+    ]},
+  ]},
+  { label:"sklearn.neighbors", desc:"K-nearest neighbors and related algorithms", secs:[
+    { title:"KNN Estimators", leaves:[
+      {t:"ES",n:"KNeighborsClassifier(n_neighbors, weights, algorithm, metric)",d:"KNN classification"},
+      {t:"ES",n:"KNeighborsRegressor(n_neighbors, weights, algorithm, metric)",d:"KNN regression"},
+      {t:"ES",n:"RadiusNeighborsClassifier(radius, weights, algorithm)",d:"Fixed-radius classification"},
+      {t:"ES",n:"RadiusNeighborsRegressor(radius, weights, algorithm)",d:"Fixed-radius regression"},
+      {t:"ES",n:"NearestNeighbors(n_neighbors, radius, algorithm, metric)",d:"Unsupervised neighbor queries"},
+      {t:"ES",n:"NearestCentroid(metric, shrink_threshold)",d:"Classify by nearest class centroid"},
+      {t:"ES",n:"LocalOutlierFactor(n_neighbors, contamination)",d:"Anomaly detection via local density"},
+      {t:"CL",n:"BallTree(X, leaf_size, metric)",d:"Ball tree for efficient lookup"},
+      {t:"CL",n:"KDTree(X, leaf_size, metric)",d:"KD tree for efficient lookup"},
+    ]},
+  ]},
+  { label:"sklearn.naive_bayes", desc:"Naive Bayes classifiers", secs:[
+    { title:"Naive Bayes", leaves:[
+      {t:"ES",n:"GaussianNB(priors, var_smoothing)",d:"Gaussian likelihood — continuous features"},
+      {t:"ES",n:"MultinomialNB(alpha, fit_prior, class_prior)",d:"Multinomial — count features (text)"},
+      {t:"ES",n:"BernoulliNB(alpha, binarize, fit_prior)",d:"Binary features"},
+      {t:"ES",n:"ComplementNB(alpha, fit_prior, norm)",d:"Complement NB — imbalanced text"},
+      {t:"ES",n:"CategoricalNB(alpha, fit_prior)",d:"Categorical features"},
+    ]},
+  ]},
+  { label:"sklearn.neural_network", desc:"Neural network models (scikit-learn style)", secs:[
+    { title:"MLP Estimators", leaves:[
+      {t:"ES",n:"MLPClassifier(hidden_layer_sizes, activation, solver, alpha, learning_rate, max_iter)",d:"Multi-layer perceptron classifier"},
+      {t:"ES",n:"MLPRegressor(hidden_layer_sizes, activation, solver, alpha, ...)",d:"Multi-layer perceptron regressor"},
+      {t:"ES",n:"BernoulliRBM(n_components, learning_rate, batch_size, n_iter)",d:"Restricted Boltzmann Machine"},
+    ]},
+  ]},
+  { label:"sklearn.decomposition", desc:"Matrix factorization and dimensionality reduction", secs:[
+    { title:"Decomposition Methods", leaves:[
+      {t:"TF",n:"PCA(n_components, whiten, svd_solver, random_state)",d:"Principal Component Analysis"},
+      {t:"TF",n:"IncrementalPCA(n_components, whiten, batch_size)",d:"PCA for large datasets"},
+      {t:"TF",n:"KernelPCA(n_components, kernel, gamma, degree, coef0)",d:"Non-linear PCA via kernel"},
+      {t:"TF",n:"SparsePCA(n_components, alpha, ridge_alpha, method)",d:"Sparse coding PCA"},
+      {t:"TF",n:"MiniBatchSparsePCA(n_components, alpha, batch_size)",d:"Sparse PCA for large data"},
+      {t:"TF",n:"TruncatedSVD(n_components, algorithm, n_iter)",d:"LSA — works on sparse matrices"},
+      {t:"TF",n:"NMF(n_components, init, solver, beta_loss, alpha_W)",d:"Non-negative matrix factorization"},
+      {t:"TF",n:"MiniBatchNMF(n_components, batch_size, ...)",d:"Mini-batch NMF"},
+      {t:"TF",n:"FastICA(n_components, algorithm, fun, max_iter)",d:"Independent Component Analysis"},
+      {t:"TF",n:"FactorAnalysis(n_components, tol, copy, max_iter)",d:"Factor analysis model"},
+      {t:"TF",n:"LatentDirichletAllocation(n_components, learning_method, max_iter)",d:"LDA topic model"},
+      {t:"TF",n:"DictionaryLearning(n_components, alpha, fit_algorithm)",d:"Sparse dictionary learning"},
+    ]},
+  ]},
+  { label:"sklearn.cluster", desc:"Unsupervised clustering algorithms", secs:[
+    { title:"Clustering Algorithms", leaves:[
+      {t:"ES",n:"KMeans(n_clusters, init, n_init, max_iter, random_state)",d:"K-means clustering"},
+      {t:"ES",n:"MiniBatchKMeans(n_clusters, batch_size, init, n_init)",d:"Scalable K-means"},
+      {t:"ES",n:"AgglomerativeClustering(n_clusters, linkage, affinity, compute_full_tree)",d:"Hierarchical clustering"},
+      {t:"ES",n:"DBSCAN(eps, min_samples, metric, algorithm)",d:"Density-based clustering"},
+      {t:"ES",n:"HDBSCAN(min_cluster_size, min_samples, metric)",d:"Hierarchical DBSCAN"},
+      {t:"ES",n:"MeanShift(bandwidth, bin_seeding, cluster_all)",d:"Mode-finding clustering"},
+      {t:"ES",n:"SpectralClustering(n_clusters, affinity, n_neighbors, assign_labels)",d:"Graph Laplacian clustering"},
+      {t:"ES",n:"GaussianMixture(n_components, covariance_type, max_iter, init_params)",d:"Gaussian mixture model (EM)"},
+      {t:"ES",n:"BayesianGaussianMixture(n_components, covariance_type, ...)",d:"Variational Bayesian GMM"},
+      {t:"ES",n:"Birch(threshold, branching_factor, n_clusters)",d:"BIRCH — large-scale clustering"},
+      {t:"ES",n:"AffinityPropagation(damping, max_iter, preference)",d:"Message passing clustering"},
+      {t:"ES",n:"OPTICS(min_samples, max_eps, metric, cluster_method)",d:"Variable density DBSCAN variant"},
+      {t:"FN",n:"cluster.k_means(X, n_clusters, ...)",d:"K-means as function"},
+      {t:"FN",n:"cluster.estimate_bandwidth(X, quantile)",d:"Estimate bandwidth for MeanShift"},
+    ]},
+  ]},
+  { label:"sklearn.manifold", desc:"Manifold learning / non-linear dimensionality reduction", secs:[
+    { title:"Manifold Methods", leaves:[
+      {t:"TF",n:"TSNE(n_components, perplexity, learning_rate, n_iter, metric)",d:"t-SNE — 2D/3D visualization"},
+      {t:"TF",n:"Isomap(n_neighbors, n_components, metric)",d:"Isometric embedding"},
+      {t:"TF",n:"LocallyLinearEmbedding(n_neighbors, n_components, method)",d:"LLE — local structure"},
+      {t:"TF",n:"MDS(n_components, metric, n_init, max_iter)",d:"Multidimensional scaling"},
+      {t:"TF",n:"SpectralEmbedding(n_components, affinity, gamma)",d:"Spectral / Laplacian eigenmaps"},
+      {t:"TF",n:"UMAP → from umap-learn (not sklearn but common)",d:"Fast nonlinear DR (external)"},
+    ]},
+  ]},
+  { label:"sklearn.preprocessing", desc:"Feature scaling, encoding, and normalization", secs:[
+    { title:"Scalers", leaves:[
+      {t:"TF",n:"StandardScaler(with_mean, with_std, copy)",d:"Zero mean, unit variance"},
+      {t:"TF",n:"MinMaxScaler(feature_range, copy)",d:"Scale to [0,1] or any range"},
+      {t:"TF",n:"MaxAbsScaler(copy)",d:"Scale by max absolute value"},
+      {t:"TF",n:"RobustScaler(with_centering, with_scaling, quantile_range)",d:"Scale with median/IQR — robust"},
+      {t:"TF",n:"Normalizer(norm, copy)",d:"L1/L2/max normalize each sample"},
+      {t:"TF",n:"PowerTransformer(method, standardize)",d:"Yeo-Johnson / Box-Cox"},
+      {t:"TF",n:"QuantileTransformer(n_quantiles, output_distribution, random_state)",d:"Map to uniform/normal"},
+    ]},
+    { title:"Encoders", leaves:[
+      {t:"TF",n:"LabelEncoder()",d:"Encode target labels as integers"},
+      {t:"TF",n:"OrdinalEncoder(categories, dtype, handle_unknown)",d:"Encode ordinal features as integers"},
+      {t:"TF",n:"OneHotEncoder(categories, drop, sparse, handle_unknown)",d:"One-hot / dummy encoding"},
+      {t:"TF",n:"LabelBinarizer(neg_label, pos_label, sparse_output)",d:"Binarize labels one-vs-all"},
+      {t:"TF",n:"MultiLabelBinarizer(classes, sparse_output)",d:"Multi-label binarization"},
+      {t:"TF",n:"TargetEncoder(categories, target_type, smooth)",d:"Mean target encoding"},
+      {t:"TF",n:"KBinsDiscretizer(n_bins, encode, strategy)",d:"Bin continuous → discrete"},
+      {t:"TF",n:"Binarizer(threshold, copy)",d:"Threshold features to binary"},
+    ]},
+    { title:"Other Preprocessing", leaves:[
+      {t:"TF",n:"PolynomialFeatures(degree, interaction_only, include_bias)",d:"Polynomial/interaction features"},
+      {t:"TF",n:"SplineTransformer(n_knots, degree, knots, extrapolation)",d:"B-spline feature expansion"},
+      {t:"TF",n:"FunctionTransformer(func, inverse_func, validate)",d:"Apply arbitrary function as transform"},
+      {t:"TF",n:"add_dummy_feature(X, value)",d:"Add constant feature column"},
+      {t:"FN",n:"scale(X, axis, with_mean, with_std, copy)",d:"Standardize without creating object"},
+      {t:"FN",n:"normalize(X, norm, axis, copy)",d:"Normalize without creating object"},
+      {t:"FN",n:"minmax_scale(X, feature_range, axis, copy)",d:"MinMax scale without object"},
+      {t:"FN",n:"binarize(X, threshold, copy)",d:"Binarize without object"},
+    ]},
+  ]},
+  { label:"sklearn.feature_extraction", desc:"Feature extraction from text and images", secs:[
+    { title:"Text Features", leaves:[
+      {t:"TF",n:"CountVectorizer(analyzer, ngram_range, max_features, min_df, max_df, stop_words)",d:"Bag of words counts"},
+      {t:"TF",n:"TfidfVectorizer(analyzer, ngram_range, max_features, sublinear_tf)",d:"TF-IDF weighted bag of words"},
+      {t:"TF",n:"TfidfTransformer(norm, use_idf, smooth_idf, sublinear_tf)",d:"Transform count matrix to TF-IDF"},
+      {t:"TF",n:"HashingVectorizer(analyzer, n_features, ngram_range, alternate_sign)",d:"Hashing trick — no vocabulary"},
+    ]},
+    { title:"Image Features", leaves:[
+      {t:"FN",n:"image.extract_patches_2d(image, patch_size, max_patches)",d:"Extract random image patches"},
+      {t:"FN",n:"image.reconstruct_from_patches_2d(patches, image_size)",d:"Reconstruct from patches"},
+      {t:"FN",n:"image.grid_to_graph(n_x, n_y, n_z, mask)",d:"Pixel connectivity graph"},
+      {t:"FN",n:"image.img_to_graph(img, mask)",d:"Graph from image gradient"},
+    ]},
+    { title:"DictVectorizer", leaves:[
+      {t:"TF",n:"DictVectorizer(dtype, separator, sparse, sort)",d:"Feature dicts → matrix"},
+      {t:"FN",n:"dv.get_feature_names_out()",d:"Feature names"},
+    ]},
+  ]},
+  { label:"sklearn.feature_selection", desc:"Select the most informative features", secs:[
+    { title:"Feature Selection", leaves:[
+      {t:"TF",n:"SelectKBest(score_func, k)",d:"Select top k features by score"},
+      {t:"TF",n:"SelectPercentile(score_func, percentile)",d:"Select top percentile"},
+      {t:"TF",n:"SelectFpr / SelectFdr / SelectFwe",d:"By false positive/discovery/family-wise error"},
+      {t:"TF",n:"VarianceThreshold(threshold)",d:"Remove low-variance features"},
+      {t:"TF",n:"RFE(estimator, n_features_to_select, step)",d:"Recursive feature elimination"},
+      {t:"TF",n:"RFECV(estimator, step, cv, scoring, min_features_to_select)",d:"RFE with cross-validation"},
+      {t:"TF",n:"SelectFromModel(estimator, threshold, max_features, prefit)",d:"Select by estimator importances"},
+      {t:"TF",n:"SequentialFeatureSelector(estimator, n_features_to_select, direction, cv)",d:"Forward/backward greedy selection"},
+      {t:"FN",n:"chi2(X, y)",d:"Chi-squared test for categorical"},
+      {t:"FN",n:"f_classif(X, y) / f_regression(X, y)",d:"ANOVA F-test"},
+      {t:"FN",n:"mutual_info_classif(X, y) / mutual_info_regression(X, y)",d:"Mutual information"},
+      {t:"FN",n:"r_regression(X, y, center)",d:"Pearson r correlation"},
+    ]},
+  ]},
+  { label:"sklearn.model_selection", desc:"Cross-validation, hyperparameter tuning, splitting", secs:[
+    { title:"Cross-Validation", leaves:[
+      {t:"FN",n:"cross_val_score(estimator, X, y, cv, scoring, n_jobs)",d:"Evaluate with CV and return scores"},
+      {t:"FN",n:"cross_val_predict(estimator, X, y, cv, method)",d:"Generate CV predictions"},
+      {t:"FN",n:"cross_validate(estimator, X, y, cv, scoring, return_train_score)",d:"Multiple metrics at once"},
+      {t:"FN",n:"learning_curve(estimator, X, y, cv, train_sizes, scoring)",d:"Train size vs score curve"},
+      {t:"FN",n:"validation_curve(estimator, X, y, param_name, param_range, cv, scoring)",d:"Hyperparam vs score curve"},
+      {t:"FN",n:"permutation_test_score(estimator, X, y, groups, cv, n_permutations)",d:"Test significance via permutation"},
+    ]},
+    { title:"Splitters", leaves:[
+      {t:"CL",n:"KFold(n_splits, shuffle, random_state)",d:"K-fold cross-validator"},
+      {t:"CL",n:"StratifiedKFold(n_splits, shuffle, random_state)",d:"Preserves class proportions"},
+      {t:"CL",n:"RepeatedKFold(n_splits, n_repeats, random_state)",d:"Repeated KFold"},
+      {t:"CL",n:"RepeatedStratifiedKFold(n_splits, n_repeats, ...)",d:"Repeated stratified KFold"},
+      {t:"CL",n:"GroupKFold(n_splits)",d:"Ensure same group not in train+test"},
+      {t:"CL",n:"StratifiedGroupKFold(n_splits, shuffle, ...)",d:"Stratified + group constraints"},
+      {t:"CL",n:"LeaveOneOut() / LeavePOut(p)",d:"LOO / LP cross-validator"},
+      {t:"CL",n:"LeaveOneGroupOut() / LeavePGroupsOut(n_groups)",d:"Group-based leave-out"},
+      {t:"CL",n:"ShuffleSplit(n_splits, test_size, random_state)",d:"Random permutation splitter"},
+      {t:"CL",n:"StratifiedShuffleSplit(n_splits, test_size, ...)",d:"Stratified random split"},
+      {t:"CL",n:"GroupShuffleSplit(n_splits, test_size, ...)",d:"Group-aware shuffle split"},
+      {t:"CL",n:"TimeSeriesSplit(n_splits, max_train_size, gap)",d:"Expanding window for time data"},
+      {t:"CL",n:"PredefinedSplit(test_fold)",d:"Fixed user-defined split"},
+      {t:"FN",n:"train_test_split(*arrays, test_size, random_state, stratify)",d:"Quick holdout split"},
+    ]},
+    { title:"Hyperparameter Search", leaves:[
+      {t:"ES",n:"GridSearchCV(estimator, param_grid, cv, scoring, refit, n_jobs)",d:"Exhaustive grid search"},
+      {t:"ES",n:"RandomizedSearchCV(estimator, param_distributions, n_iter, cv, scoring)",d:"Random hyperparameter search"},
+      {t:"ES",n:"HalvingGridSearchCV(estimator, param_grid, factor, cv)",d:"Successive halving grid search"},
+      {t:"ES",n:"HalvingRandomSearchCV(estimator, param_distributions, ...)",d:"Successive halving random search"},
+      {t:"FN",n:"ParameterGrid(param_grid)",d:"Iterate over param grid as dicts"},
+      {t:"FN",n:"ParameterSampler(param_distributions, n_iter, random_state)",d:"Sample from distributions"},
+    ]},
+  ]},
+  { label:"sklearn.metrics", desc:"Model evaluation — classification, regression, clustering", secs:[
+    { title:"Classification Metrics", leaves:[
+      {t:"FN",n:"accuracy_score(y_true, y_pred, normalize, sample_weight)",d:"Fraction correctly classified"},
+      {t:"FN",n:"balanced_accuracy_score(y_true, y_pred, adjusted)",d:"Macro avg recall"},
+      {t:"FN",n:"precision_score(y_true, y_pred, average, zero_division)",d:"TP / (TP + FP)"},
+      {t:"FN",n:"recall_score(y_true, y_pred, average, zero_division)",d:"TP / (TP + FN)"},
+      {t:"FN",n:"f1_score(y_true, y_pred, average, zero_division)",d:"Harmonic mean of P & R"},
+      {t:"FN",n:"fbeta_score(y_true, y_pred, beta, average)",d:"F-score with custom beta"},
+      {t:"FN",n:"precision_recall_fscore_support(y_true, y_pred, beta, average)",d:"All four at once"},
+      {t:"FN",n:"classification_report(y_true, y_pred, target_names, digits)",d:"Pretty per-class P/R/F1/support"},
+      {t:"FN",n:"confusion_matrix(y_true, y_pred, labels, normalize)",d:"N×N confusion matrix"},
+      {t:"FN",n:"ConfusionMatrixDisplay(confusion_matrix)",d:"Plot confusion matrix"},
+      {t:"FN",n:"roc_auc_score(y_true, y_score, average, multi_class)",d:"Area under ROC curve"},
+      {t:"FN",n:"roc_curve(y_true, y_score, pos_label, drop_intermediate)",d:"FPR/TPR/threshold tuples"},
+      {t:"FN",n:"RocCurveDisplay.from_estimator(...)",d:"Plot ROC curve"},
+      {t:"FN",n:"average_precision_score(y_true, y_score, average)",d:"Area under PR curve"},
+      {t:"FN",n:"precision_recall_curve(y_true, probas_pred, pos_label)",d:"P/R/threshold tuples"},
+      {t:"FN",n:"log_loss(y_true, y_pred, eps, normalize)",d:"Cross-entropy / log loss"},
+      {t:"FN",n:"brier_score_loss(y_true, y_prob, pos_label)",d:"Mean squared probability error"},
+      {t:"FN",n:"cohen_kappa_score(y1, y2, weights)",d:"Cohen's kappa — inter-rater"},
+      {t:"FN",n:"hamming_loss(y_true, y_pred)",d:"Fraction of wrong labels"},
+      {t:"FN",n:"jaccard_score(y_true, y_pred, average)",d:"Intersection over union"},
+      {t:"FN",n:"matthews_corrcoef(y_true, y_pred)",d:"MCC — balanced binary metric"},
+      {t:"FN",n:"multilabel_confusion_matrix(y_true, y_pred)",d:"Per-label confusion matrices"},
+    ]},
+    { title:"Regression Metrics", leaves:[
+      {t:"FN",n:"mean_squared_error(y_true, y_pred, squared, multioutput)",d:"MSE / RMSE (squared=False)"},
+      {t:"FN",n:"mean_absolute_error(y_true, y_pred, multioutput)",d:"MAE"},
+      {t:"FN",n:"mean_absolute_percentage_error(y_true, y_pred)",d:"MAPE"},
+      {t:"FN",n:"r2_score(y_true, y_pred, multioutput)",d:"Coefficient of determination R²"},
+      {t:"FN",n:"explained_variance_score(y_true, y_pred, multioutput)",d:"Explained variance ratio"},
+      {t:"FN",n:"max_error(y_true, y_pred)",d:"Max absolute residual"},
+      {t:"FN",n:"median_absolute_error(y_true, y_pred, multioutput)",d:"Median absolute error (robust)"},
+      {t:"FN",n:"mean_squared_log_error(y_true, y_pred)",d:"MSLE — log-scale MSE"},
+      {t:"FN",n:"mean_poisson_deviance / mean_gamma_deviance / mean_tweedie_deviance",d:"GLM deviance metrics"},
+      {t:"FN",n:"d2_tweedie_score / d2_pinball_score / d2_absolute_error_score",d:"D² generalizations of R²"},
+    ]},
+    { title:"Clustering Metrics", leaves:[
+      {t:"FN",n:"silhouette_score(X, labels, metric)",d:"Mean Silhouette coefficient"},
+      {t:"FN",n:"silhouette_samples(X, labels, metric)",d:"Per-sample silhouette"},
+      {t:"FN",n:"calinski_harabasz_score(X, labels)",d:"Variance ratio criterion"},
+      {t:"FN",n:"davies_bouldin_score(X, labels)",d:"Cluster separation (lower=better)"},
+      {t:"FN",n:"adjusted_rand_score(labels_true, labels_pred)",d:"ARI — ground truth comparison"},
+      {t:"FN",n:"rand_score(labels_true, labels_pred)",d:"Unadjusted Rand index"},
+      {t:"FN",n:"adjusted_mutual_info_score(labels_true, labels_pred)",d:"AMI — ground truth comparison"},
+      {t:"FN",n:"normalized_mutual_info_score(labels_true, labels_pred)",d:"NMI"},
+      {t:"FN",n:"homogeneity_score / completeness_score / v_measure_score",d:"Cluster quality with ground truth"},
+      {t:"FN",n:"fowlkes_mallows_score(labels_true, labels_pred)",d:"Geometric mean P&R for clusters"},
+      {t:"FN",n:"contingency_matrix(labels_true, labels_pred)",d:"Overlap matrix"},
+    ]},
+    { title:"Distance & Pairwise Metrics", leaves:[
+      {t:"FN",n:"pairwise_distances(X, Y, metric, n_jobs)",d:"Distance matrix between rows"},
+      {t:"FN",n:"pairwise_kernels(X, Y, metric, n_jobs)",d:"Kernel matrix between rows"},
+      {t:"FN",n:"cosine_similarity(X, Y, dense_output)",d:"Cosine similarity matrix"},
+      {t:"FN",n:"cosine_distances(X, Y)",d:"Cosine distance matrix"},
+      {t:"FN",n:"euclidean_distances(X, Y, squared)",d:"Euclidean distance matrix"},
+      {t:"FN",n:"linear_kernel / rbf_kernel / polynomial_kernel / sigmoid_kernel",d:"Specific kernel functions"},
+      {t:"FN",n:"laplacian_kernel / chi2_kernel / additive_chi2_kernel",d:"More kernel functions"},
+    ]},
+  ]},
+  { label:"sklearn.pipeline", desc:"Chain estimators into repeatable workflows", secs:[
+    { title:"Pipeline Tools", leaves:[
+      {t:"CL",n:"Pipeline(steps, memory, verbose)",d:"Chain transformers + final estimator"},
+      {t:"CL",n:"FeatureUnion(transformer_list, n_jobs, transformer_weights)",d:"Concatenate transformer outputs"},
+      {t:"FN",n:"make_pipeline(*steps, memory)",d:"Shorthand Pipeline constructor"},
+      {t:"FN",n:"make_union(*transformers, n_jobs)",d:"Shorthand FeatureUnion constructor"},
+      {t:"CL",n:"sklearn.compose.ColumnTransformer(transformers, remainder, sparse_threshold)",d:"Different transforms per column"},
+      {t:"FN",n:"make_column_transformer(*transformers, remainder)",d:"Shorthand ColumnTransformer"},
+      {t:"FN",n:"make_column_selector(dtype_include, dtype_exclude, pattern)",d:"Auto-select columns by type"},
+      {t:"CL",n:"TransformedTargetRegressor(regressor, transformer, func, inverse_func)",d:"Transform y before fitting"},
+    ]},
+  ]},
+  { label:"sklearn.impute", desc:"Handle missing values", secs:[
+    { title:"Imputers", leaves:[
+      {t:"TF",n:"SimpleImputer(missing_values, strategy, fill_value, add_indicator)",d:"Mean/median/most_frequent/constant"},
+      {t:"TF",n:"KNNImputer(n_neighbors, weights, metric, missing_values)",d:"K-nearest neighbor imputation"},
+      {t:"TF",n:"IterativeImputer(estimator, max_iter, missing_values, random_state)",d:"Round-robin model imputation"},
+      {t:"TF",n:"MissingIndicator(missing_values, features, sparse, error_on_new)",d:"Binary indicator for missingness"},
+    ]},
+  ]},
+  { label:"sklearn.calibration", desc:"Calibrate classifier probabilities", secs:[
+    { title:"Calibration Tools", leaves:[
+      {t:"ES",n:"CalibratedClassifierCV(estimator, method, cv)",d:"Platt scaling / isotonic regression"},
+      {t:"FN",n:"calibration_curve(y_true, y_prob, normalize, n_bins, strategy)",d:"Reliability diagram data"},
+      {t:"CL",n:"CalibrationDisplay.from_estimator(...) / from_predictions(...)",d:"Plot calibration curve"},
+    ]},
+  ]},
+  { label:"sklearn.inspection", desc:"Model inspection and interpretability tools", secs:[
+    { title:"Inspection Tools", leaves:[
+      {t:"FN",n:"permutation_importance(estimator, X, y, n_repeats, random_state, scoring)",d:"Feature importance by permutation"},
+      {t:"FN",n:"partial_dependence(estimator, X, features, percentiles, grid_resolution)",d:"Partial dependence values"},
+      {t:"CL",n:"PartialDependenceDisplay.from_estimator(...)",d:"Plot partial dependence"},
+      {t:"FN",n:"DecisionBoundaryDisplay.from_estimator(...)",d:"Plot classifier decision boundary"},
+    ]},
+  ]},
+  { label:"sklearn.utils", desc:"Developer utilities and validation tools", secs:[
+    { title:"Utilities", leaves:[
+      {t:"FN",n:"utils.check_array(array, dtype, ensure_2d, force_all_finite)",d:"Validate array input"},
+      {t:"FN",n:"utils.check_X_y(X, y, dtype, multi_output)",d:"Validate X and y together"},
+      {t:"FN",n:"utils.check_is_fitted(estimator, attributes)",d:"Check if estimator is fitted"},
+      {t:"FN",n:"utils.class_weight.compute_class_weight(class_weight, classes, y)",d:"Compute balanced class weights"},
+      {t:"FN",n:"utils.class_weight.compute_sample_weight(class_weight, y)",d:"Per-sample class weights"},
+      {t:"FN",n:"utils.estimator_checks.check_estimator(estimator)",d:"Run standard API compliance tests"},
+      {t:"FN",n:"utils.multiclass.type_of_target(y)",d:"Detect target type (binary, multi, etc.)"},
+      {t:"FN",n:"utils.resample(*arrays, replace, n_samples, random_state, stratify)",d:"Resample arrays together"},
+      {t:"FN",n:"utils.shuffle(*arrays, random_state, n_samples)",d:"Shuffle arrays together"},
+      {t:"FN",n:"utils.sparsefuncs.mean_variance_axis(X, axis)",d:"Efficient sparse mean/var"},
+      {t:"FN",n:"set_config(assume_finite, working_memory, print_changed_only, display)",d:"Global sklearn config"},
+      {t:"FN",n:"config_context(**kwargs)",d:"Temporary config context"},
+    ]},
+  ]},
+];
+
+function buildTree(data, container) {
+  data.forEach(ns => {
+    const nsNode = document.createElement('div'); nsNode.className = 'ns-node';
+    const nsHeader = document.createElement('div'); nsHeader.className = 'ns-header';
+    nsHeader.innerHTML = `<span class="toggle">▶</span><span class="badge b-ns">NS</span><span class="ns-label">${ns.label}</span><span class="ns-desc">${ns.desc}</span>`;
+    const nsChildren = document.createElement('div'); nsChildren.className = 'ns-children closed';
+    nsHeader.addEventListener('click', () => { const o=!nsChildren.classList.contains('closed'); nsChildren.classList.toggle('closed',o); nsHeader.querySelector('.toggle').classList.toggle('open',!o); });
+    ns.secs.forEach(sec => {
+      const secNode = document.createElement('div'); secNode.className='sec-node';
+      const secHeader = document.createElement('div'); secHeader.className='sec-header';
+      secHeader.innerHTML=`<span class="toggle">▶</span><span class="badge b-sec">§</span><span class="sec-label">${sec.title}</span>`;
+      const secChildren = document.createElement('div'); secChildren.className='sec-children closed';
+      secHeader.addEventListener('click',()=>{ const o=!secChildren.classList.contains('closed'); secChildren.classList.toggle('closed',o); secHeader.querySelector('.toggle').classList.toggle('open',!o); });
+      sec.leaves.forEach(leaf=>{
+        const bMap={FN:'b-fn',CL:'b-cl',ES:'b-es',TF:'b-tf'};
+        const el=document.createElement('div'); el.className='leaf';
+        el.dataset.search=(leaf.n+' '+leaf.d).toLowerCase();
+        el.innerHTML=`<span class="badge ${bMap[leaf.t]||'b-fn'}">${leaf.t}</span><span class="lname">${leaf.n}</span><span class="ldesc">${leaf.d}</span>`;
+        secChildren.appendChild(el);
+      });
+      secNode.appendChild(secHeader); secNode.appendChild(secChildren); nsChildren.appendChild(secNode);
+    });
+    nsNode.appendChild(nsHeader); nsNode.appendChild(nsChildren); container.appendChild(nsNode);
+  });
+}
+function expandAll(){ document.querySelectorAll('.ns-children,.sec-children').forEach(c=>c.classList.remove('closed')); document.querySelectorAll('.toggle').forEach(t=>t.classList.add('open')); }
+function collapseAll(){ document.querySelectorAll('.ns-children,.sec-children').forEach(c=>c.classList.add('closed')); document.querySelectorAll('.toggle').forEach(t=>t.classList.remove('open')); }
+function filterTree(q){
+  q=q.toLowerCase().trim();
+  if(!q){ document.querySelectorAll('.leaf').forEach(l=>{l.classList.remove('hidden','highlight');}); document.querySelectorAll('.ns-children,.sec-children').forEach(c=>c.classList.add('closed')); document.querySelectorAll('.toggle').forEach(t=>t.classList.remove('open')); return; }
+  document.querySelectorAll('.leaf').forEach(leaf=>{
+    const match=leaf.dataset.search&&leaf.dataset.search.includes(q);
+    leaf.classList.toggle('hidden',!match); leaf.classList.toggle('highlight',match);
+    if(match){ let p=leaf.parentElement; while(p&&p.id!=='tree'){ if(p.classList.contains('sec-children')||p.classList.contains('ns-children')){ p.classList.remove('closed'); const prev=p.previousElementSibling; if(prev){const tog=prev.querySelector('.toggle');if(tog)tog.classList.add('open');} } p=p.parentElement; } }
+  });
+}
+buildTree(DATA, document.getElementById('tree'));
+</script>
+</body>
+</html>

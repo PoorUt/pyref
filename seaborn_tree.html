@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🌊 Seaborn Complete API Tree</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 20px; }
+  h1 { text-align: center; font-size: 1.6rem; color: #76e4f7; margin-bottom: 6px; font-weight: 800; }
+  .subtitle { text-align: center; font-size: 0.78rem; color: #718096; margin-bottom: 18px; }
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap; }
+  .controls input { padding: 8px 16px; border-radius: 8px; border: 1px solid #2d3748; background: #1a202c; color: #e2e8f0; font-size: 0.85rem; outline: none; width: 340px; }
+  .controls input:focus { border-color: #76e4f7; }
+  .btn { padding: 8px 14px; border-radius: 8px; border: 1px solid #2d3748; background: #1a202c; color: #90cdf4; font-size: 0.78rem; cursor: pointer; }
+  .btn:hover { background: #2d3748; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: #718096; }
+  .badge { font-size: 0.6rem; padding: 2px 7px; border-radius: 20px; font-weight: 700; white-space: nowrap; }
+  .b-ns { background: #2b4a7a; color: #90cdf4; }
+  .b-cl { background: #2d4a2d; color: #68d391; }
+  .b-fn { background: #4a3a1e; color: #f6ad55; }
+  .b-at { background: #3a2d4a; color: #b794f4; }
+  .b-sec { background: #1a2a3a; color: #63b3ed; }
+  .tree-root { max-width: 1100px; margin: 0 auto; }
+  .ns-node { margin: 6px 0; }
+  .ns-header { display: flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 9px; padding: 8px 14px; background: #1a202c; border: 1px solid #2d3748; transition: background 0.15s; }
+  .ns-header:hover { background: #232b38; border-color: #76e4f744; }
+  .toggle { font-size: 0.65rem; color: #718096; min-width: 12px; transition: transform 0.18s; }
+  .toggle.open { transform: rotate(90deg); }
+  .ns-label { font-size: 0.95rem; font-weight: 700; color: #e2e8f0; flex: 1; }
+  .ns-desc { font-size: 0.72rem; color: #718096; text-align: right; max-width: 300px; }
+  .ns-children { padding-left: 28px; border-left: 2px solid #2d3748; margin-left: 18px; }
+  .ns-children.closed { display: none; }
+  .sec-node { margin: 4px 0; }
+  .sec-header { display: flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 7px; padding: 5px 10px; transition: background 0.13s; }
+  .sec-header:hover { background: #1a202c; }
+  .sec-label { font-size: 0.82rem; font-weight: 600; color: #90cdf4; flex: 1; }
+  .sec-children { padding-left: 20px; border-left: 1px solid #2d3748; margin-left: 14px; }
+  .sec-children.closed { display: none; }
+  .leaf { display: flex; align-items: flex-start; gap: 8px; padding: 4px 10px 4px 14px; border-radius: 5px; margin: 2px 0; font-size: 0.76rem; transition: background 0.1s; }
+  .leaf:hover { background: #1a202c; }
+  .leaf .lname { font-weight: 600; color: #cbd5e0; min-width: 300px; }
+  .leaf .ldesc { color: #718096; font-size: 0.7rem; }
+  .leaf.highlight { background: #2d2a00 !important; }
+  .leaf.hidden { display: none; }
+</style>
+<style>
+/* ── WHITE THEME OVERRIDE ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+body {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, #94a3b8 1.5px, transparent 1.5px);
+  background-size: 28px 28px;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+.back-home {
+  position: relative; z-index: 2;
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-bottom: 20px; padding: 7px 14px;
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  background: rgba(255,255,255,0.9); color: #475569;
+  font-size: 0.78rem; font-weight: 600; text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.back-home:hover { border-color: #0891b2; color: #0891b2; }
+h1, .subtitle, .controls, .legend, .tree-root { position: relative; z-index: 1; }
+h1 { color: #0891b2 !important; }
+.subtitle { color: #64748b !important; }
+.controls input {
+  background: #f8fafc !important; border-color: #cbd5e0 !important;
+  color: #1e293b !important;
+}
+.controls input:focus { border-color: #0891b2 !important; }
+.controls input::placeholder { color: #94a3b8; }
+.btn { background: #f8fafc !important; border-color: #cbd5e0 !important; color: #0891b2 !important; }
+.btn:hover { background: #ecfeff !important; border-color: #67e8f9 !important; }
+.legend-item { color: #64748b !important; }
+.b-ns { background: #dbeafe !important; color: #1d4ed8 !important; }
+.b-cl { background: #dcfce7 !important; color: #15803d !important; }
+.b-fn { background: #fef3c7 !important; color: #92400e !important; }
+.b-at { background: #ede9fe !important; color: #5b21b6 !important; }
+.b-sec { background: #e0f2fe !important; color: #075985 !important; }
+.ns-header { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+.ns-header:hover { background: #ecfeff !important; border-color: #67e8f9 !important; }
+.ns-label { color: #0f172a !important; }
+.ns-desc { color: #64748b !important; }
+.toggle { color: #94a3b8 !important; }
+.ns-children { border-left-color: #e2e8f0 !important; }
+.sec-header:hover { background: #f8fafc !important; }
+.sec-label { color: #0e7490 !important; }
+.sec-children { border-left-color: #e2e8f0 !important; }
+.leaf:hover { background: #ecfeff !important; }
+.leaf .lname { color: #1e293b !important; }
+.leaf .ldesc { color: #64748b !important; }
+.leaf.highlight { background: #fef9c3 !important; }
+</style>
+</head>
+<body>
+<a class="back-home" href="index.html">← Home</a>
+<h1>🌊 Seaborn — Complete API Reference Tree</h1>
+<p class="subtitle">Click any section to expand/collapse &nbsp;•&nbsp; Use search to filter</p>
+<div class="controls">
+  <input id="search" type="text" placeholder="Search: e.g. heatmap, pairplot, FacetGrid, violin..." oninput="filterTree(this.value)"/>
+  <button class="btn" onclick="expandAll()">Expand All</button>
+  <button class="btn" onclick="collapseAll()">Collapse All</button>
+</div>
+<div class="legend">
+  <div class="legend-item"><span class="badge b-ns">NS</span> Category</div>
+  <div class="legend-item"><span class="badge b-cl">CL</span> Grid/Object class</div>
+  <div class="legend-item"><span class="badge b-fn">FN</span> Plot function</div>
+  <div class="legend-item"><span class="badge b-at">AT</span> Attribute/Property</div>
+</div>
+<div class="tree-root" id="tree"></div>
+<script>
+const DATA = [
+  { label:"Relational Plots", desc:"Visualize relationships between continuous variables", secs:[
+    { title:"Functions", leaves:[
+      {t:"FN",n:"sns.scatterplot(data, x, y, hue, size, style, palette, sizes, alpha, ax)",d:"Scatter plot with optional groupings"},
+      {t:"FN",n:"sns.lineplot(data, x, y, hue, size, style, units, estimator, ci, n_boot, sort, ax)",d:"Line plot with confidence interval"},
+      {t:"FN",n:"sns.relplot(data, x, y, hue, size, style, kind, row, col, col_wrap, height, aspect)",d:"Figure-level: scatter or line with facets"},
+    ]},
+    { title:"Common Parameters (Relational)", leaves:[
+      {t:"AT",n:"data",d:"DataFrame, array, or dict"},
+      {t:"AT",n:"x, y",d:"Column names for axes"},
+      {t:"AT",n:"hue",d:"Column for color grouping"},
+      {t:"AT",n:"size",d:"Column for size grouping"},
+      {t:"AT",n:"style",d:"Column for marker/line style grouping"},
+      {t:"AT",n:"palette",d:"Colors for hue levels"},
+      {t:"AT",n:"hue_order / size_order / style_order",d:"Order of levels"},
+      {t:"AT",n:"legend",d:"'auto', 'brief', 'full', False"},
+      {t:"AT",n:"ax",d:"Matplotlib Axes to draw on"},
+    ]},
+  ]},
+  { label:"Distribution Plots", desc:"Visualize distributions of variables", secs:[
+    { title:"Univariate / Bivariate Distributions", leaves:[
+      {t:"FN",n:"sns.histplot(data, x, y, hue, bins, binwidth, binrange, stat, kde, cumulative, multiple, element, fill, shrink, log_scale, ax)",d:"Histogram with optional KDE overlay"},
+      {t:"FN",n:"sns.kdeplot(data, x, y, hue, multiple, common_norm, common_grid, bw_adjust, cut, clip, cumulative, shade, fill, ax)",d:"Kernel density estimate"},
+      {t:"FN",n:"sns.ecdfplot(data, x, y, hue, stat, complementary, log_scale, ax)",d:"Empirical CDF"},
+      {t:"FN",n:"sns.rugplot(data, x, y, hue, height, expand_margins, legend, ax)",d:"Marginal tick marks on axis"},
+      {t:"FN",n:"sns.displot(data, x, y, hue, row, col, kind, rug, height, aspect, col_wrap)",d:"Figure-level distribution: hist/kde/ecdf + facets"},
+    ]},
+    { title:"Legacy Distribution (v0.11-)", leaves:[
+      {t:"FN",n:"sns.distplot(a, bins, hist, kde, rug, fit, color, label)",d:"Legacy: hist+kde (deprecated → histplot/kdeplot)"},
+    ]},
+  ]},
+  { label:"Categorical Plots", desc:"Visualize distributions or statistics across categories", secs:[
+    { title:"Categorical Estimator Plots", leaves:[
+      {t:"FN",n:"sns.barplot(data, x, y, hue, estimator, ci, n_boot, orient, color, palette, saturation, errcolor, errwidth, capsize, dodge, ax)",d:"Bar chart of estimate (mean by default)"},
+      {t:"FN",n:"sns.countplot(data, x, y, hue, order, hue_order, orient, color, palette, saturation, dodge, ax)",d:"Count observations per category"},
+      {t:"FN",n:"sns.pointplot(data, x, y, hue, estimator, ci, n_boot, markers, linestyles, dodge, join, order, palette, capsize, ax)",d:"Point estimates with CI and connecting lines"},
+    ]},
+    { title:"Categorical Distribution Plots", leaves:[
+      {t:"FN",n:"sns.boxplot(data, x, y, hue, order, orient, color, palette, saturation, width, dodge, fliersize, linewidth, whis, ax)",d:"Box and whisker plot"},
+      {t:"FN",n:"sns.violinplot(data, x, y, hue, order, bw, cut, scale, scale_hue, gridsize, width, inner, split, dodge, orient, palette, ax)",d:"Violin plot"},
+      {t:"FN",n:"sns.boxenplot(data, x, y, hue, order, orient, color, palette, saturation, width, dodge, k_depth, linewidth, outlier_prop, ax)",d:"Letter-value / enhanced boxplot"},
+      {t:"FN",n:"sns.stripplot(data, x, y, hue, order, jitter, dodge, orient, color, palette, size, linewidth, marker, alpha, ax)",d:"Strip / jitter scatter per category"},
+      {t:"FN",n:"sns.swarmplot(data, x, y, hue, order, dodge, orient, color, palette, size, linewidth, marker, ax)",d:"Beeswarm — non-overlapping strip plot"},
+    ]},
+    { title:"Figure-Level Categorical", leaves:[
+      {t:"FN",n:"sns.catplot(data, x, y, hue, row, col, kind, order, col_wrap, height, aspect, sharex, sharey)",d:"Figure-level: any cat plot + facets"},
+      {t:"AT",n:"kind=",d:"'strip','swarm','box','violin','boxen','point','bar','count'"},
+    ]},
+  ]},
+  { label:"Regression Plots", desc:"Visualize linear and nonlinear relationships", secs:[
+    { title:"Regression Functions", leaves:[
+      {t:"FN",n:"sns.regplot(data, x, y, x_estimator, x_bins, x_ci, scatter, fit_reg, ci, n_boot, order, logistic, lowess, robust, logx, x_partial, y_partial, truncate, x_jitter, y_jitter, color, marker, ax)",d:"Scatter + regression line with CI"},
+      {t:"FN",n:"sns.residplot(data, x, y, lowess, order, robust, dropna, color, ax)",d:"Residuals vs fitted values"},
+      {t:"FN",n:"sns.lmplot(data, x, y, hue, col, row, palette, col_wrap, height, aspect, markers, scatter_kws, line_kws, fit_reg, ci, order, logistic, lowess, robust)",d:"Figure-level regplot + facets"},
+    ]},
+  ]},
+  { label:"Matrix / Heatmap Plots", desc:"Visualize rectangular data and correlation matrices", secs:[
+    { title:"Matrix Functions", leaves:[
+      {t:"FN",n:"sns.heatmap(data, vmin, vmax, cmap, center, robust, annot, fmt, annot_kws, linewidths, linecolor, cbar, cbar_kws, cbar_ax, square, xticklabels, yticklabels, mask, ax)",d:"Rectangular data as color-coded matrix"},
+      {t:"FN",n:"sns.clustermap(data, pivot_kws, method, metric, z_score, standard_scale, figsize, cbar_kws, row_cluster, col_cluster, row_linkage, col_linkage, row_colors, col_colors, mask, dendrogram_ratio, colors_ratio, cbar_pos, tree_kws, **kwargs)",d:"Heatmap with hierarchical clustering dendrograms"},
+    ]},
+    { title:"Heatmap Parameters", leaves:[
+      {t:"AT",n:"annot=True / annot=array",d:"Annotate cells with values or custom text"},
+      {t:"AT",n:"fmt",d:"Format string for annotations e.g. '.2f'"},
+      {t:"AT",n:"cmap",d:"Colormap name or object"},
+      {t:"AT",n:"center",d:"Value at center of colormap"},
+      {t:"AT",n:"vmin / vmax",d:"Colormap value range"},
+      {t:"AT",n:"mask",d:"Boolean array to hide certain cells"},
+      {t:"AT",n:"linewidths / linecolor",d:"Grid lines between cells"},
+      {t:"AT",n:"square=True",d:"Force equal aspect ratio"},
+      {t:"AT",n:"cbar=True",d:"Draw colorbar"},
+      {t:"AT",n:"xticklabels / yticklabels",d:"True, False, 'auto', int, or list"},
+    ]},
+  ]},
+  { label:"Multi-Plot Grids (Figure-level)", desc:"Grid classes for faceting and multi-panel layouts", secs:[
+    { title:"FacetGrid", leaves:[
+      {t:"CL",n:"sns.FacetGrid(data, row, col, hue, col_wrap, sharex, sharey, height, aspect, palette, row_order, col_order, hue_order, hue_kws, dropna, legend_out, despine, margin_titles, xlim, ylim, subplot_kws, gridspec_kws)",d:"Multi-panel grid for faceted plots"},
+      {t:"FN",n:"g.map(func, *args, **kwargs)",d:"Apply plotting function to each facet"},
+      {t:"FN",n:"g.map_dataframe(func, *args, **kwargs)",d:"Like map() but passes data= kwarg"},
+      {t:"FN",n:"g.set(xlabel, ylabel, xlim, ylim, xticks, yticks, title)",d:"Set axis properties on all facets"},
+      {t:"FN",n:"g.set_titles(template, row_template, col_template, **kwargs)",d:"Set facet title template"},
+      {t:"FN",n:"g.set_axis_labels(x_var, y_var)",d:"Set axis labels"},
+      {t:"FN",n:"g.set_xticklabels(labels, rotation) / g.set_yticklabels()",d:"Set tick labels"},
+      {t:"FN",n:"g.add_legend(title, label_order)",d:"Add/update legend"},
+      {t:"FN",n:"g.despine(left, bottom, right, top, trim, offset)",d:"Remove spines from axes"},
+      {t:"FN",n:"g.refline(y, x, color, linestyle, **line_kws)",d:"Add reference line to all facets"},
+      {t:"AT",n:"g.axes / g.axes_dict",d:"2D array / dict of Axes"},
+      {t:"AT",n:"g.fig",d:"Underlying matplotlib Figure"},
+      {t:"AT",n:"g.figure",d:"Same as g.fig (alias)"},
+      {t:"AT",n:"g.data",d:"Original DataFrame"},
+      {t:"AT",n:"g.row_names / g.col_names",d:"Facet row/column values"},
+      {t:"AT",n:"g.hue_names",d:"Hue level values"},
+      {t:"AT",n:"g.legend",d:"Legend object"},
+      {t:"AT",n:"g._legend_data",d:"Handles and labels for legend"},
+    ]},
+    { title:"PairGrid & pairplot", leaves:[
+      {t:"CL",n:"sns.PairGrid(data, hue, vars, x_vars, y_vars, diag_sharey, height, aspect, palette, hue_order, corner, despine)",d:"Grid of pairwise axes for all variable combos"},
+      {t:"FN",n:"g.map(func)",d:"Same function on all cells"},
+      {t:"FN",n:"g.map_diag(func, **kwargs)",d:"Function on diagonal (usually univariate)"},
+      {t:"FN",n:"g.map_offdiag(func, **kwargs)",d:"Function on off-diagonal"},
+      {t:"FN",n:"g.map_upper(func, **kwargs) / g.map_lower(func, **kwargs)",d:"Upper/lower triangle only"},
+      {t:"FN",n:"sns.pairplot(data, hue, vars, x_vars, y_vars, kind, diag_kind, markers, height, aspect, corner, plot_kws, diag_kws, grid_kws)",d:"Shortcut: PairGrid with scatterplot+kdeplot"},
+      {t:"AT",n:"kind=",d:"'scatter' or 'kde' or 'hist' or 'reg'"},
+      {t:"AT",n:"diag_kind=",d:"'auto','hist','kde' or None"},
+    ]},
+    { title:"JointGrid & jointplot", leaves:[
+      {t:"CL",n:"sns.JointGrid(data, x, y, hue, height, ratio, space, palette, hue_order, hue_norm, dropna, xlim, ylim, marginal_ticks)",d:"Central + two marginal axes"},
+      {t:"FN",n:"g.plot(joint_func, marginal_func, **kwargs)",d:"One call for joint + marginals"},
+      {t:"FN",n:"g.plot_joint(func, **kwargs)",d:"Plot central axes"},
+      {t:"FN",n:"g.plot_marginals(func, **kwargs)",d:"Plot both marginals"},
+      {t:"FN",n:"g.refline(x, y, joint, marginal, color, linestyle)",d:"Add reference line"},
+      {t:"AT",n:"g.ax_joint",d:"Central Axes object"},
+      {t:"AT",n:"g.ax_marg_x / g.ax_marg_y",d:"Marginal Axes objects"},
+      {t:"FN",n:"sns.jointplot(data, x, y, hue, kind, height, ratio, space, dropna, color, palette, marginal_ticks, joint_kws, marginal_kws, **kwargs)",d:"Quick JointGrid with preset styles"},
+      {t:"AT",n:"kind=",d:"'scatter','kde','hist','hex','reg','resid'"},
+    ]},
+  ]},
+  { label:"Theming & Styling", desc:"Control the visual aesthetics of seaborn plots", secs:[
+    { title:"Style Functions", leaves:[
+      {t:"FN",n:"sns.set_theme(context, style, palette, font, font_scale, color_codes, rc)",d:"One-call global theme setup"},
+      {t:"FN",n:"sns.set_style(style, rc)",d:"Set background style"},
+      {t:"AT",n:"style=",d:"'darkgrid','whitegrid','dark','white','ticks'"},
+      {t:"FN",n:"sns.axes_style(style, rc)",d:"Return dict of style params (or use as context)"},
+      {t:"FN",n:"sns.set_context(context, font_scale, rc)",d:"Set element sizes for output context"},
+      {t:"AT",n:"context=",d:"'paper','notebook','talk','poster'"},
+      {t:"FN",n:"sns.plotting_context(context, font_scale, rc)",d:"Return dict of context params"},
+      {t:"FN",n:"sns.despine(fig, ax, top, right, left, bottom, offset, trim)",d:"Remove border spines"},
+      {t:"FN",n:"sns.reset_defaults()",d:"Reset to seaborn defaults"},
+      {t:"FN",n:"sns.reset_orig()",d:"Reset to original matplotlib defaults"},
+    ]},
+    { title:"Color Palettes", leaves:[
+      {t:"FN",n:"sns.color_palette(palette, n_colors, desat, as_cmap)",d:"Return list of RGB tuples"},
+      {t:"FN",n:"sns.set_palette(palette, n_colors, desat, color_codes)",d:"Set as default palette globally"},
+      {t:"FN",n:"sns.husl_palette(n_colors, h, s, l)",d:"Evenly-spaced HUSL colors"},
+      {t:"FN",n:"sns.hls_palette(n_colors, h, l, s)",d:"Evenly-spaced HLS colors"},
+      {t:"FN",n:"sns.cubehelix_palette(n_colors, start, rot, gamma, hue, light, dark, reverse, as_cmap)",d:"Cubehelix sequential palette"},
+      {t:"FN",n:"sns.light_palette(color, n_colors, reverse, as_cmap, input)",d:"Sequential: light→color"},
+      {t:"FN",n:"sns.dark_palette(color, n_colors, reverse, as_cmap, input)",d:"Sequential: dark→color"},
+      {t:"FN",n:"sns.diverging_palette(h_neg, h_pos, s, l, sep, n, center, as_cmap)",d:"Diverging palette between two hues"},
+      {t:"FN",n:"sns.blend_palette(colors, n_colors, as_cmap, input)",d:"Blend between a list of colors"},
+      {t:"FN",n:"sns.mpl_palette(name, n_colors, as_cmap)",d:"Named matplotlib colormap as palette"},
+      {t:"FN",n:"sns.palplot(pal, size)",d:"Display palette as swatches"},
+      {t:"FN",n:"sns.choose_colorbrewer_palette(data_type, as_cmap)",d:"Interactive ColorBrewer picker"},
+      {t:"AT",n:"Named palettes (categorical):",d:"'deep','muted','bright','pastel','dark','colorblind','tab10','Set1/2/3','Paired'..."},
+      {t:"AT",n:"Named palettes (sequential):",d:"'Blues','Greens','Reds','viridis','plasma','inferno','magma','crest','flare','rocket','mako'..."},
+      {t:"AT",n:"Named palettes (diverging):",d:"'vlag','icefire','coolwarm','RdBu','BrBG','PiYG'..."},
+    ]},
+  ]},
+  { label:"Objects Interface (v0.12+)", desc:"New declarative plotting API — more flexible and composable", secs:[
+    { title:"Plot Class", leaves:[
+      {t:"CL",n:"so.Plot(data, x, y, color, pointsize, linewidth, ...)",d:"Entry point — declare encodings"},
+      {t:"FN",n:".add(mark, *transforms, data, x, y, color, ...)",d:"Add a layer with a Mark and optional Stat/Move"},
+      {t:"FN",n:".facet(col, row, wrap, order)",d:"Create faceted layout"},
+      {t:"FN",n:".pair(x, y, cross, wrap)",d:"Pairwise combinations"},
+      {t:"FN",n:".layout(size, engine, extent)",d:"Control figure dimensions"},
+      {t:"FN",n:".scale(x=?, y=?, color=?, ...)",d:"Control how data maps to visual encodings"},
+      {t:"FN",n:".limit(x=?, y=?, ...)",d:"Set axis limits"},
+      {t:"FN",n:".label(title, x, y, color, ...)",d:"Add axis/legend labels"},
+      {t:"FN",n:".theme(params)",d:"Apply rcParams"},
+      {t:"FN",n:".on(target)",d:"Draw on existing Figure/Axes"},
+      {t:"FN",n:".show() / .save(loc, ...)",d:"Display / save figure"},
+      {t:"FN",n:".plot()",d:"Return Plotter object (for chaining)"},
+    ]},
+    { title:"Marks (so.*)", leaves:[
+      {t:"CL",n:"so.Dot(pointsize, color, fill, marker, stroke, alpha)",d:"Scatter dots"},
+      {t:"CL",n:"so.Line(linewidth, color, linestyle, marker, alpha)",d:"Connected line"},
+      {t:"CL",n:"so.Path(linewidth, color, linestyle, marker)",d:"Raw path (no sort)"},
+      {t:"CL",n:"so.Bar(width, color, fill, edgecolor, edgewidth, alpha)",d:"Bars for categorical"},
+      {t:"CL",n:"so.Bars(color, fill, edgecolor, edgewidth, alpha)",d:"Histogram bars"},
+      {t:"CL",n:"so.Area(color, fill, edgecolor, edgewidth, alpha)",d:"Filled area under line"},
+      {t:"CL",n:"so.Band(color, fill, alpha)",d:"Filled band (CI region)"},
+      {t:"CL",n:"so.Range(color, linewidth, linestyle)",d:"Min-max range marker"},
+      {t:"CL",n:"so.Dash(color, linewidth, width)",d:"Horizontal dash / tick mark"},
+      {t:"CL",n:"so.Text(color, fontsize, halign, valign, offset)",d:"Text annotation mark"},
+    ]},
+    { title:"Stats (so.*)", leaves:[
+      {t:"CL",n:"so.Agg(func='mean')",d:"Aggregate (mean, median, max, min, sum, ...)"},
+      {t:"CL",n:"so.Est(func, errorbar, n_boot, seed)",d:"Estimate with error bar (CI, pi, se, sd)"},
+      {t:"CL",n:"so.Hist(stat, bins, binwidth, binrange, common_norm, common_bins, cumulative)",d:"Histogram binning"},
+      {t:"CL",n:"so.KDE(bw_adjust, gridsize, cut, cumulative, common_norm, common_grid)",d:"Kernel density estimate"},
+      {t:"CL",n:"so.ECDF(stat, complementary)",d:"Empirical CDF"},
+      {t:"CL",n:"so.Perc(k, method)",d:"Percentiles"},
+      {t:"CL",n:"so.Count()",d:"Count observations"},
+      {t:"CL",n:"so.Norm(func, where, by, percent)",d:"Normalize values"},
+      {t:"CL",n:"so.Rolling(window, min_periods)",d:"Rolling window statistic"},
+      {t:"CL",n:"so.PolyFit(order, gridsize)",d:"Polynomial regression line"},
+    ]},
+    { title:"Moves (so.*)", leaves:[
+      {t:"CL",n:"so.Dodge(empty, gap, by, from_scale)",d:"Offset grouped marks side-by-side"},
+      {t:"CL",n:"so.Jitter(x, y, seed, width, height)",d:"Random jitter to reduce overlap"},
+      {t:"CL",n:"so.Shift(x, y)",d:"Constant offset"},
+      {t:"CL",n:"so.Stack()",d:"Stack values on top of each other"},
+      {t:"CL",n:"so.Norm(func, where, by, percent)",d:"Normalize within groups"},
+    ]},
+    { title:"Scales (so.*)", leaves:[
+      {t:"CL",n:"so.Continuous(trans, values, norm)",d:"Continuous scale (linear/log/sqrt)"},
+      {t:"CL",n:"so.Nominal(order)",d:"Unordered categorical scale"},
+      {t:"CL",n:"so.Temporal()",d:"DateTime scale"},
+      {t:"CL",n:"so.Boolean()",d:"Boolean scale"},
+    ]},
+  ]},
+  { label:"Utility Functions", desc:"Miscellaneous helper functions", secs:[
+    { title:"Utilities", leaves:[
+      {t:"FN",n:"sns.load_dataset(name, cache, data_home, **kws)",d:"Load example datasets (titanic, tips, iris, ...)"},
+      {t:"FN",n:"sns.get_dataset_names()",d:"List available example datasets"},
+      {t:"FN",n:"sns.utils.ci(a, which, axis)",d:"Compute bootstrap CI"},
+      {t:"FN",n:"sns.utils.remove_na(vector)",d:"Drop NaN from array"},
+      {t:"FN",n:"sns.utils.axis_ticklabels_overlap(labels)",d:"Check if labels overlap"},
+      {t:"FN",n:"sns.utils.relative_luminance(color)",d:"Calculate luminance for text color decision"},
+      {t:"FN",n:"sns.utils.to_utf8(obj)",d:"Ensure UTF-8 string"},
+      {t:"AT",n:"sns.__version__",d:"Seaborn version string"},
+    ]},
+  ]},
+];
+
+function buildTree(data, container) {
+  data.forEach(ns => {
+    const nsNode = document.createElement('div'); nsNode.className = 'ns-node';
+    const nsHeader = document.createElement('div'); nsHeader.className = 'ns-header';
+    nsHeader.innerHTML = `<span class="toggle">▶</span><span class="badge b-ns">NS</span><span class="ns-label">${ns.label}</span><span class="ns-desc">${ns.desc}</span>`;
+    const nsChildren = document.createElement('div'); nsChildren.className = 'ns-children closed';
+    nsHeader.addEventListener('click', () => { const o=!nsChildren.classList.contains('closed'); nsChildren.classList.toggle('closed',o); nsHeader.querySelector('.toggle').classList.toggle('open',!o); });
+    ns.secs.forEach(sec => {
+      const secNode = document.createElement('div'); secNode.className='sec-node';
+      const secHeader = document.createElement('div'); secHeader.className='sec-header';
+      secHeader.innerHTML=`<span class="toggle">▶</span><span class="badge b-sec">§</span><span class="sec-label">${sec.title}</span>`;
+      const secChildren = document.createElement('div'); secChildren.className='sec-children closed';
+      secHeader.addEventListener('click',()=>{ const o=!secChildren.classList.contains('closed'); secChildren.classList.toggle('closed',o); secHeader.querySelector('.toggle').classList.toggle('open',!o); });
+      sec.leaves.forEach(leaf=>{
+        const bMap={FN:'b-fn',CL:'b-cl',AT:'b-at'};
+        const el=document.createElement('div'); el.className='leaf';
+        el.dataset.search=(leaf.n+' '+leaf.d).toLowerCase();
+        el.innerHTML=`<span class="badge ${bMap[leaf.t]||'b-fn'}">${leaf.t}</span><span class="lname">${leaf.n}</span><span class="ldesc">${leaf.d}</span>`;
+        secChildren.appendChild(el);
+      });
+      secNode.appendChild(secHeader); secNode.appendChild(secChildren); nsChildren.appendChild(secNode);
+    });
+    nsNode.appendChild(nsHeader); nsNode.appendChild(nsChildren); container.appendChild(nsNode);
+  });
+}
+function expandAll(){ document.querySelectorAll('.ns-children,.sec-children').forEach(c=>c.classList.remove('closed')); document.querySelectorAll('.toggle').forEach(t=>t.classList.add('open')); }
+function collapseAll(){ document.querySelectorAll('.ns-children,.sec-children').forEach(c=>c.classList.add('closed')); document.querySelectorAll('.toggle').forEach(t=>t.classList.remove('open')); }
+function filterTree(q){
+  q=q.toLowerCase().trim();
+  if(!q){ document.querySelectorAll('.leaf').forEach(l=>{l.classList.remove('hidden','highlight');}); document.querySelectorAll('.ns-children,.sec-children').forEach(c=>c.classList.add('closed')); document.querySelectorAll('.toggle').forEach(t=>t.classList.remove('open')); return; }
+  document.querySelectorAll('.leaf').forEach(leaf=>{
+    const match=leaf.dataset.search&&leaf.dataset.search.includes(q);
+    leaf.classList.toggle('hidden',!match); leaf.classList.toggle('highlight',match);
+    if(match){ let p=leaf.parentElement; while(p&&p.id!=='tree'){ if(p.classList.contains('sec-children')||p.classList.contains('ns-children')){ p.classList.remove('closed'); const prev=p.previousElementSibling; if(prev){const tog=prev.querySelector('.toggle');if(tog)tog.classList.add('open');} } p=p.parentElement; } }
+  });
+}
+buildTree(DATA, document.getElementById('tree'));
+</script>
+</body>
+</html>

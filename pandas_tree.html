@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🐼 Pandas Complete API Tree</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 20px; }
+  h1 { text-align: center; font-size: 1.6rem; color: #e36209; margin-bottom: 6px; font-weight: 800; }
+  .subtitle { text-align: center; font-size: 0.78rem; color: #718096; margin-bottom: 18px; }
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap; }
+  .controls input { padding: 8px 16px; border-radius: 8px; border: 1px solid #2d3748; background: #1a202c; color: #e2e8f0; font-size: 0.85rem; outline: none; width: 340px; }
+  .controls input:focus { border-color: #e36209; }
+  .btn { padding: 8px 14px; border-radius: 8px; border: 1px solid #2d3748; background: #1a202c; color: #90cdf4; font-size: 0.78rem; cursor: pointer; }
+  .btn:hover { background: #2d3748; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: #718096; }
+  .badge { font-size: 0.6rem; padding: 2px 7px; border-radius: 20px; font-weight: 700; white-space: nowrap; }
+  .b-ns { background: #2b4a7a; color: #90cdf4; }
+  .b-cl { background: #2d4a2d; color: #68d391; }
+  .b-fn { background: #4a3a1e; color: #f6ad55; }
+  .b-at { background: #3a2d4a; color: #b794f4; }
+  .b-sec { background: #1a2a3a; color: #63b3ed; }
+  .tree-root { max-width: 1100px; margin: 0 auto; }
+  .ns-node { margin: 6px 0; }
+  .ns-header { display: flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 9px; padding: 8px 14px; background: #1a202c; border: 1px solid #2d3748; transition: background 0.15s; }
+  .ns-header:hover { background: #232b38; border-color: #e3620944; }
+  .toggle { font-size: 0.65rem; color: #718096; min-width: 12px; transition: transform 0.18s; }
+  .toggle.open { transform: rotate(90deg); }
+  .ns-label { font-size: 0.95rem; font-weight: 700; color: #e2e8f0; flex: 1; }
+  .ns-desc { font-size: 0.72rem; color: #718096; text-align: right; max-width: 300px; }
+  .ns-children { padding-left: 28px; border-left: 2px solid #2d3748; margin-left: 18px; }
+  .ns-children.closed { display: none; }
+  .sec-node { margin: 4px 0; }
+  .sec-header { display: flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 7px; padding: 5px 10px; transition: background 0.13s; }
+  .sec-header:hover { background: #1a202c; }
+  .sec-label { font-size: 0.82rem; font-weight: 600; color: #90cdf4; flex: 1; }
+  .sec-children { padding-left: 20px; border-left: 1px solid #2d3748; margin-left: 14px; }
+  .sec-children.closed { display: none; }
+  .leaf { display: flex; align-items: flex-start; gap: 8px; padding: 4px 10px 4px 14px; border-radius: 5px; margin: 2px 0; font-size: 0.76rem; transition: background 0.1s; }
+  .leaf:hover { background: #1a202c; }
+  .leaf .lname { font-weight: 600; color: #cbd5e0; min-width: 240px; }
+  .leaf .ldesc { color: #718096; font-size: 0.7rem; }
+  .leaf.highlight { background: #2d2a00 !important; }
+  .leaf.hidden { display: none; }
+</style>
+<style>
+/* ── WHITE THEME OVERRIDE ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+body {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, #94a3b8 1.5px, transparent 1.5px);
+  background-size: 28px 28px;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+.back-home {
+  position: relative; z-index: 2;
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-bottom: 20px; padding: 7px 14px;
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  background: rgba(255,255,255,0.9); color: #475569;
+  font-size: 0.78rem; font-weight: 600; text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.back-home:hover { border-color: #e36209; color: #e36209; }
+h1, .subtitle, .controls, .legend, .tree-root { position: relative; z-index: 1; }
+h1 { color: #e36209 !important; }
+.subtitle { color: #64748b !important; }
+.controls input {
+  background: #f8fafc !important; border-color: #cbd5e0 !important;
+  color: #1e293b !important;
+}
+.controls input:focus { border-color: #e36209 !important; }
+.controls input::placeholder { color: #94a3b8; }
+.btn { background: #f8fafc !important; border-color: #cbd5e0 !important; color: #e36209 !important; }
+.btn:hover { background: #fff7ed !important; border-color: #fdba74 !important; }
+.legend-item { color: #64748b !important; }
+.b-ns { background: #dbeafe !important; color: #1d4ed8 !important; }
+.b-cl { background: #dcfce7 !important; color: #15803d !important; }
+.b-fn { background: #fef3c7 !important; color: #92400e !important; }
+.b-at { background: #ede9fe !important; color: #5b21b6 !important; }
+.b-sec { background: #e0f2fe !important; color: #075985 !important; }
+.ns-header {
+  background: #f8fafc !important; border-color: #e2e8f0 !important;
+}
+.ns-header:hover { background: #fff7ed !important; border-color: #fdba74 !important; }
+.ns-label { color: #0f172a !important; }
+.ns-desc { color: #64748b !important; }
+.toggle { color: #94a3b8 !important; }
+.ns-children { border-left-color: #e2e8f0 !important; }
+.sec-header:hover { background: #f8fafc !important; }
+.sec-label { color: #c2410c !important; }
+.sec-children { border-left-color: #e2e8f0 !important; }
+.leaf:hover { background: #fff7ed !important; }
+.leaf .lname { color: #1e293b !important; }
+.leaf .ldesc { color: #64748b !important; }
+.leaf.highlight { background: #fef9c3 !important; }
+</style>
+</head>
+<body>
+<a class="back-home" href="index.html">← Home</a>
+<h1>🐼 Pandas — Complete API Reference Tree</h1>
+<p class="subtitle">Click any section to expand/collapse &nbsp;•&nbsp; Use search to filter</p>
+<div class="controls">
+  <input id="search" type="text" placeholder="Search: e.g. groupby, merge, fillna, pivot..." oninput="filterTree(this.value)"/>
+  <button class="btn" onclick="expandAll()">Expand All</button>
+  <button class="btn" onclick="collapseAll()">Collapse All</button>
+</div>
+<div class="legend">
+  <div class="legend-item"><span class="badge b-ns">NS</span> Namespace/Module</div>
+  <div class="legend-item"><span class="badge b-cl">CL</span> Class / Constructor</div>
+  <div class="legend-item"><span class="badge b-fn">FN</span> Function / Method</div>
+  <div class="legend-item"><span class="badge b-at">AT</span> Attribute / Property</div>
+</div>
+<div class="tree-root" id="tree"></div>
+<script>
+const DATA = [
+  { label:"pandas (top-level)", desc:"Core I/O, data creation, merge/reshape utilities", secs:[
+    { title:"Data Structures — Constructors", leaves:[
+      {t:"CL",n:"pd.Series(data, index, dtype, name)",d:"1D labeled array"},
+      {t:"CL",n:"pd.DataFrame(data, index, columns, dtype)",d:"2D labeled table"},
+      {t:"CL",n:"pd.Index(data, dtype, name)",d:"Immutable index object"},
+      {t:"CL",n:"pd.MultiIndex.from_tuples/arrays/product/frame",d:"Hierarchical index"},
+      {t:"CL",n:"pd.CategoricalIndex(data, categories)",d:"Index over categoricals"},
+      {t:"CL",n:"pd.DatetimeIndex(data, freq, tz)",d:"Datetime index"},
+      {t:"CL",n:"pd.RangeIndex(start, stop, step)",d:"Memory-efficient int range"},
+      {t:"CL",n:"pd.IntervalIndex.from_breaks/arrays",d:"Index of intervals"},
+      {t:"CL",n:"pd.Categorical(values, categories, ordered)",d:"Categorical data type"},
+      {t:"CL",n:"pd.arrays.SparseArray(data, fill_value)",d:"Sparse array"},
+    ]},
+    { title:"I/O — Reading Data", leaves:[
+      {t:"FN",n:"pd.read_csv(filepath, sep, header, index_col, usecols, dtype, nrows, chunksize)",d:"Read CSV/TSV"},
+      {t:"FN",n:"pd.read_excel(io, sheet_name, header, usecols)",d:"Read Excel (.xlsx/.xls)"},
+      {t:"FN",n:"pd.read_json(path_or_buf, orient, lines)",d:"Read JSON"},
+      {t:"FN",n:"pd.read_parquet(path, engine, columns)",d:"Read Parquet (columnar)"},
+      {t:"FN",n:"pd.read_feather(path)",d:"Read Feather format"},
+      {t:"FN",n:"pd.read_sql(sql, con, index_col)",d:"Read SQL query or table"},
+      {t:"FN",n:"pd.read_sql_table(table_name, con)",d:"Read full SQL table"},
+      {t:"FN",n:"pd.read_sql_query(sql, con)",d:"Read SQL query"},
+      {t:"FN",n:"pd.read_html(io, match, header)",d:"Parse HTML tables"},
+      {t:"FN",n:"pd.read_clipboard(sep)",d:"Read from clipboard"},
+      {t:"FN",n:"pd.read_pickle(filepath)",d:"Read pickled object"},
+      {t:"FN",n:"pd.read_hdf(path, key)",d:"Read HDF5 store"},
+      {t:"FN",n:"pd.read_orc(path)",d:"Read ORC format"},
+      {t:"FN",n:"pd.read_stata(filepath)",d:"Read Stata .dta"},
+      {t:"FN",n:"pd.read_fwf(filepath, colspecs)",d:"Fixed-width format"},
+      {t:"FN",n:"pd.read_xml(path, xpath, namespaces)",d:"Read XML"},
+    ]},
+    { title:"Top-level Merge, Join, Reshape", leaves:[
+      {t:"FN",n:"pd.merge(left, right, how, on, left_on, right_on, suffixes)",d:"SQL-style join"},
+      {t:"FN",n:"pd.merge_asof(left, right, on, by, direction)",d:"Nearest-key merge (time series)"},
+      {t:"FN",n:"pd.merge_ordered(left, right, on, how, fill_method)",d:"Ordered merge with fill"},
+      {t:"FN",n:"pd.concat(objs, axis, join, ignore_index, keys)",d:"Concatenate along axis"},
+      {t:"FN",n:"pd.pivot(data, index, columns, values)",d:"Long → wide reshape"},
+      {t:"FN",n:"pd.pivot_table(data, values, index, columns, aggfunc)",d:"Pivot with aggregation"},
+      {t:"FN",n:"pd.melt(frame, id_vars, value_vars, var_name, value_name)",d:"Wide → long reshape"},
+      {t:"FN",n:"pd.wide_to_long(df, stubnames, i, j)",d:"Wide → long with stubs"},
+      {t:"FN",n:"pd.crosstab(index, columns, values, aggfunc, normalize)",d:"Frequency/contingency table"},
+      {t:"FN",n:"pd.get_dummies(data, prefix, drop_first, dtype)",d:"One-hot encoding"},
+      {t:"FN",n:"pd.cut(x, bins, labels, right, include_lowest)",d:"Bin continuous into intervals"},
+      {t:"FN",n:"pd.qcut(x, q, labels, duplicates)",d:"Quantile-based binning"},
+      {t:"FN",n:"pd.factorize(values, sort, na_sentinel)",d:"Encode as integer codes"},
+    ]},
+    { title:"Top-level Date/Time & Misc", leaves:[
+      {t:"FN",n:"pd.to_datetime(arg, format, dayfirst, utc, errors)",d:"Parse to DatetimeIndex/Series"},
+      {t:"FN",n:"pd.to_timedelta(arg, unit, errors)",d:"Parse to timedelta"},
+      {t:"FN",n:"pd.date_range(start, end, periods, freq, tz)",d:"Fixed-freq DatetimeIndex"},
+      {t:"FN",n:"pd.bdate_range(start, end, freq)",d:"Business day range"},
+      {t:"FN",n:"pd.period_range(start, end, periods, freq)",d:"Fixed-period range"},
+      {t:"FN",n:"pd.timedelta_range(start, end, periods, freq)",d:"Timedelta range"},
+      {t:"FN",n:"pd.infer_freq(index)",d:"Guess frequency of DatetimeIndex"},
+      {t:"FN",n:"pd.isna(obj) / pd.notna(obj)",d:"Detect missing values"},
+      {t:"FN",n:"pd.isnull(obj) / pd.notnull(obj)",d:"Aliases of isna/notna"},
+      {t:"FN",n:"pd.to_numeric(arg, errors, downcast)",d:"Convert to numeric type"},
+      {t:"FN",n:"pd.array(data, dtype)",d:"Create pandas ExtensionArray"},
+      {t:"FN",n:"pd.unique(values)",d:"Unique values (preserving order)"},
+      {t:"FN",n:"pd.value_counts(values, normalize, sort)",d:"Frequency counts"},
+      {t:"FN",n:"pd.interval_range(start, end, periods, freq, closed)",d:"IntervalIndex range"},
+      {t:"FN",n:"pd.set_option(pat, value) / pd.get_option(pat)",d:"Configure display/behaviour"},
+      {t:"FN",n:"pd.option_context(pat, val)",d:"Temporary option context"},
+      {t:"FN",n:"pd.describe_option(pat)",d:"Describe available options"},
+    ]},
+  ]},
+  { label:"DataFrame", desc:"2D labeled data structure — the workhorse of pandas", secs:[
+    { title:"Attributes & Info", leaves:[
+      {t:"AT",n:".shape",d:"(rows, columns) tuple"},
+      {t:"AT",n:".dtypes",d:"Column data types"},
+      {t:"AT",n:".columns",d:"Column labels (Index)"},
+      {t:"AT",n:".index",d:"Row labels (Index)"},
+      {t:"AT",n:".values",d:"Underlying NumPy array"},
+      {t:"AT",n:".size",d:"Total number of elements"},
+      {t:"AT",n:".ndim",d:"Number of dimensions (2)"},
+      {t:"AT",n:".empty",d:"True if no items"},
+      {t:"AT",n:".T",d:"Transpose"},
+      {t:"FN",n:".info(verbose, memory_usage)",d:"Column types, non-null counts, memory"},
+      {t:"FN",n:".describe(percentiles, include, exclude)",d:"Summary statistics"},
+      {t:"FN",n:".memory_usage(deep)",d:"Memory per column in bytes"},
+      {t:"FN",n:".head(n) / .tail(n)",d:"First/last n rows"},
+      {t:"FN",n:".sample(n, frac, replace, weights, random_state)",d:"Random sample"},
+    ]},
+    { title:"Indexing & Selection", leaves:[
+      {t:"FN",n:"df[col] / df[[col1, col2]]",d:"Column selection"},
+      {t:"FN",n:"df.loc[row_label, col_label]",d:"Label-based selection"},
+      {t:"FN",n:"df.iloc[row_int, col_int]",d:"Integer-position selection"},
+      {t:"FN",n:"df.at[row, col]",d:"Scalar by label (fast)"},
+      {t:"FN",n:"df.iat[i, j]",d:"Scalar by position (fast)"},
+      {t:"FN",n:"df.xs(key, level)",d:"Cross-section from MultiIndex"},
+      {t:"FN",n:"df.get(key, default)",d:"Get column with default"},
+      {t:"FN",n:"df.filter(items, like, regex, axis)",d:"Filter columns/rows by label"},
+      {t:"FN",n:"df.query(expr)",d:"Filter rows with query string"},
+      {t:"FN",n:"df.where(cond, other)",d:"Replace where False"},
+      {t:"FN",n:"df.mask(cond, other)",d:"Replace where True"},
+      {t:"FN",n:"df.isin(values)",d:"Boolean mask for membership"},
+      {t:"FN",n:"df.lookup(row_labels, col_labels)",d:"Label-based fancy indexing"},
+    ]},
+    { title:"Missing Data", leaves:[
+      {t:"FN",n:".isna() / .isnull()",d:"Boolean mask of NaN/None/NaT"},
+      {t:"FN",n:".notna() / .notnull()",d:"Boolean mask of non-null"},
+      {t:"FN",n:".fillna(value, method, axis, limit)",d:"Fill missing: value or ffill/bfill"},
+      {t:"FN",n:".ffill(axis, limit) / .bfill(axis, limit)",d:"Forward/backward fill"},
+      {t:"FN",n:".dropna(axis, how, thresh, subset)",d:"Drop rows/cols with NaN"},
+      {t:"FN",n:".interpolate(method, axis, limit, fill_value)",d:"Interpolate missing values"},
+      {t:"FN",n:".replace(to_replace, value, method, regex)",d:"Replace values"},
+    ]},
+    { title:"Sorting & Ranking", leaves:[
+      {t:"FN",n:".sort_values(by, axis, ascending, na_position, kind)",d:"Sort by column values"},
+      {t:"FN",n:".sort_index(axis, level, ascending, na_position)",d:"Sort by index labels"},
+      {t:"FN",n:".rank(axis, method, numeric_only, na_option, ascending, pct)",d:"Rank along axis"},
+      {t:"FN",n:".nlargest(n, columns, keep)",d:"Top n rows"},
+      {t:"FN",n:".nsmallest(n, columns, keep)",d:"Bottom n rows"},
+      {t:"FN",n:".reindex(labels, axis, fill_value, method)",d:"Conform to new index"},
+      {t:"FN",n:".reindex_like(other)",d:"Conform to another object's index"},
+    ]},
+    { title:"Aggregation & Statistics", leaves:[
+      {t:"FN",n:".sum(axis, skipna, min_count)",d:"Sum"},
+      {t:"FN",n:".mean(axis, skipna) / .median()",d:"Mean / Median"},
+      {t:"FN",n:".std(axis, skipna, ddof) / .var()",d:"Std dev / Variance"},
+      {t:"FN",n:".min(axis, skipna) / .max()",d:"Min / Max"},
+      {t:"FN",n:".count(axis, numeric_only)",d:"Non-null count"},
+      {t:"FN",n:".prod(axis, skipna) / .cumsum() / .cumprod()",d:"Product / Cumulative"},
+      {t:"FN",n:".cummax() / .cummin()",d:"Cumulative max/min"},
+      {t:"FN",n:".abs()",d:"Absolute values"},
+      {t:"FN",n:".corr(method, min_periods)",d:"Pairwise correlation"},
+      {t:"FN",n:".cov(min_periods, ddof)",d:"Pairwise covariance"},
+      {t:"FN",n:".skew(axis, skipna) / .kurt()",d:"Skewness / Kurtosis"},
+      {t:"FN",n:".quantile(q, axis, interpolation)",d:"Compute quantiles"},
+      {t:"FN",n:".mode(axis, numeric_only, dropna)",d:"Mode"},
+      {t:"FN",n:".idxmin(axis) / .idxmax(axis)",d:"Index of min/max"},
+      {t:"FN",n:".agg(func, axis) / .aggregate(func)",d:"Apply one or more aggregation functions"},
+    ]},
+    { title:"GroupBy", leaves:[
+      {t:"FN",n:".groupby(by, axis, level, as_index, sort, dropna)",d:"Split-apply-combine"},
+      {t:"FN",n:"grp.agg(func) / .aggregate(func)",d:"Aggregate with function(s)"},
+      {t:"FN",n:"grp.transform(func)",d:"Transform keeping shape"},
+      {t:"FN",n:"grp.apply(func)",d:"Apply arbitrary function"},
+      {t:"FN",n:"grp.filter(func)",d:"Keep groups where func returns True"},
+      {t:"FN",n:"grp.sum() / .mean() / .median() / .std()",d:"Group aggregations"},
+      {t:"FN",n:"grp.count() / .size()",d:"Count per group"},
+      {t:"FN",n:"grp.min() / .max() / .first() / .last()",d:"Min/Max/First/Last per group"},
+      {t:"FN",n:"grp.nunique() / .unique()",d:"Unique count per group"},
+      {t:"FN",n:"grp.rank(method, ascending)",d:"Rank within group"},
+      {t:"FN",n:"grp.cumsum() / .cumprod() / .cummax() / .cummin()",d:"Cumulative within group"},
+      {t:"FN",n:"grp.shift(periods) / .diff(periods)",d:"Lag/difference within group"},
+      {t:"FN",n:"grp.head(n) / .tail(n) / .nth(n)",d:"First/last/nth rows per group"},
+      {t:"FN",n:"grp.get_group(name)",d:"Select one group"},
+      {t:"FN",n:"grp.ngroups / .groups / .indices",d:"Group metadata"},
+      {t:"FN",n:"grp.resample(rule)",d:"Resample within groups (time)"},
+      {t:"FN",n:"grp.rolling(window)",d:"Rolling within groups"},
+      {t:"FN",n:"grp.expanding()",d:"Expanding within groups"},
+      {t:"FN",n:"grp.pipe(func, *args)",d:"Pipe into function"},
+    ]},
+    { title:"Reshaping & Pivoting", leaves:[
+      {t:"FN",n:".pivot(index, columns, values)",d:"Long → wide"},
+      {t:"FN",n:".pivot_table(values, index, columns, aggfunc, fill_value)",d:"Pivot with aggregation"},
+      {t:"FN",n:".melt(id_vars, value_vars, var_name, value_name)",d:"Wide → long"},
+      {t:"FN",n:".stack(level, dropna)",d:"Column level → row MultiIndex"},
+      {t:"FN",n:".unstack(level, fill_value)",d:"Row MultiIndex → column level"},
+      {t:"FN",n:".explode(column)",d:"List values → separate rows"},
+      {t:"FN",n:".get_dummies(prefix, drop_first)",d:"One-hot encode categorical cols"},
+      {t:"FN",n:".crosstab() → pd.crosstab()",d:"Use top-level pd.crosstab()"},
+      {t:"FN",n:".transpose() / .T",d:"Swap rows and columns"},
+      {t:"FN",n:".swaplevel(i, j, axis)",d:"Swap MultiIndex levels"},
+      {t:"FN",n:".reorder_levels(order, axis)",d:"Reorder MultiIndex levels"},
+      {t:"FN",n:".set_index(keys, drop, append)",d:"Set column(s) as index"},
+      {t:"FN",n:".reset_index(level, drop, col_level)",d:"Move index to columns"},
+    ]},
+    { title:"Apply & Transform", leaves:[
+      {t:"FN",n:".apply(func, axis, raw, result_type, args)",d:"Apply function along axis"},
+      {t:"FN",n:".applymap(func) → .map(func) [pandas 2.1+]",d:"Element-wise apply"},
+      {t:"FN",n:".map(arg) [on Series]",d:"Element-wise map via dict/Series/func"},
+      {t:"FN",n:".pipe(func, *args, **kwargs)",d:"Pipe into function (chainable)"},
+      {t:"FN",n:".transform(func, axis)",d:"Apply returning same-shape"},
+      {t:"FN",n:".assign(**kwargs)",d:"Add/modify columns (chainable)"},
+      {t:"FN",n:".eval(expr, inplace)",d:"Evaluate expression string"},
+    ]},
+    { title:"Merge, Join, Combine", leaves:[
+      {t:"FN",n:".merge(right, how, on, left_on, right_on, suffixes, validate)",d:"SQL-style join"},
+      {t:"FN",n:".join(other, on, how, lsuffix, rsuffix, sort)",d:"Join on index"},
+      {t:"FN",n:".update(other, join, overwrite, filter_func)",d:"Update values in-place"},
+      {t:"FN",n:".combine(other, func, fill_value, overwrite)",d:"Combine with fill function"},
+      {t:"FN",n:".combine_first(other)",d:"Fill NaN with values from other"},
+      {t:"FN",n:"pd.concat([df1, df2], axis, join, keys)",d:"Concatenate multiple objects"},
+    ]},
+    { title:"Modification & Cleanup", leaves:[
+      {t:"FN",n:".drop(labels, axis, index, columns, errors)",d:"Drop rows or columns"},
+      {t:"FN",n:".drop_duplicates(subset, keep, ignore_index)",d:"Remove duplicate rows"},
+      {t:"FN",n:".duplicated(subset, keep)",d:"Boolean mask of duplicates"},
+      {t:"FN",n:".rename(mapper, index, columns, axis, errors)",d:"Rename index/columns"},
+      {t:"FN",n:".rename_axis(mapper, axis)",d:"Rename the axis label"},
+      {t:"FN",n:".astype(dtype, errors)",d:"Cast column types"},
+      {t:"FN",n:".infer_objects()",d:"Try to infer better dtypes"},
+      {t:"FN",n:".convert_dtypes()",d:"Convert to best nullable dtypes"},
+      {t:"FN",n:".clip(lower, upper, axis)",d:"Trim values"},
+      {t:"FN",n:".add_prefix(prefix) / .add_suffix(suffix)",d:"Modify column names"},
+      {t:"FN",n:".insert(loc, column, value, allow_duplicates)",d:"Insert column at position"},
+      {t:"FN",n:".pop(item)",d:"Remove and return column"},
+      {t:"FN",n:".squeeze(axis)",d:"Squeeze 1-col/row DF to Series"},
+    ]},
+    { title:"Window Operations", leaves:[
+      {t:"FN",n:".rolling(window, min_periods, center, win_type)",d:"Fixed-size rolling window"},
+      {t:"FN",n:".expanding(min_periods)",d:"Expanding (growing) window"},
+      {t:"FN",n:".ewm(com, span, halflife, alpha)",d:"Exponentially weighted window"},
+      {t:"FN",n:"win.mean() / .std() / .sum() / .var()",d:"Window aggregations"},
+      {t:"FN",n:"win.apply(func) / .corr() / .cov()",d:"Window custom / correlation"},
+      {t:"FN",n:".shift(periods, freq, fill_value)",d:"Shift values by periods"},
+      {t:"FN",n:".diff(periods, axis)",d:"First discrete difference"},
+      {t:"FN",n:".pct_change(periods, fill_method, limit, freq)",d:"Percentage change"},
+    ]},
+    { title:"Time Series", leaves:[
+      {t:"FN",n:".resample(rule, axis, closed, label, on, level)",d:"Resample time series"},
+      {t:"FN",n:"rs.mean() / .sum() / .ohlc() / .interpolate() / .asfreq()",d:"Resample aggregations"},
+      {t:"FN",n:".asfreq(freq, method, fill_value)",d:"Convert to specific frequency"},
+      {t:"FN",n:".tz_localize(tz, ambiguous, nonexistent)",d:"Set timezone"},
+      {t:"FN",n:".tz_convert(tz)",d:"Convert timezone"},
+      {t:"FN",n:".at_time(time, asof, axis)",d:"Select rows at time of day"},
+      {t:"FN",n:".between_time(start_time, end_time)",d:"Select rows between times"},
+      {t:"FN",n:".first(offset) / .last(offset)",d:"Select first/last period"},
+      {t:"FN",n:".to_period(freq) / .to_timestamp()",d:"Convert datetime↔period"},
+    ]},
+    { title:"String Accessor (.str.*)", leaves:[
+      {t:"FN",n:".str.contains(pat, case, regex)",d:"Substring/regex match"},
+      {t:"FN",n:".str.startswith(pat) / .str.endswith(pat)",d:"Prefix/suffix test"},
+      {t:"FN",n:".str.replace(pat, repl, regex)",d:"Substring replacement"},
+      {t:"FN",n:".str.split(pat, n, expand, regex)",d:"Split string"},
+      {t:"FN",n:".str.strip() / .lstrip() / .rstrip()",d:"Remove whitespace"},
+      {t:"FN",n:".str.upper() / .lower() / .title() / .capitalize()",d:"Case transforms"},
+      {t:"FN",n:".str.len()",d:"String length"},
+      {t:"FN",n:".str.slice(start, stop, step)",d:"Slice characters"},
+      {t:"FN",n:".str.get(i) / .str[i]",d:"Get character at position"},
+      {t:"FN",n:".str.cat(others, sep, na_rep)",d:"Concatenate strings"},
+      {t:"FN",n:".str.count(pat, flags)",d:"Count occurrences of pattern"},
+      {t:"FN",n:".str.extract(pat, flags, expand)",d:"Extract regex groups"},
+      {t:"FN",n:".str.extractall(pat, flags)",d:"Extract all regex matches"},
+      {t:"FN",n:".str.findall(pat, flags)",d:"Find all occurrences"},
+      {t:"FN",n:".str.match(pat, case, flags)",d:"Match at beginning"},
+      {t:"FN",n:".str.fullmatch(pat, case, flags)",d:"Full string match"},
+      {t:"FN",n:".str.pad(width, side, fillchar) / .str.center()",d:"Pad strings"},
+      {t:"FN",n:".str.zfill(width)",d:"Zero-pad numbers in strings"},
+      {t:"FN",n:".str.join(sep)",d:"Join list elements"},
+      {t:"FN",n:".str.normalize(form)",d:"Unicode normalization"},
+      {t:"FN",n:".str.translate(table)",d:"Character-level translation"},
+    ]},
+    { title:"Datetime Accessor (.dt.*)", leaves:[
+      {t:"AT",n:".dt.year / .month / .day / .hour / .minute / .second",d:"Date/time components"},
+      {t:"AT",n:".dt.dayofweek / .dt.day_name()",d:"Weekday number / name"},
+      {t:"AT",n:".dt.dayofyear / .dt.quarter / .dt.week",d:"Day of year, quarter, week"},
+      {t:"AT",n:".dt.is_leap_year / .dt.is_month_start / .dt.is_month_end",d:"Calendar flags"},
+      {t:"FN",n:".dt.floor(freq) / .dt.ceil(freq) / .dt.round(freq)",d:"Round datetimes"},
+      {t:"FN",n:".dt.tz_localize(tz) / .dt.tz_convert(tz)",d:"Timezone operations"},
+      {t:"FN",n:".dt.to_period(freq) / .dt.to_pydatetime()",d:"Convert type"},
+      {t:"FN",n:".dt.strftime(date_format)",d:"Format as string"},
+      {t:"AT",n:".dt.days / .dt.seconds / .dt.total_seconds()",d:"Timedelta components"},
+    ]},
+    { title:"Categorical Accessor (.cat.*)", leaves:[
+      {t:"AT",n:".cat.categories",d:"Categories index"},
+      {t:"AT",n:".cat.ordered",d:"Whether ordered categorical"},
+      {t:"AT",n:".cat.codes",d:"Integer codes for categories"},
+      {t:"FN",n:".cat.set_categories(new_categories, ordered)",d:"Set new categories"},
+      {t:"FN",n:".cat.add_categories(new_categories)",d:"Add categories"},
+      {t:"FN",n:".cat.remove_categories(removals)",d:"Remove categories"},
+      {t:"FN",n:".cat.rename_categories(new_categories)",d:"Rename"},
+      {t:"FN",n:".cat.reorder_categories(new_categories, ordered)",d:"Reorder"},
+      {t:"FN",n:".cat.remove_unused_categories()",d:"Drop unused"},
+      {t:"FN",n:".cat.as_ordered() / .as_unordered()",d:"Toggle ordering"},
+    ]},
+    { title:"Output / Conversion", leaves:[
+      {t:"FN",n:".to_csv(path, sep, index, header, encoding, chunksize)",d:"Write CSV"},
+      {t:"FN",n:".to_excel(excel_writer, sheet_name, index)",d:"Write Excel"},
+      {t:"FN",n:".to_json(path, orient, lines, indent)",d:"Write JSON"},
+      {t:"FN",n:".to_parquet(path, engine, index, partition_cols)",d:"Write Parquet"},
+      {t:"FN",n:".to_feather(path)",d:"Write Feather"},
+      {t:"FN",n:".to_sql(name, con, schema, if_exists, index)",d:"Write to SQL table"},
+      {t:"FN",n:".to_html(buf, border, index, na_rep, justify)",d:"Render as HTML table"},
+      {t:"FN",n:".to_markdown(buf, tablefmt, index)",d:"Render as Markdown table"},
+      {t:"FN",n:".to_latex(buf, index, caption, label)",d:"Render as LaTeX"},
+      {t:"FN",n:".to_dict(orient)",d:"Convert to Python dict"},
+      {t:"FN",n:".to_records(index, column_dtypes)",d:"Convert to recarray"},
+      {t:"FN",n:".to_numpy(dtype, na_value)",d:"Convert to NumPy array"},
+      {t:"FN",n:".to_clipboard(sep, index)",d:"Copy to clipboard"},
+      {t:"FN",n:".to_pickle(path, compression)",d:"Pickle to file"},
+    ]},
+    { title:"Plotting (df.plot.*)", leaves:[
+      {t:"FN",n:".plot(kind, x, y, figsize, title, legend)",d:"Generic plot dispatcher"},
+      {t:"FN",n:".plot.line(x, y) / .plot.area(x, y)",d:"Line / area chart"},
+      {t:"FN",n:".plot.bar(x, y, stacked) / .plot.barh()",d:"Vertical / horizontal bar"},
+      {t:"FN",n:".plot.hist(bins, by, figsize)",d:"Histogram"},
+      {t:"FN",n:".plot.box(by, vert) / .boxplot()",d:"Box plot"},
+      {t:"FN",n:".plot.scatter(x, y, s, c) / .plot.hexbin()",d:"Scatter / hexbin"},
+      {t:"FN",n:".plot.pie(y, subplots)",d:"Pie chart"},
+      {t:"FN",n:".plot.kde(bw_method) / .plot.density()",d:"KDE / density estimate"},
+    ]},
+  ]},
+  { label:"Series", desc:"1D labeled array — many methods mirror DataFrame", secs:[
+    { title:"Series-specific Methods", leaves:[
+      {t:"FN",n:".value_counts(normalize, sort, ascending, bins, dropna)",d:"Frequency counts"},
+      {t:"FN",n:".unique()",d:"Unique values array"},
+      {t:"FN",n:".nunique(dropna)",d:"Count of unique values"},
+      {t:"FN",n:".is_unique / .is_monotonic_increasing",d:"Uniqueness / monotonicity"},
+      {t:"FN",n:".map(arg, na_action)",d:"Element-wise map via dict/func"},
+      {t:"FN",n:".apply(func, convert_dtype, args)",d:"Apply function element-wise"},
+      {t:"FN",n:".str / .dt / .cat",d:"String/datetime/categorical accessors"},
+      {t:"FN",n:".between(left, right, inclusive)",d:"Boolean mask for range"},
+      {t:"FN",n:".searchsorted(value, side)",d:"Find insertion point (sorted)"},
+      {t:"FN",n:".argsort(axis, kind, na_position)",d:"Indices that would sort"},
+      {t:"FN",n:".autocorr(lag)",d:"Autocorrelation"},
+      {t:"FN",n:".dot(other)",d:"Dot product / matrix multiply"},
+      {t:"FN",n:".explode(ignore_index)",d:"List elements → separate rows"},
+      {t:"FN",n:".to_frame(name)",d:"Series → DataFrame"},
+      {t:"AT",n:".name",d:"Series name attribute"},
+      {t:"AT",n:".array",d:"Underlying ExtensionArray"},
+      {t:"FN",n:".item()",d:"Scalar for single-element Series"},
+    ]},
+  ]},
+  { label:"Index Objects", desc:"Immutable sequence used for axis labels and alignment", secs:[
+    { title:"Common Index Methods", leaves:[
+      {t:"FN",n:".union(other) / .intersection(other) / .difference(other)",d:"Set operations"},
+      {t:"FN",n:".symmetric_difference(other)",d:"Elements in one but not both"},
+      {t:"FN",n:".is_unique / .has_duplicates",d:"Uniqueness check"},
+      {t:"FN",n:".unique()",d:"Return unique values"},
+      {t:"FN",n:".value_counts()",d:"Frequency of each label"},
+      {t:"FN",n:".sort_values(ascending) / .argsort()",d:"Sort index"},
+      {t:"FN",n:".get_loc(key) / .get_indexer(target)",d:"Position of label"},
+      {t:"FN",n:".isin(values)",d:"Boolean mask for membership"},
+      {t:"FN",n:".map(mapper) / .where(cond, other)",d:"Transform labels"},
+      {t:"FN",n:".rename(name)",d:"Set .name attribute"},
+      {t:"FN",n:".insert(loc, item) / .delete(loc)",d:"Add/remove at position"},
+      {t:"FN",n:".append(other)",d:"Append another Index"},
+      {t:"FN",n:".drop(labels, errors)",d:"Remove labels"},
+      {t:"FN",n:".fillna(value)",d:"Fill NaN labels"},
+      {t:"FN",n:".astype(dtype) / .inferred_type",d:"Cast / check inferred type"},
+    ]},
+    { title:"MultiIndex", leaves:[
+      {t:"FN",n:"pd.MultiIndex.from_tuples(tuples, names)",d:"Build from list of tuples"},
+      {t:"FN",n:"pd.MultiIndex.from_arrays(arrays, names)",d:"Build from arrays"},
+      {t:"FN",n:"pd.MultiIndex.from_product(iterables, names)",d:"Cartesian product"},
+      {t:"FN",n:"pd.MultiIndex.from_frame(df, names)",d:"Build from DataFrame"},
+      {t:"AT",n:".levels / .codes / .names",d:"Level values / codes / names"},
+      {t:"FN",n:".get_level_values(level)",d:"Labels for one level"},
+      {t:"FN",n:".set_levels(levels, level) / .set_codes()",d:"Modify levels/codes"},
+      {t:"FN",n:".swaplevel(i, j) / .reorder_levels(order)",d:"Swap / reorder levels"},
+      {t:"FN",n:".to_frame(index, name) / .to_flat_index()",d:"Convert to DataFrame / tuples"},
+      {t:"FN",n:".droplevel(level)",d:"Remove a level"},
+      {t:"FN",n:".sortlevel(level, ascending, sort_remaining)",d:"Sort by level"},
+    ]},
+  ]},
+  { label:"pd.io (Advanced I/O)", desc:"Lower-level I/O utilities and chunking", secs:[
+    { title:"Chunked & Streaming", leaves:[
+      {t:"FN",n:"pd.read_csv(..., chunksize=N)",d:"Returns TextFileReader iterator"},
+      {t:"FN",n:"pd.read_json(..., lines=True, chunksize=N)",d:"Line-delimited JSON chunks"},
+      {t:"CL",n:"pd.io.parsers.TextFileReader",d:"Iterator from chunked reads"},
+      {t:"FN",n:"pd.HDFStore(path, mode)",d:"HDF5 file handle"},
+      {t:"FN",n:"store.put(key, df) / store.get(key) / store.select(key, where)",d:"HDF store operations"},
+      {t:"FN",n:"store.append(key, df, data_columns)",d:"Append to HDF table"},
+    ]},
+  ]},
+  { label:"pd.api.types", desc:"Type checking utilities", secs:[
+    { title:"Type Checkers", leaves:[
+      {t:"FN",n:"pd.api.types.is_numeric_dtype(arr)",d:"Check if numeric"},
+      {t:"FN",n:"pd.api.types.is_string_dtype(arr)",d:"Check if string/object"},
+      {t:"FN",n:"pd.api.types.is_categorical_dtype(arr)",d:"Check if categorical"},
+      {t:"FN",n:"pd.api.types.is_datetime64_dtype(arr)",d:"Check if datetime64"},
+      {t:"FN",n:"pd.api.types.is_integer_dtype(arr)",d:"Check if integer"},
+      {t:"FN",n:"pd.api.types.is_float_dtype(arr)",d:"Check if float"},
+      {t:"FN",n:"pd.api.types.is_bool_dtype(arr)",d:"Check if boolean"},
+      {t:"FN",n:"pd.api.types.is_list_like(obj)",d:"Check if iterable but not string"},
+      {t:"FN",n:"pd.api.types.pandas_dtype(dtype)",d:"Convert string to pandas dtype"},
+      {t:"FN",n:"pd.api.types.union_categoricals(to_union)",d:"Combine categoricals"},
+    ]},
+  ]},
+];
+
+function buildTree(data, container) {
+  data.forEach(ns => {
+    const nsNode = document.createElement('div');
+    nsNode.className = 'ns-node';
+    const nsHeader = document.createElement('div');
+    nsHeader.className = 'ns-header';
+    nsHeader.innerHTML = `<span class="toggle">▶</span><span class="badge b-ns">NS</span><span class="ns-label">${ns.label}</span><span class="ns-desc">${ns.desc}</span>`;
+    const nsChildren = document.createElement('div');
+    nsChildren.className = 'ns-children closed';
+    nsHeader.addEventListener('click', () => { const o=!nsChildren.classList.contains('closed'); nsChildren.classList.toggle('closed',o); nsHeader.querySelector('.toggle').classList.toggle('open',!o); });
+    ns.secs.forEach(sec => {
+      const secNode = document.createElement('div'); secNode.className='sec-node';
+      const secHeader = document.createElement('div'); secHeader.className='sec-header';
+      secHeader.innerHTML=`<span class="toggle">▶</span><span class="badge b-sec">§</span><span class="sec-label">${sec.title}</span>`;
+      const secChildren = document.createElement('div'); secChildren.className='sec-children closed';
+      secHeader.addEventListener('click',()=>{ const o=!secChildren.classList.contains('closed'); secChildren.classList.toggle('closed',o); secHeader.querySelector('.toggle').classList.toggle('open',!o); });
+      sec.leaves.forEach(leaf=>{
+        const bMap={FN:'b-fn',CL:'b-cl',AT:'b-at'};
+        const el=document.createElement('div'); el.className='leaf';
+        el.dataset.search=(leaf.n+' '+leaf.d).toLowerCase();
+        el.innerHTML=`<span class="badge ${bMap[leaf.t]||'b-fn'}">${leaf.t}</span><span class="lname">${leaf.n}</span><span class="ldesc">${leaf.d}</span>`;
+        secChildren.appendChild(el);
+      });
+      secNode.appendChild(secHeader); secNode.appendChild(secChildren); nsChildren.appendChild(secNode);
+    });
+    nsNode.appendChild(nsHeader); nsNode.appendChild(nsChildren); container.appendChild(nsNode);
+  });
+}
+function expandAll(){ document.querySelectorAll('.ns-children,.sec-children').forEach(c=>c.classList.remove('closed')); document.querySelectorAll('.toggle').forEach(t=>t.classList.add('open')); }
+function collapseAll(){ document.querySelectorAll('.ns-children,.sec-children').forEach(c=>c.classList.add('closed')); document.querySelectorAll('.toggle').forEach(t=>t.classList.remove('open')); }
+function filterTree(q){
+  q=q.toLowerCase().trim();
+  if(!q){ document.querySelectorAll('.leaf').forEach(l=>{l.classList.remove('hidden','highlight');}); document.querySelectorAll('.ns-children,.sec-children').forEach(c=>c.classList.add('closed')); document.querySelectorAll('.toggle').forEach(t=>t.classList.remove('open')); return; }
+  document.querySelectorAll('.leaf').forEach(leaf=>{
+    const match=leaf.dataset.search&&leaf.dataset.search.includes(q);
+    leaf.classList.toggle('hidden',!match); leaf.classList.toggle('highlight',match);
+    if(match){ let p=leaf.parentElement; while(p&&p.id!=='tree'){ if(p.classList.contains('sec-children')||p.classList.contains('ns-children')){ p.classList.remove('closed'); const prev=p.previousElementSibling; if(prev){const tog=prev.querySelector('.toggle');if(tog)tog.classList.add('open');} } p=p.parentElement; } }
+  });
+}
+buildTree(DATA, document.getElementById('tree'));
+</script>
+</body>
+</html>

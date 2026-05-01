@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Libraries Tree</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --border: #1e2330;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --langchain: #f59e0b;
+    --scipy: #22d3ee;
+    --langgraph: #a78bfa;
+    --adk: #34d399;
+    --module: #f1f5f9;
+    --class: #fbbf24;
+    --func: #67e8f9;
+    --tool: #86efac;
+    --type: #c4b5fd;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    min-height: 100vh;
+    padding: 32px 24px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #f59e0b, #a78bfa, #22d3ee, #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 28px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .search-bar {
+    width: 100%;
+    max-width: 400px;
+    padding: 9px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    margin-bottom: 24px;
+    transition: border-color 0.2s;
+  }
+  .search-bar:focus { border-color: #a78bfa; }
+  .search-bar::placeholder { color: var(--muted); }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .btn {
+    padding: 6px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:hover { color: var(--text); border-color: #64748b; }
+  .btn.active { color: #fff; border-color: #a78bfa; background: #a78bfa22; }
+
+  .tree-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+    gap: 20px;
+  }
+
+  .lib-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .lib-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+  }
+
+  .lib-color-bar {
+    width: 4px;
+    height: 32px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .lib-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .lib-desc {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  .lib-toggle {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 18px;
+    transition: transform 0.2s;
+  }
+
+  .lib-body {
+    padding: 8px 0;
+  }
+
+  /* Tree nodes */
+  .node {
+    display: flex;
+    align-items: flex-start;
+    padding: 3px 0;
+  }
+
+  .node-indent {
+    display: flex;
+    align-items: stretch;
+    flex-shrink: 0;
+  }
+
+  .node-line {
+    width: 20px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .node-line::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .node-connector {
+    width: 20px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .node-connector::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    height: 50%;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .node-connector::after {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    width: 10px;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .node-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 3px 8px 3px 2px;
+    border-radius: 4px;
+    cursor: pointer;
+    flex: 1;
+    transition: background 0.1s;
+    min-width: 0;
+  }
+  .node-label:hover { background: #ffffff08; }
+
+  .node-icon {
+    font-size: 11px;
+    flex-shrink: 0;
+    width: 18px;
+    text-align: center;
+  }
+
+  .node-text {
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .node-tag {
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .node-desc {
+    font-size: 10px;
+    color: var(--muted);
+    margin-left: 4px;
+    flex-shrink: 0;
+    display: none;
+  }
+
+  .node-label:hover .node-desc { display: inline; }
+
+  .node-children {
+    overflow: hidden;
+    transition: max-height 0.2s ease;
+  }
+
+  .collapsed > .node-children { display: none; }
+
+  .toggle-btn {
+    width: 14px; height: 14px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    line-height: 1;
+    user-select: none;
+  }
+
+  .highlight { background: #f59e0b33 !important; }
+  .hidden { display: none !important; }
+
+  /* Tag colors */
+  .tag-module { background: #1e2330; color: #94a3b8; }
+  .tag-class { background: #451a03; color: var(--class); }
+  .tag-function { background: #083344; color: var(--func); }
+  .tag-tool { background: #052e16; color: var(--tool); }
+  .tag-type { background: #2e1065; color: var(--type); }
+  .tag-method { background: #1c1917; color: #a8a29e; }
+  .tag-component { background: #1a2e05; color: #86efac; }
+  .tag-enum { background: #2d1b69; color: #c4b5fd; }
+  .tag-mixin { background: #1e1b4b; color: #a5b4fc; }
+
+  /* Node type coloring */
+  .type-module .node-text { color: #94a3b8; }
+  .type-class .node-text { color: var(--class); }
+  .type-function .node-text { color: var(--func); }
+  .type-tool .node-text { color: var(--tool); }
+  .type-type .node-text { color: var(--type); }
+  .type-method .node-text { color: #a8a29e; }
+
+  @media (max-width: 600px) {
+    .tree-container { grid-template-columns: 1fr; }
+    h1 { font-size: 22px; }
+  }
+</style>
+<style>
+/* ── WHITE THEME OVERRIDE ── */
+:root {
+  --bg: #ffffff !important;
+  --surface: #f8fafc !important;
+  --border: #e2e8f0 !important;
+  --text: #1e293b !important;
+  --muted: #64748b !important;
+}
+body {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, #94a3b8 1.5px, transparent 1.5px);
+  background-size: 28px 28px;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+.back-home {
+  position: relative; z-index: 2;
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-bottom: 20px; padding: 7px 14px;
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  background: rgba(255,255,255,0.9); color: #475569;
+  font-size: 0.78rem; font-weight: 600; text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.back-home:hover { border-color: #8b5cf6; color: #8b5cf6; }
+h1, .subtitle, .controls, .legend, .tree-container { position: relative; z-index: 1; }
+.subtitle { color: #64748b !important; }
+.legend {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+.legend-item { color: #64748b !important; }
+.search-bar {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+.search-bar:focus { border-color: #8b5cf6 !important; }
+.search-bar::placeholder { color: #94a3b8 !important; }
+.btn {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #64748b !important;
+}
+.btn:hover { color: #1e293b !important; border-color: #94a3b8 !important; }
+.btn.active { color: #fff !important; border-color: #8b5cf6 !important; background: #8b5cf622 !important; }
+.lib-card {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+.lib-header { border-bottom-color: #e2e8f0 !important; }
+.lib-name { color: #0f172a !important; }
+.lib-desc { color: #64748b !important; }
+.lib-toggle { color: #94a3b8 !important; }
+.node-line::before { background: #e2e8f0 !important; }
+.node-connector::before, .node-connector::after { background: #e2e8f0 !important; }
+.node-label:hover { background: #f1f5f9 !important; }
+.node-text { color: #334155 !important; }
+.node-desc { color: #94a3b8 !important; }
+.toggle-btn {
+  border-color: #e2e8f0 !important;
+  background: #f8fafc !important;
+  color: #94a3b8 !important;
+}
+.type-module .node-text { color: #475569 !important; }
+.type-class .node-text { color: #d97706 !important; }
+.type-function .node-text { color: #0891b2 !important; }
+.type-tool .node-text { color: #16a34a !important; }
+.type-type .node-text { color: #7c3aed !important; }
+.type-method .node-text { color: #64748b !important; }
+.tag-module { background: #f1f5f9 !important; color: #475569 !important; }
+.tag-class { background: #fef3c7 !important; color: #92400e !important; }
+.tag-function { background: #e0f2fe !important; color: #075985 !important; }
+.tag-tool { background: #dcfce7 !important; color: #15803d !important; }
+.tag-type { background: #ede9fe !important; color: #5b21b6 !important; }
+.tag-method { background: #f8fafc !important; color: #64748b !important; }
+.tag-component { background: #dcfce7 !important; color: #15803d !important; }
+.tag-enum { background: #ede9fe !important; color: #5b21b6 !important; }
+.tag-mixin { background: #e0e7ff !important; color: #3730a3 !important; }
+.highlight { background: #fef9c3 !important; }
+</style>
+</head>
+<body>
+<a class="back-home" href="index.html">← Home</a>
+
+<h1>Python Libraries · Reference Tree</h1>
+<p class="subtitle">// LangChain · SciPy · LangGraph · Google ADK — structured overview</p>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#94a3b8"></div>Module / Subpackage</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div>Class</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#67e8f9"></div>Function</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#86efac"></div>Tool / Component</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#c4b5fd"></div>Type / Enum</div>
+</div>
+
+<div class="controls">
+  <input class="search-bar" type="text" placeholder="🔍  Search classes, functions, tools..." oninput="filterTree(this.value)">
+  <button class="btn" onclick="expandAll()">Expand All</button>
+  <button class="btn" onclick="collapseAll()">Collapse All</button>
+</div>
+
+<div class="tree-container" id="treeContainer"></div>
+
+<script>
+const DATA = [
+  {
+    name: "LangChain",
+    color: "#f59e0b",
+    desc: "LLM application framework",
+    children: [
+      { name: "langchain_core", type: "module", desc: "Core abstractions", children: [
+        { name: "language_models", type: "module", children: [
+          { name: "BaseChatModel", type: "class", desc: "Base for chat models" },
+          { name: "BaseLanguageModel", type: "class" },
+          { name: "BaseLLM", type: "class", desc: "Base for text completion LLMs" },
+        ]},
+        { name: "prompts", type: "module", children: [
+          { name: "ChatPromptTemplate", type: "class", desc: "Multi-message prompt" },
+          { name: "PromptTemplate", type: "class", desc: "String prompt with vars" },
+          { name: "MessagesPlaceholder", type: "class" },
+          { name: "HumanMessagePromptTemplate", type: "class" },
+          { name: "SystemMessagePromptTemplate", type: "class" },
+          { name: "FewShotPromptTemplate", type: "class" },
+        ]},
+        { name: "messages", type: "module", children: [
+          { name: "HumanMessage", type: "class" },
+          { name: "AIMessage", type: "class" },
+          { name: "SystemMessage", type: "class" },
+          { name: "FunctionMessage", type: "class" },
+          { name: "ToolMessage", type: "class" },
+          { name: "BaseMessage", type: "class" },
+        ]},
+        { name: "output_parsers", type: "module", children: [
+          { name: "StrOutputParser", type: "class", desc: "String output" },
+          { name: "JsonOutputParser", type: "class" },
+          { name: "PydanticOutputParser", type: "class" },
+          { name: "CommaSeparatedListOutputParser", type: "class" },
+          { name: "XMLOutputParser", type: "class" },
+        ]},
+        { name: "retrievers", type: "module", children: [
+          { name: "BaseRetriever", type: "class", desc: "Abstract retriever" },
+          { name: "RetrieverLike", type: "type" },
+        ]},
+        { name: "runnables", type: "module", children: [
+          { name: "RunnableSequence", type: "class", desc: "Chains via | operator" },
+          { name: "RunnableParallel", type: "class", desc: "Runs branches in parallel" },
+          { name: "RunnableLambda", type: "class", desc: "Wraps any function" },
+          { name: "RunnablePassthrough", type: "class", desc: "Passes input unchanged" },
+          { name: "RunnableBranch", type: "class", desc: "Conditional routing" },
+          { name: "RunnableWithMessageHistory", type: "class" },
+        ]},
+        { name: "tools", type: "module", children: [
+          { name: "BaseTool", type: "class" },
+          { name: "StructuredTool", type: "class" },
+          { name: "tool", type: "function", desc: "@decorator to create tool" },
+        ]},
+        { name: "vectorstores", type: "module", children: [
+          { name: "VectorStore", type: "class", desc: "Abstract vector store" },
+          { name: "InMemoryVectorStore", type: "class" },
+        ]},
+        { name: "callbacks", type: "module", children: [
+          { name: "BaseCallbackHandler", type: "class" },
+          { name: "CallbackManager", type: "class" },
+          { name: "StdOutCallbackHandler", type: "class" },
+        ]},
+        { name: "documents", type: "module", children: [
+          { name: "Document", type: "class", desc: "page_content + metadata" },
+        ]},
+      ]},
+      { name: "langchain", type: "module", desc: "High-level components", children: [
+        { name: "chains", type: "module", children: [
+          { name: "LLMChain", type: "class", desc: "Prompt + LLM chain" },
+          { name: "ConversationChain", type: "class" },
+          { name: "RetrievalQA", type: "class" },
+          { name: "SequentialChain", type: "class" },
+          { name: "TransformChain", type: "class" },
+          { name: "MapReduceDocumentsChain", type: "class" },
+          { name: "StuffDocumentsChain", type: "class" },
+          { name: "RefineDocumentsChain", type: "class" },
+          { name: "create_retrieval_chain", type: "function" },
+          { name: "create_stuff_documents_chain", type: "function" },
+        ]},
+        { name: "agents", type: "module", children: [
+          { name: "AgentExecutor", type: "class", desc: "Runs agent + tools" },
+          { name: "BaseSingleActionAgent", type: "class" },
+          { name: "BaseMultiActionAgent", type: "class" },
+          { name: "create_react_agent", type: "function", desc: "ReAct agent" },
+          { name: "create_openai_tools_agent", type: "function" },
+          { name: "create_structured_chat_agent", type: "function" },
+          { name: "create_json_agent", type: "function" },
+          { name: "create_sql_agent", type: "function" },
+          { name: "initialize_agent", type: "function" },
+          { name: "AgentType", type: "type" },
+          { name: "Tool", type: "tool" },
+        ]},
+        { name: "memory", type: "module", children: [
+          { name: "ConversationBufferMemory", type: "class" },
+          { name: "ConversationBufferWindowMemory", type: "class" },
+          { name: "ConversationSummaryMemory", type: "class" },
+          { name: "ConversationTokenBufferMemory", type: "class" },
+          { name: "VectorStoreRetrieverMemory", type: "class" },
+          { name: "ChatMessageHistory", type: "class" },
+          { name: "BaseChatMessageHistory", type: "class" },
+        ]},
+        { name: "text_splitter", type: "module", children: [
+          { name: "RecursiveCharacterTextSplitter", type: "class", desc: "Most common splitter" },
+          { name: "CharacterTextSplitter", type: "class" },
+          { name: "TokenTextSplitter", type: "class" },
+          { name: "MarkdownTextSplitter", type: "class" },
+          { name: "PythonCodeTextSplitter", type: "class" },
+          { name: "HTMLTextSplitter", type: "class" },
+          { name: "LatexTextSplitter", type: "class" },
+        ]},
+        { name: "embeddings", type: "module", children: [
+          { name: "OpenAIEmbeddings", type: "class" },
+          { name: "HuggingFaceEmbeddings", type: "class" },
+          { name: "CohereEmbeddings", type: "class" },
+          { name: "FakeEmbeddings", type: "class", desc: "For testing" },
+        ]},
+        { name: "document_loaders", type: "module", children: [
+          { name: "PyPDFLoader", type: "class" },
+          { name: "TextLoader", type: "class" },
+          { name: "CSVLoader", type: "class" },
+          { name: "WebBaseLoader", type: "class" },
+          { name: "DirectoryLoader", type: "class" },
+          { name: "JSONLoader", type: "class" },
+          { name: "UnstructuredLoader", type: "class" },
+          { name: "GitLoader", type: "class" },
+          { name: "WikipediaLoader", type: "class" },
+        ]},
+        { name: "tools (built-in)", type: "module", children: [
+          { name: "DuckDuckGoSearchRun", type: "tool" },
+          { name: "WikipediaQueryRun", type: "tool" },
+          { name: "PythonREPLTool", type: "tool" },
+          { name: "ShellTool", type: "tool" },
+          { name: "HumanInputRun", type: "tool" },
+          { name: "GoogleSearchRun", type: "tool" },
+          { name: "WolframAlphaQueryRun", type: "tool" },
+          { name: "BraveSearch", type: "tool" },
+        ]},
+      ]},
+      { name: "langchain_community", type: "module", desc: "Integrations", children: [
+        { name: "vectorstores", type: "module", children: [
+          { name: "Chroma", type: "class" },
+          { name: "FAISS", type: "class" },
+          { name: "Pinecone", type: "class" },
+          { name: "Weaviate", type: "class" },
+          { name: "Qdrant", type: "class" },
+          { name: "PGVector", type: "class" },
+          { name: "ElasticsearchStore", type: "class" },
+        ]},
+        { name: "llms", type: "module", children: [
+          { name: "Ollama", type: "class" },
+          { name: "HuggingFacePipeline", type: "class" },
+          { name: "LlamaCpp", type: "class" },
+          { name: "GPT4All", type: "class" },
+          { name: "Anthropic", type: "class" },
+        ]},
+      ]},
+      { name: "langchain_openai", type: "module", children: [
+        { name: "ChatOpenAI", type: "class", desc: "GPT chat model" },
+        { name: "OpenAI", type: "class", desc: "GPT completion model" },
+        { name: "AzureChatOpenAI", type: "class" },
+        { name: "OpenAIEmbeddings", type: "class" },
+      ]},
+    ]
+  },
+  {
+    name: "SciPy",
+    color: "#22d3ee",
+    desc: "Scientific computing",
+    children: [
+      { name: "scipy.integrate", type: "module", desc: "Integration & ODEs", children: [
+        { name: "quad", type: "function", desc: "Single integral" },
+        { name: "dblquad", type: "function", desc: "Double integral" },
+        { name: "tplquad", type: "function", desc: "Triple integral" },
+        { name: "nquad", type: "function", desc: "n-dimensional integral" },
+        { name: "solve_ivp", type: "function", desc: "ODE initial value problem" },
+        { name: "odeint", type: "function", desc: "ODE integration (legacy)" },
+        { name: "ode", type: "class", desc: "ODE solver class" },
+        { name: "RK45", type: "class" },
+        { name: "RK23", type: "class" },
+        { name: "DOP853", type: "class" },
+        { name: "Radau", type: "class" },
+        { name: "BDF", type: "class" },
+        { name: "LSODA", type: "class" },
+        { name: "trapezoid", type: "function", desc: "Trapezoidal rule" },
+        { name: "simpson", type: "function" },
+        { name: "romberg", type: "function" },
+        { name: "fixed_quad", type: "function" },
+      ]},
+      { name: "scipy.optimize", type: "module", desc: "Optimization & root finding", children: [
+        { name: "minimize", type: "function", desc: "General minimizer" },
+        { name: "minimize_scalar", type: "function" },
+        { name: "root", type: "function", desc: "Root of equations" },
+        { name: "fsolve", type: "function" },
+        { name: "brentq", type: "function", desc: "Brent's root finding" },
+        { name: "bisect", type: "function" },
+        { name: "linprog", type: "function", desc: "Linear programming" },
+        { name: "milp", type: "function", desc: "Mixed-integer LP" },
+        { name: "curve_fit", type: "function", desc: "Curve fitting" },
+        { name: "least_squares", type: "function" },
+        { name: "differential_evolution", type: "function" },
+        { name: "basinhopping", type: "function" },
+        { name: "dual_annealing", type: "function" },
+        { name: "shgo", type: "function", desc: "Global optimization" },
+        { name: "minimize (methods)", type: "type", desc: "Nelder-Mead, BFGS, L-BFGS-B, CG, Newton-CG, TNC, SLSQP, trust-constr" },
+        { name: "OptimizeResult", type: "class" },
+        { name: "Bounds", type: "class" },
+        { name: "LinearConstraint", type: "class" },
+        { name: "NonlinearConstraint", type: "class" },
+      ]},
+      { name: "scipy.stats", type: "module", desc: "Statistics & probability", children: [
+        { name: "Continuous Distributions", type: "module", children: [
+          { name: "norm", type: "class", desc: "Normal distribution" },
+          { name: "t", type: "class", desc: "Student's t" },
+          { name: "chi2", type: "class" },
+          { name: "f", type: "class", desc: "F distribution" },
+          { name: "expon", type: "class" },
+          { name: "uniform", type: "class" },
+          { name: "beta", type: "class" },
+          { name: "gamma", type: "class" },
+          { name: "lognorm", type: "class" },
+          { name: "weibull_min/max", type: "class" },
+        ]},
+        { name: "Discrete Distributions", type: "module", children: [
+          { name: "binom", type: "class", desc: "Binomial" },
+          { name: "poisson", type: "class" },
+          { name: "geom", type: "class" },
+          { name: "hypergeom", type: "class" },
+          { name: "nbinom", type: "class" },
+        ]},
+        { name: "Statistical Tests", type: "module", children: [
+          { name: "ttest_1samp", type: "function" },
+          { name: "ttest_ind", type: "function" },
+          { name: "ttest_rel", type: "function" },
+          { name: "mannwhitneyu", type: "function" },
+          { name: "wilcoxon", type: "function" },
+          { name: "kruskal", type: "function" },
+          { name: "chi2_contingency", type: "function" },
+          { name: "ks_2samp", type: "function" },
+          { name: "shapiro", type: "function", desc: "Normality test" },
+          { name: "pearsonr", type: "function" },
+          { name: "spearmanr", type: "function" },
+          { name: "kendalltau", type: "function" },
+          { name: "f_oneway", type: "function", desc: "One-way ANOVA" },
+          { name: "chisquare", type: "function" },
+          { name: "fisher_exact", type: "function" },
+          { name: "linregress", type: "function", desc: "Linear regression" },
+        ]},
+        { name: "Descriptive", type: "module", children: [
+          { name: "describe", type: "function" },
+          { name: "zscore", type: "function" },
+          { name: "sem", type: "function", desc: "Standard error" },
+          { name: "skew", type: "function" },
+          { name: "kurtosis", type: "function" },
+          { name: "mode", type: "function" },
+          { name: "gmean", type: "function" },
+          { name: "hmean", type: "function" },
+          { name: "trim_mean", type: "function" },
+          { name: "iqr", type: "function" },
+          { name: "entropy", type: "function" },
+        ]},
+      ]},
+      { name: "scipy.linalg", type: "module", desc: "Linear algebra", children: [
+        { name: "solve", type: "function", desc: "Solve Ax=b" },
+        { name: "inv", type: "function", desc: "Matrix inverse" },
+        { name: "det", type: "function" },
+        { name: "norm", type: "function" },
+        { name: "eig", type: "function", desc: "Eigenvalues & vectors" },
+        { name: "eigvals", type: "function" },
+        { name: "svd", type: "function", desc: "Singular value decomposition" },
+        { name: "lu", type: "function", desc: "LU decomposition" },
+        { name: "qr", type: "function" },
+        { name: "cholesky", type: "function" },
+        { name: "lstsq", type: "function", desc: "Least squares" },
+        { name: "expm", type: "function", desc: "Matrix exponential" },
+        { name: "logm", type: "function" },
+        { name: "block_diag", type: "function" },
+      ]},
+      { name: "scipy.signal", type: "module", desc: "Signal processing", children: [
+        { name: "Filtering", type: "module", children: [
+          { name: "butter", type: "function", desc: "Butterworth filter" },
+          { name: "cheby1", type: "function" },
+          { name: "ellip", type: "function" },
+          { name: "firwin", type: "function", desc: "FIR filter" },
+          { name: "lfilter", type: "function" },
+          { name: "sosfilt", type: "function" },
+          { name: "filtfilt", type: "function", desc: "Zero-phase filter" },
+          { name: "medfilt", type: "function" },
+          { name: "savgol_filter", type: "function" },
+        ]},
+        { name: "Spectral", type: "module", children: [
+          { name: "periodogram", type: "function" },
+          { name: "welch", type: "function" },
+          { name: "spectrogram", type: "function" },
+          { name: "stft", type: "function", desc: "Short-time Fourier transform" },
+          { name: "istft", type: "function" },
+        ]},
+        { name: "Peak/Correlation", type: "module", children: [
+          { name: "find_peaks", type: "function" },
+          { name: "peak_prominences", type: "function" },
+          { name: "correlate", type: "function" },
+          { name: "convolve", type: "function" },
+          { name: "resample", type: "function" },
+          { name: "decimate", type: "function" },
+        ]},
+      ]},
+      { name: "scipy.interpolate", type: "module", desc: "Interpolation", children: [
+        { name: "interp1d", type: "class", desc: "1D interpolation" },
+        { name: "interp2d", type: "class" },
+        { name: "griddata", type: "function" },
+        { name: "CubicSpline", type: "class" },
+        { name: "BSpline", type: "class" },
+        { name: "make_interp_spline", type: "function" },
+        { name: "RBFInterpolator", type: "class", desc: "Radial basis function" },
+        { name: "RegularGridInterpolator", type: "class" },
+        { name: "NearestNDInterpolator", type: "class" },
+      ]},
+      { name: "scipy.spatial", type: "module", desc: "Spatial data structures", children: [
+        { name: "KDTree", type: "class", desc: "k-d tree" },
+        { name: "cKDTree", type: "class", desc: "Cython KDTree (fast)" },
+        { name: "Delaunay", type: "class" },
+        { name: "ConvexHull", type: "class" },
+        { name: "Voronoi", type: "class" },
+        { name: "distance.cdist", type: "function" },
+        { name: "distance.pdist", type: "function" },
+        { name: "distance.squareform", type: "function" },
+        { name: "distance (metrics)", type: "type", desc: "euclidean, cosine, hamming, jaccard, minkowski…" },
+      ]},
+      { name: "scipy.fft", type: "module", desc: "Fast Fourier Transform", children: [
+        { name: "fft", type: "function" },
+        { name: "ifft", type: "function" },
+        { name: "fft2", type: "function", desc: "2D FFT" },
+        { name: "rfft", type: "function", desc: "Real FFT" },
+        { name: "dct", type: "function", desc: "Discrete cosine transform" },
+        { name: "fftfreq", type: "function" },
+        { name: "fftshift", type: "function" },
+      ]},
+      { name: "scipy.sparse", type: "module", desc: "Sparse matrices", children: [
+        { name: "csr_matrix", type: "class", desc: "Compressed sparse row" },
+        { name: "csc_matrix", type: "class" },
+        { name: "coo_matrix", type: "class" },
+        { name: "lil_matrix", type: "class" },
+        { name: "eye", type: "function" },
+        { name: "issparse", type: "function" },
+        { name: "linalg.spsolve", type: "function" },
+        { name: "linalg.eigs", type: "function" },
+      ]},
+      { name: "scipy.ndimage", type: "module", desc: "N-dimensional image processing", children: [
+        { name: "gaussian_filter", type: "function" },
+        { name: "median_filter", type: "function" },
+        { name: "convolve", type: "function" },
+        { name: "rotate", type: "function" },
+        { name: "zoom", type: "function" },
+        { name: "label", type: "function", desc: "Connected components" },
+        { name: "binary_dilation", type: "function" },
+        { name: "binary_erosion", type: "function" },
+      ]},
+    ]
+  },
+  {
+    name: "LangGraph",
+    color: "#a78bfa",
+    desc: "Stateful agent graphs",
+    children: [
+      { name: "Core Graph", type: "module", children: [
+        { name: "StateGraph", type: "class", desc: "Main graph with typed state" },
+        { name: "MessageGraph", type: "class", desc: "Message-based graph" },
+        { name: "Graph", type: "class", desc: "Base graph class" },
+        { name: "CompiledGraph", type: "class", desc: "Output of .compile()" },
+        { name: "CompiledStateGraph", type: "class" },
+      ]},
+      { name: "Nodes & Edges", type: "module", children: [
+        { name: "add_node(name, fn)", type: "function", desc: "Register a node function" },
+        { name: "add_edge(a, b)", type: "function", desc: "Unconditional edge" },
+        { name: "add_conditional_edges(src, fn, map)", type: "function", desc: "Route by return value" },
+        { name: "set_entry_point(name)", type: "function" },
+        { name: "set_finish_point(name)", type: "function" },
+        { name: "START", type: "tool", desc: "Reserved start sentinel" },
+        { name: "END", type: "tool", desc: "Reserved end sentinel" },
+      ]},
+      { name: "State Management", type: "module", children: [
+        { name: "TypedDict", type: "type", desc: "Define state schema" },
+        { name: "Annotated[list, add_messages]", type: "type", desc: "Auto-append messages" },
+        { name: "add_messages", type: "function", desc: "Reducer for message lists" },
+        { name: "MessagesState", type: "class", desc: "Pre-built messages state" },
+        { name: "MemorySaver", type: "class", desc: "In-memory checkpointer" },
+        { name: "SqliteSaver", type: "class", desc: "SQLite persistence" },
+        { name: "PostgresSaver", type: "class", desc: "Postgres persistence" },
+        { name: "BaseCheckpointSaver", type: "class" },
+        { name: "Checkpoint", type: "type" },
+        { name: "CheckpointMetadata", type: "type" },
+      ]},
+      { name: "Compilation & Config", type: "module", children: [
+        { name: ".compile()", type: "function", desc: "Compile graph to runnable" },
+        { name: ".compile(checkpointer=...)", type: "function", desc: "Compile with persistence" },
+        { name: ".compile(interrupt_before=...)", type: "function", desc: "Human-in-loop pause" },
+        { name: "RunnableConfig", type: "type", desc: "thread_id, recursion_limit…" },
+        { name: "configurable (thread_id)", type: "tool", desc: "Per-run config key" },
+      ]},
+      { name: "Invocation", type: "module", children: [
+        { name: ".invoke(input, config)", type: "function", desc: "Run graph once" },
+        { name: ".stream(input, config)", type: "function", desc: "Stream events" },
+        { name: ".astream()", type: "function", desc: "Async stream" },
+        { name: ".astream_events()", type: "function", desc: "Full event stream" },
+        { name: ".get_state(config)", type: "function", desc: "Read current state" },
+        { name: ".update_state(config, values)", type: "function", desc: "Modify state (human input)" },
+        { name: ".get_state_history(config)", type: "function", desc: "Replay history" },
+      ]},
+      { name: "Pre-built Agents", type: "module", children: [
+        { name: "create_react_agent", type: "function", desc: "ReAct agent graph" },
+        { name: "create_tool_calling_executor", type: "function" },
+        { name: "ToolNode", type: "class", desc: "Node that runs tools" },
+        { name: "tools_condition", type: "function", desc: "Route to tools or END" },
+      ]},
+      { name: "Streaming Modes", type: "module", children: [
+        { name: "stream_mode='values'", type: "type", desc: "Full state after each step" },
+        { name: "stream_mode='updates'", type: "type", desc: "Only changed keys" },
+        { name: "stream_mode='debug'", type: "type" },
+        { name: "stream_mode='messages'", type: "type", desc: "Token-level chat messages" },
+        { name: "stream_mode='events'", type: "type" },
+      ]},
+      { name: "Multi-Agent", type: "module", children: [
+        { name: "Supervisor pattern", type: "tool", desc: "Orchestrator + worker subgraphs" },
+        { name: "Subgraph", type: "tool", desc: "Nested StateGraph as node" },
+        { name: "Command", type: "class", desc: "Jump to node + update state" },
+        { name: "Send", type: "class", desc: "Fan-out to parallel nodes" },
+        { name: "interrupt()", type: "function", desc: "Human-in-loop pause" },
+      ]},
+    ]
+  },
+  {
+    name: "Google ADK",
+    color: "#34d399",
+    desc: "Agent Development Kit",
+    children: [
+      { name: "Agents", type: "module", children: [
+        { name: "Agent", type: "class", desc: "Core agent class" },
+        { name: "LlmAgent", type: "class", desc: "LLM-powered agent" },
+        { name: "BaseAgent", type: "class" },
+        { name: "SequentialAgent", type: "class", desc: "Run sub-agents in order" },
+        { name: "ParallelAgent", type: "class", desc: "Run sub-agents in parallel" },
+        { name: "LoopAgent", type: "class", desc: "Loop until condition" },
+        { name: "CustomAgent", type: "class", desc: "Override _run_async_impl" },
+      ]},
+      { name: "Tools", type: "module", children: [
+        { name: "FunctionTool", type: "tool", desc: "Wrap any Python function" },
+        { name: "AgentTool", type: "tool", desc: "Wrap another agent as tool" },
+        { name: "BaseTool", type: "class" },
+        { name: "google_search", type: "tool", desc: "Grounding with Google Search" },
+        { name: "code_execution", type: "tool", desc: "Execute Python code" },
+        { name: "ToolContext", type: "class", desc: "Context passed to tool fn" },
+        { name: "BuiltInCodeExecutionTool", type: "tool" },
+      ]},
+      { name: "MCP Integration", type: "module", children: [
+        { name: "MCPTool", type: "tool", desc: "Wrap MCP server tools" },
+        { name: "MCPToolset", type: "class", desc: "Connect to MCP server" },
+        { name: "SseServerParams", type: "type", desc: "SSE connection config" },
+        { name: "StdioServerParameters", type: "type" },
+      ]},
+      { name: "Models", type: "module", children: [
+        { name: "Gemini", type: "class", desc: "Gemini via google-genai" },
+        { name: "LiteLlm", type: "class", desc: "100+ models via LiteLLM" },
+        { name: "BaseLlm", type: "class" },
+        { name: "model (str shorthand)", type: "type", desc: "'gemini-2.0-flash' etc." },
+      ]},
+      { name: "Session & Memory", type: "module", children: [
+        { name: "SessionService", type: "class", desc: "Manages sessions" },
+        { name: "InMemorySessionService", type: "class", desc: "Default in-memory" },
+        { name: "DatabaseSessionService", type: "class", desc: "Persistent sessions" },
+        { name: "VertexAiSessionService", type: "class" },
+        { name: "Session", type: "class", desc: "id, app_name, user_id, state" },
+        { name: "State", type: "class", desc: "session.state dict" },
+        { name: "MemoryService", type: "class", desc: "Long-term memory" },
+        { name: "InMemoryMemoryService", type: "class" },
+        { name: "VertexAiRagMemoryService", type: "class" },
+        { name: "BaseMemoryService", type: "class" },
+      ]},
+      { name: "Artifacts", type: "module", children: [
+        { name: "ArtifactService", type: "class" },
+        { name: "InMemoryArtifactService", type: "class" },
+        { name: "GcsArtifactService", type: "class", desc: "Google Cloud Storage" },
+        { name: "Part (types.Part)", type: "class", desc: "File/data artifact part" },
+      ]},
+      { name: "Runner & Execution", type: "module", children: [
+        { name: "Runner", type: "class", desc: "Runs agent against session" },
+        { name: "runner.run_async()", type: "function", desc: "Async execution" },
+        { name: "runner.run()", type: "function", desc: "Sync execution (wraps async)" },
+        { name: "InvocationContext", type: "class", desc: "Full runtime context" },
+        { name: "CallbackContext", type: "class", desc: "Context for callbacks" },
+        { name: "ReadonlyContext", type: "class" },
+      ]},
+      { name: "Events", type: "module", children: [
+        { name: "Event", type: "class", desc: "Base event class" },
+        { name: "event.author", type: "type", desc: "'user' | 'model' | agent_name" },
+        { name: "event.content", type: "type", desc: "types.Content" },
+        { name: "event.is_final_response()", type: "function" },
+        { name: "event.get_function_calls()", type: "function" },
+        { name: "event.get_function_responses()", type: "function" },
+        { name: "EventActions", type: "class", desc: "State updates, transfers, etc." },
+      ]},
+      { name: "Callbacks", type: "module", children: [
+        { name: "before_agent_callback", type: "function", desc: "Before agent runs" },
+        { name: "after_agent_callback", type: "function", desc: "After agent runs" },
+        { name: "before_model_callback", type: "function", desc: "Before LLM call" },
+        { name: "after_model_callback", type: "function", desc: "After LLM call" },
+        { name: "before_tool_callback", type: "function", desc: "Before tool execution" },
+        { name: "after_tool_callback", type: "function", desc: "After tool execution" },
+      ]},
+      { name: "Deployment", type: "module", children: [
+        { name: "get_fast_api_app()", type: "function", desc: "FastAPI server" },
+        { name: "AdkApp (Vertex AI)", type: "class", desc: "Deploy to Vertex AI Agent Engine" },
+        { name: "adk web", type: "tool", desc: "Local dev UI (CLI)" },
+        { name: "adk run", type: "tool", desc: "CLI runner" },
+        { name: "adk api_server", type: "tool", desc: "Local REST API server" },
+      ]},
+      { name: "Evaluation", type: "module", children: [
+        { name: "AgentEvaluator", type: "class" },
+        { name: "EvalCase", type: "type" },
+        { name: "EvalSet", type: "type" },
+        { name: "adk eval", type: "tool", desc: "Run evals from CLI" },
+      ]},
+    ]
+  }
+];
+
+function buildNode(item, depth, isLast) {
+  const hasChildren = item.children && item.children.length > 0;
+  const id = Math.random().toString(36).slice(2);
+  const typeClass = item.type ? `type-${item.type}` : 'type-module';
+
+  const div = document.createElement('div');
+  div.className = `node-wrapper ${hasChildren ? 'collapsible' : ''}`;
+  div.dataset.id = id;
+
+  // Build row
+  const row = document.createElement('div');
+  row.className = `node`;
+  row.style.paddingLeft = `${depth * 20 + 12}px`;
+
+  // Toggle button or spacer
+  const toggleEl = document.createElement('div');
+  toggleEl.style.width = '16px';
+  toggleEl.style.flexShrink = '0';
+  toggleEl.style.marginRight = '4px';
+  if (hasChildren) {
+    toggleEl.className = 'toggle-btn';
+    toggleEl.textContent = '−';
+    toggleEl.onclick = (e) => {
+      e.stopPropagation();
+      toggleNode(id);
+    };
+  }
+  row.appendChild(toggleEl);
+
+  // Label
+  const label = document.createElement('div');
+  label.className = `node-label ${typeClass}`;
+  label.innerHTML = `
+    <span class="node-text">${item.name}</span>
+    ${item.type && item.type !== 'module' ? `<span class="node-tag tag-${item.type}">${item.type}</span>` : ''}
+    ${item.desc ? `<span class="node-desc">— ${item.desc}</span>` : ''}
+  `;
+  row.appendChild(label);
+  div.appendChild(row);
+
+  if (hasChildren) {
+    const childContainer = document.createElement('div');
+    childContainer.className = 'node-children';
+    childContainer.dataset.parent = id;
+    item.children.forEach((child, i) => {
+      childContainer.appendChild(buildNode(child, depth + 1, i === item.children.length - 1));
+    });
+    div.appendChild(childContainer);
+  }
+
+  return div;
+}
+
+function toggleNode(id) {
+  const wrapper = document.querySelector(`[data-id="${id}"]`);
+  const children = document.querySelector(`[data-parent="${id}"]`);
+  const btn = wrapper.querySelector('.toggle-btn');
+  if (!children) return;
+  const hidden = children.style.display === 'none';
+  children.style.display = hidden ? '' : 'none';
+  btn.textContent = hidden ? '−' : '+';
+}
+
+function expandAll() {
+  document.querySelectorAll('.node-children').forEach(el => el.style.display = '');
+  document.querySelectorAll('.toggle-btn').forEach(el => el.textContent = '−');
+}
+
+function collapseAll() {
+  document.querySelectorAll('.node-children').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.toggle-btn').forEach(el => el.textContent = '+');
+}
+
+function filterTree(query) {
+  const q = query.toLowerCase().trim();
+  document.querySelectorAll('.node-wrapper').forEach(el => {
+    el.style.background = '';
+  });
+  if (!q) {
+    document.querySelectorAll('.node-wrapper').forEach(el => el.style.display = '');
+    return;
+  }
+  document.querySelectorAll('.node-text').forEach(el => {
+    const text = el.textContent.toLowerCase();
+    const wrapper = el.closest('.node-wrapper');
+    if (text.includes(q)) {
+      wrapper.style.background = '#f59e0b18';
+      // show all parents
+      let parent = wrapper.parentElement;
+      while (parent) {
+        if (parent.classList.contains('node-children')) {
+          parent.style.display = '';
+        }
+        if (parent.classList.contains('lib-body') || parent.classList.contains('tree-container')) break;
+        parent = parent.parentElement;
+      }
+    }
+  });
+}
+
+function render() {
+  const container = document.getElementById('treeContainer');
+  DATA.forEach(lib => {
+    const card = document.createElement('div');
+    card.className = 'lib-card';
+
+    const header = document.createElement('div');
+    header.className = 'lib-header';
+    header.innerHTML = `
+      <div class="lib-color-bar" style="background:${lib.color}"></div>
+      <div>
+        <div class="lib-name" style="color:${lib.color}">${lib.name}</div>
+        <div class="lib-desc">${lib.desc}</div>
+      </div>
+      <div class="lib-toggle">−</div>
+    `;
+
+    const body = document.createElement('div');
+    body.className = 'lib-body';
+
+    lib.children.forEach((child, i) => {
+      body.appendChild(buildNode(child, 0, i === lib.children.length - 1));
+    });
+
+    header.onclick = () => {
+      const vis = body.style.display !== 'none';
+      body.style.display = vis ? 'none' : '';
+      header.querySelector('.lib-toggle').textContent = vis ? '+' : '−';
+    };
+
+    card.appendChild(header);
+    card.appendChild(body);
+    container.appendChild(card);
+  });
+}
+
+render();
+</script>
+</body>
+</html>
