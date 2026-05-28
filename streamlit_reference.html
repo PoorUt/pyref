@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Streamlit Reference</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0b0f1a;
+      --surface:   #111827;
+      --surface2:  #1a2236;
+      --border:    #1f2d45;
+      --accent:    #00d4ff;
+      --accent2:   #ff6b6b;
+      --accent3:   #a78bfa;
+      --accent4:   #34d399;
+      --accent5:   #fbbf24;
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --code-bg:   #0d1117;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(11,15,26,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: -.5px;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    .logo span { color: var(--accent2); }
+    #search {
+      flex: 1;
+      max-width: 480px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 14px 7px 36px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      transition: border-color .2s;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.656a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 12px center;
+    }
+    #search:focus { border-color: var(--accent); }
+    #search::placeholder { color: var(--muted); }
+
+    /* ── LAYOUT ── */
+    .shell {
+      display: flex;
+      min-height: calc(100vh - 53px);
+    }
+
+    /* ── SIDEBAR ── */
+    nav {
+      width: 230px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      padding: 20px 0;
+      position: sticky;
+      top: 53px;
+      height: calc(100vh - 53px);
+      overflow-y: auto;
+    }
+    nav::-webkit-scrollbar { width: 4px; }
+    nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .nav-section { margin-bottom: 4px; }
+    .nav-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 10px 20px 4px;
+    }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 20px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      border-left: 2px solid transparent;
+      transition: all .15s;
+      cursor: pointer;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: var(--text);
+      border-left-color: var(--accent);
+      background: rgba(0,212,255,.05);
+    }
+    .nav-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── MAIN ── */
+    main {
+      flex: 1;
+      padding: 32px 40px;
+      max-width: 1100px;
+    }
+
+    /* ── CATEGORY SECTION ── */
+    .cat-section {
+      margin-bottom: 56px;
+      scroll-margin-top: 72px;
+    }
+    .cat-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .cat-icon {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .cat-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: -.3px;
+    }
+    .cat-count {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--surface2);
+      padding: 2px 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    /* ── FUNCTION GRID ── */
+    .fn-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 10px;
+    }
+
+    /* ── FUNCTION CARD ── */
+    .fn-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      transition: border-color .2s, transform .2s;
+      cursor: default;
+    }
+    .fn-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .fn-card.hidden { display: none; }
+
+    .fn-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .fn-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      flex: 1;
+      word-break: break-all;
+    }
+    .fn-badge {
+      font-size: 9px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .badge-widget  { background: rgba(0,212,255,.12); color: var(--accent); border: 1px solid rgba(0,212,255,.25); }
+    .badge-display { background: rgba(52,211,153,.12); color: var(--accent4); border: 1px solid rgba(52,211,153,.25); }
+    .badge-layout  { background: rgba(167,139,250,.12); color: var(--accent3); border: 1px solid rgba(167,139,250,.25); }
+    .badge-media   { background: rgba(251,191,36,.12);  color: var(--accent5); border: 1px solid rgba(251,191,36,.25); }
+    .badge-state   { background: rgba(255,107,107,.12); color: var(--accent2); border: 1px solid rgba(255,107,107,.25); }
+    .badge-flow    { background: rgba(100,116,139,.12); color: #94a3b8;        border: 1px solid rgba(100,116,139,.25); }
+    .badge-class   { background: rgba(251,191,36,.15);  color: var(--accent5); border: 1px solid rgba(251,191,36,.3); }
+
+    .fn-sig {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      word-break: break-all;
+    }
+    .fn-desc {
+      font-size: 12.5px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+    .fn-desc strong { color: var(--text); font-weight: 500; }
+
+    /* ── RETURNS PILL ── */
+    .fn-returns {
+      margin-top: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+    }
+    .fn-returns span {
+      color: var(--accent4);
+    }
+
+    /* ── SUBCATEGORY LABEL ── */
+    .subcat {
+      grid-column: 1 / -1;
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 8px;
+      margin-bottom: 2px;
+      padding-left: 2px;
+    }
+
+    /* ── NOTE BOX ── */
+    .note {
+      background: rgba(0,212,255,.06);
+      border: 1px solid rgba(0,212,255,.2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      color: #94a3b8;
+      margin-bottom: 16px;
+    }
+    .note strong { color: var(--accent); }
+
+    /* ── EMPTY STATE ── */
+    #no-results {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    #no-results .nr-icon { font-size: 40px; margin-bottom: 12px; }
+    #no-results p { font-size: 14px; }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">st<span>.</span>ref</div>
+  <input type="text" id="search" placeholder="Search functions, e.g. button, sidebar, cache…" />
+</header>
+
+<div class="shell">
+
+  <!-- SIDEBAR NAV -->
+  <nav id="sidebar">
+    <div class="nav-section">
+      <div class="nav-label">Categories</div>
+      <a class="nav-link active" onclick="scrollTo('text')">
+        <span class="nav-dot" style="background:#34d399"></span>Text & Display
+      </a>
+      <a class="nav-link" onclick="scrollTo('data')">
+        <span class="nav-dot" style="background:#00d4ff"></span>Data & Tables
+      </a>
+      <a class="nav-link" onclick="scrollTo('chart')">
+        <span class="nav-dot" style="background:#a78bfa"></span>Charts & Media
+      </a>
+      <a class="nav-link" onclick="scrollTo('input')">
+        <span class="nav-dot" style="background:#fbbf24"></span>Input Widgets
+      </a>
+      <a class="nav-link" onclick="scrollTo('layout')">
+        <span class="nav-dot" style="background:#f472b6"></span>Layout & Containers
+      </a>
+      <a class="nav-link" onclick="scrollTo('state')">
+        <span class="nav-dot" style="background:#ff6b6b"></span>State Management
+      </a>
+      <a class="nav-link" onclick="scrollTo('flow')">
+        <span class="nav-dot" style="background:#94a3b8"></span>Control Flow
+      </a>
+      <a class="nav-link" onclick="scrollTo('perf')">
+        <span class="nav-dot" style="background:#fb923c"></span>Performance
+      </a>
+      <a class="nav-link" onclick="scrollTo('conn')">
+        <span class="nav-dot" style="background:#38bdf8"></span>Connections & DB
+      </a>
+      <a class="nav-link" onclick="scrollTo('config')">
+        <span class="nav-dot" style="background:#c084fc"></span>Config & Utilities
+      </a>
+      <a class="nav-link" onclick="scrollTo('classes')">
+        <span class="nav-dot" style="background:#fbbf24"></span>Classes & Objects
+      </a>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main id="main">
+
+    <div id="no-results">
+      <div class="nr-icon">🔍</div>
+      <p>No functions matched your search.</p>
+    </div>
+
+    <!-- ── TEXT & DISPLAY ── -->
+    <section class="cat-section" id="text">
+      <div class="cat-header">
+        <div class="cat-icon" style="background:rgba(52,211,153,.12)">📝</div>
+        <div class="cat-title" style="color:#34d399">Text & Display</div>
+        <div class="cat-count">12 functions</div>
+      </div>
+      <div class="note"><strong>Tip:</strong> All write functions accept Markdown. Use <code>unsafe_allow_html=True</code> on <code>st.markdown</code> for raw HTML.</div>
+      <div class="fn-grid">
+
+        <div class="fn-card" data-tags="write title text markdown header">
+          <div class="fn-top"><span class="fn-name">st.write()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">*args, unsafe_allow_html=False</div>
+          <div class="fn-desc">Swiss-army knife output. Accepts <strong>strings, DataFrames, dicts, Plotly figs, Altair, Matplotlib, errors</strong> — renders each intelligently.</div>
+        </div>
+
+        <div class="fn-card" data-tags="title heading h1">
+          <div class="fn-top"><span class="fn-name">st.title()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">body, anchor=None, help=None</div>
+          <div class="fn-desc">Large <strong>H1-level</strong> page title. Shows an anchor link on hover.</div>
+        </div>
+
+        <div class="fn-card" data-tags="header heading h2 h3">
+          <div class="fn-top"><span class="fn-name">st.header()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">body, anchor=None, divider=False</div>
+          <div class="fn-desc"><strong>H2-level</strong> section heading. Optional horizontal divider below.</div>
+        </div>
+
+        <div class="fn-card" data-tags="subheader heading h3">
+          <div class="fn-top"><span class="fn-name">st.subheader()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">body, anchor=None, divider=False</div>
+          <div class="fn-desc"><strong>H3-level</strong> sub-section heading.</div>
+        </div>
+
+        <div class="fn-card" data-tags="markdown text html bold italic">
+          <div class="fn-top"><span class="fn-name">st.markdown()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">body, unsafe_allow_html=False, help=None</div>
+          <div class="fn-desc">Render <strong>Markdown or HTML</strong>. Set <code>unsafe_allow_html=True</code> for raw HTML injection.</div>
+        </div>
+
+        <div class="fn-card" data-tags="caption small text muted">
+          <div class="fn-top"><span class="fn-name">st.caption()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">body, unsafe_allow_html=False, help=None</div>
+          <div class="fn-desc">Small <strong>muted caption text</strong>. Ideal for footnotes and labels.</div>
+        </div>
+
+        <div class="fn-card" data-tags="code snippet monospace highlight syntax">
+          <div class="fn-top"><span class="fn-name">st.code()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">body, language='python', line_numbers=False</div>
+          <div class="fn-desc">Syntax-highlighted <strong>code block</strong>. Supports 30+ languages.</div>
+        </div>
+
+        <div class="fn-top" style="display:none"></div>
+        <div class="fn-card" data-tags="text plain monospace">
+          <div class="fn-top"><span class="fn-name">st.text()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">body, help=None</div>
+          <div class="fn-desc">Fixed-width <strong>plain text</strong>. No Markdown rendering.</div>
+        </div>
+
+        <div class="fn-card" data-tags="latex math equation formula">
+          <div class="fn-top"><span class="fn-name">st.latex()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">body, help=None</div>
+          <div class="fn-desc">Render <strong>LaTeX equations</strong> using KaTeX. Pass a raw LaTeX string.</div>
+        </div>
+
+        <div class="fn-card" data-tags="divider horizontal rule separator line">
+          <div class="fn-top"><span class="fn-name">st.divider()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">(no args)</div>
+          <div class="fn-desc">A simple <strong>horizontal rule</strong> for visual separation.</div>
+        </div>
+
+        <div class="fn-card" data-tags="echo code show source">
+          <div class="fn-top"><span class="fn-name">st.echo()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">code_location='above'</div>
+          <div class="fn-desc"><strong>Context manager</strong> — displays the code inside the block, then runs it. Great for tutorials.</div>
+        </div>
+
+        <div class="fn-card" data-tags="help docstring tooltip documentation">
+          <div class="fn-top"><span class="fn-name">st.help()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">obj</div>
+          <div class="fn-desc">Displays an object's <strong>docstring</strong> — like <code>help()</code> but rendered beautifully.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── DATA & TABLES ── -->
+    <section class="cat-section" id="data">
+      <div class="cat-header">
+        <div class="cat-icon" style="background:rgba(0,212,255,.12)">📊</div>
+        <div class="cat-title" style="color:#00d4ff">Data & Tables</div>
+        <div class="cat-count">5 functions</div>
+      </div>
+      <div class="fn-grid">
+
+        <div class="fn-card" data-tags="dataframe table pandas interactive sort filter">
+          <div class="fn-top"><span class="fn-name">st.dataframe()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">data, width, height, use_container_width, hide_index, column_order, column_config, on_select, selection_mode</div>
+          <div class="fn-desc"><strong>Interactive table</strong> with sorting, resizing, search. Accepts pandas, NumPy, Snowpark, and more. Use <code>column_config</code> for custom cell renderers.</div>
+          <div class="fn-returns">returns → <span>None or SelectionState</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="table static pandas dataframe simple">
+          <div class="fn-top"><span class="fn-name">st.table()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">data</div>
+          <div class="fn-desc"><strong>Static HTML table</strong> — no scrolling or sorting. Best for small, stable datasets.</div>
+        </div>
+
+        <div class="fn-card" data-tags="metric kpi number delta value">
+          <div class="fn-top"><span class="fn-name">st.metric()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">label, value, delta=None, delta_color='normal', help, label_visibility</div>
+          <div class="fn-desc">KPI card showing a <strong>big number</strong> with a colored delta arrow. Great with <code>st.columns()</code>.</div>
+        </div>
+
+        <div class="fn-card" data-tags="json tree dict display nested">
+          <div class="fn-top"><span class="fn-name">st.json()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">body, expanded=True</div>
+          <div class="fn-desc">Renders a <strong>collapsible JSON tree</strong>. Accepts dicts, lists, or JSON strings.</div>
+        </div>
+
+        <div class="fn-card" data-tags="data editor editable table cell input">
+          <div class="fn-top"><span class="fn-name">st.data_editor()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">data, *, num_rows='fixed', disabled=False, key, on_change, column_config, hide_index</div>
+          <div class="fn-desc"><strong>Editable table</strong> — users can type into cells. Returns the modified DataFrame.</div>
+          <div class="fn-returns">returns → <span>DataFrame / dict / list</span></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── CHARTS & MEDIA ── -->
+    <section class="cat-section" id="chart">
+      <div class="cat-header">
+        <div class="cat-icon" style="background:rgba(167,139,250,.12)">📈</div>
+        <div class="cat-title" style="color:#a78bfa">Charts & Media</div>
+        <div class="cat-count">15 functions</div>
+      </div>
+      <div class="fn-grid">
+
+        <div class="subcat">Native Charts</div>
+
+        <div class="fn-card" data-tags="line chart graph plot time series">
+          <div class="fn-top"><span class="fn-name">st.line_chart()</span><span class="fn-badge badge-media">chart</span></div>
+          <div class="fn-sig">data, x, y, color, width, height, use_container_width</div>
+          <div class="fn-desc"><strong>Line chart</strong> built on Vega-Lite. Ideal for time series.</div>
+        </div>
+
+        <div class="fn-card" data-tags="bar chart graph plot column">
+          <div class="fn-top"><span class="fn-name">st.bar_chart()</span><span class="fn-badge badge-media">chart</span></div>
+          <div class="fn-sig">data, x, y, color, horizontal=False, stack=True</div>
+          <div class="fn-desc"><strong>Bar chart</strong>. Use <code>horizontal=True</code> for horizontal bars.</div>
+        </div>
+
+        <div class="fn-card" data-tags="area chart fill graph">
+          <div class="fn-top"><span class="fn-name">st.area_chart()</span><span class="fn-badge badge-media">chart</span></div>
+          <div class="fn-sig">data, x, y, color, stack</div>
+          <div class="fn-desc"><strong>Area chart</strong> — line with filled area. Supports stacking.</div>
+        </div>
+
+        <div class="fn-card" data-tags="scatter plot points dot chart">
+          <div class="fn-top"><span class="fn-name">st.scatter_chart()</span><span class="fn-badge badge-media">chart</span></div>
+          <div class="fn-sig">data, x, y, color, size</div>
+          <div class="fn-desc"><strong>Scatter plot</strong>. Map color and size to columns for bubble charts.</div>
+        </div>
+
+        <div class="fn-card" data-tags="map geo location points coordinates">
+          <div class="fn-top"><span class="fn-name">st.map()</span><span class="fn-badge badge-media">chart</span></div>
+          <div class="fn-sig">data, latitude, longitude, color, size, zoom, use_container_width</div>
+          <div class="fn-desc">Renders a <strong>Mapbox map</strong> from lat/lon data. Zero config needed.</div>
+        </div>
+
+        <div class="subcat">Third-party Chart Libraries</div>
+
+        <div class="fn-card" data-tags="plotly chart interactive 3d">
+          <div class="fn-top"><span class="fn-name">st.plotly_chart()</span><span class="fn-badge badge-media">chart</span></div>
+          <div class="fn-sig">figure_or_data, use_container_width, theme, on_select, selection_mode, key</div>
+          <div class="fn-desc">Render a <strong>Plotly figure</strong>. Supports 3D, animations, and click events.</div>
+        </div>
+
+        <div class="fn-card" data-tags="altair vega chart declarative">
+          <div class="fn-top"><span class="fn-name">st.altair_chart()</span><span class="fn-badge badge-media">chart</span></div>
+          <div class="fn-sig">altair_chart, use_container_width, theme, on_select, key</div>
+          <div class="fn-desc">Render an <strong>Altair/Vega-Lite</strong> chart object.</div>
+        </div>
+
+        <div class="fn-card" data-tags="matplotlib pyplot figure plot">
+          <div class="fn-top"><span class="fn-name">st.pyplot()</span><span class="fn-badge badge-media">chart</span></div>
+          <div class="fn-sig">fig=None, clear_figure=None, use_container_width=True</div>
+          <div class="fn-desc">Render a <strong>Matplotlib figure</strong>. Pass a <code>fig</code> object or use the global pyplot state.</div>
+        </div>
+
+        <div class="fn-card" data-tags="bokeh chart interactive plot">
+          <div class="fn-top"><span class="fn-name">st.bokeh_chart()</span><span class="fn-badge badge-media">chart</span></div>
+          <div class="fn-sig">figure, use_container_width=False</div>
+          <div class="fn-desc">Render a <strong>Bokeh</strong> figure.</div>
+        </div>
+
+        <div class="fn-card" data-tags="pydeck deck gl map 3d geospatial">
+          <div class="fn-top"><span class="fn-name">st.pydeck_chart()</span><span class="fn-badge badge-media">chart</span></div>
+          <div class="fn-sig">pydeck_obj, use_container_width, height, on_select, selection_mode, key</div>
+          <div class="fn-desc">Render a <strong>PyDeck/deck.gl</strong> map — supports 3D layers, H3, arc layers.</div>
+        </div>
+
+        <div class="fn-card" data-tags="graphviz dot graph network tree">
+          <div class="fn-top"><span class="fn-name">st.graphviz_chart()</span><span class="fn-badge badge-media">chart</span></div>
+          <div class="fn-sig">figure_or_dot, use_container_width=False</div>
+          <div class="fn-desc">Render a <strong>Graphviz</strong> network/tree diagram from a DOT string or graphviz object.</div>
+        </div>
+
+        <div class="subcat">Media</div>
+
+        <div class="fn-card" data-tags="image photo picture display show">
+          <div class="fn-top"><span class="fn-name">st.image()</span><span class="fn-badge badge-media">media</span></div>
+          <div class="fn-sig">image, caption, width, use_container_width, clamp, channels, output_format</div>
+          <div class="fn-desc">Display <strong>images</strong>: file paths, URLs, PIL objects, NumPy arrays, or lists thereof.</div>
+        </div>
+
+        <div class="fn-card" data-tags="audio sound mp3 wav play">
+          <div class="fn-top"><span class="fn-name">st.audio()</span><span class="fn-badge badge-media">media</span></div>
+          <div class="fn-sig">data, format='audio/wav', start_time=0, sample_rate, end_time, loop, autoplay</div>
+          <div class="fn-desc">HTML5 <strong>audio player</strong>. Accepts file path, URL, bytes, or NumPy array.</div>
+        </div>
+
+        <div class="fn-card" data-tags="video mp4 play stream">
+          <div class="fn-top"><span class="fn-name">st.video()</span><span class="fn-badge badge-media">media</span></div>
+          <div class="fn-sig">data, format, start_time, subtitles, end_time, loop, autoplay, muted</div>
+          <div class="fn-desc">HTML5 <strong>video player</strong>. Supports YouTube URLs and local files. SRT subtitle support.</div>
+        </div>
+
+        <div class="fn-card" data-tags="logo icon brand sidebar header image">
+          <div class="fn-top"><span class="fn-name">st.logo()</span><span class="fn-badge badge-media">media</span></div>
+          <div class="fn-sig">image, *, link=None, icon_image=None</div>
+          <div class="fn-desc">Renders your <strong>app logo</strong> in the sidebar top-left. Optionally clickable.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── INPUT WIDGETS ── -->
+    <section class="cat-section" id="input">
+      <div class="cat-header">
+        <div class="cat-icon" style="background:rgba(251,191,36,.12)">🎛️</div>
+        <div class="cat-title" style="color:#fbbf24">Input Widgets</div>
+        <div class="cat-count">20 functions</div>
+      </div>
+      <div class="note"><strong>All widgets share:</strong> <code>key</code> (session state key), <code>help</code> (tooltip), <code>on_change</code> (callback), <code>args/kwargs</code> (callback args), <code>disabled</code>, <code>label_visibility</code>.</div>
+      <div class="fn-grid">
+
+        <div class="subcat">Buttons & Actions</div>
+
+        <div class="fn-card" data-tags="button click action submit press">
+          <div class="fn-top"><span class="fn-name">st.button()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, key, help, on_click, args, kwargs, type, disabled, use_container_width, icon</div>
+          <div class="fn-desc">Clickable <strong>button</strong>. Returns <code>True</code> only on the run triggered by the click. Use <code>type='primary'</code> for emphasis.</div>
+          <div class="fn-returns">returns → <span>bool</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="download button file export save">
+          <div class="fn-top"><span class="fn-name">st.download_button()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, data, file_name, mime, key, help, on_click, type, disabled, use_container_width, icon</div>
+          <div class="fn-desc">Triggers a <strong>file download</strong>. Pass bytes, string, or a file-like object as <code>data</code>.</div>
+          <div class="fn-returns">returns → <span>bool</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="link button url open external">
+          <div class="fn-top"><span class="fn-name">st.link_button()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, url, help, disabled, use_container_width, icon, type</div>
+          <div class="fn-desc">A button that opens an <strong>external URL</strong> in a new tab.</div>
+        </div>
+
+        <div class="fn-card" data-tags="page link navigate route multi-page">
+          <div class="fn-top"><span class="fn-name">st.page_link()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">page, *, label=None, icon=None, help=None, disabled=False, use_container_width=False</div>
+          <div class="fn-desc">Navigation link to <strong>another page</strong> in a multi-page app.</div>
+        </div>
+
+        <div class="subcat">Text Input</div>
+
+        <div class="fn-card" data-tags="text input string textbox type">
+          <div class="fn-top"><span class="fn-name">st.text_input()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, value='', max_chars, key, type='default', help, placeholder, disabled, label_visibility, on_change</div>
+          <div class="fn-desc">Single-line text field. Use <code>type='password'</code> for <strong>password inputs</strong>.</div>
+          <div class="fn-returns">returns → <span>str</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="textarea multiline text input area paragraph">
+          <div class="fn-top"><span class="fn-name">st.text_area()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, value='', height=None, max_chars, key, help, placeholder, disabled, label_visibility, on_change</div>
+          <div class="fn-desc">Multi-line <strong>text area</strong>. Resizable by the user.</div>
+          <div class="fn-returns">returns → <span>str</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="number input integer float numeric">
+          <div class="fn-top"><span class="fn-name">st.number_input()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, min_value, max_value, value, step, format, key, help, disabled, on_change</div>
+          <div class="fn-desc">Numeric stepper input. Infers int or float from <code>value</code> and <code>step</code>.</div>
+          <div class="fn-returns">returns → <span>int | float</span></div>
+        </div>
+
+        <div class="subcat">Selectors</div>
+
+        <div class="fn-card" data-tags="selectbox dropdown select pick option">
+          <div class="fn-top"><span class="fn-name">st.selectbox()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, options, index=0, format_func, key, help, on_change, disabled, placeholder</div>
+          <div class="fn-desc">Dropdown to <strong>select one</strong> item. Pass any iterable as <code>options</code>.</div>
+          <div class="fn-returns">returns → <span>selected value</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="multiselect multiple select tags dropdown">
+          <div class="fn-top"><span class="fn-name">st.multiselect()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, options, default=None, format_func, key, help, on_change, disabled, max_selections, placeholder</div>
+          <div class="fn-desc">Tag-style picker for <strong>multiple selections</strong>.</div>
+          <div class="fn-returns">returns → <span>list</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="radio button group option choice single">
+          <div class="fn-top"><span class="fn-name">st.radio()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, options, index=0, format_func, key, help, on_change, disabled, horizontal, captions, label_visibility</div>
+          <div class="fn-desc"><strong>Radio group</strong> — pick one. Use <code>horizontal=True</code> for inline layout.</div>
+          <div class="fn-returns">returns → <span>selected value</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="checkbox toggle bool true false check">
+          <div class="fn-top"><span class="fn-name">st.checkbox()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, value=False, key, help, on_change, disabled, label_visibility</div>
+          <div class="fn-desc">A simple <strong>checkbox</strong>. Returns current state as bool.</div>
+          <div class="fn-returns">returns → <span>bool</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="toggle switch on off boolean">
+          <div class="fn-top"><span class="fn-name">st.toggle()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, value=False, key, help, on_change, disabled, label_visibility</div>
+          <div class="fn-desc">iOS-style <strong>toggle switch</strong>. Same behavior as checkbox, different look.</div>
+          <div class="fn-returns">returns → <span>bool</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="select slider pills tabs segmented control">
+          <div class="fn-top"><span class="fn-name">st.pills()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, options, selection_mode='single', default, format_func, key, help, disabled, label_visibility, on_change</div>
+          <div class="fn-desc">Pill-style button group. <code>selection_mode='multi'</code> for multi-select pills.</div>
+          <div class="fn-returns">returns → <span>value | list</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="segmented control radio tabs navigation select">
+          <div class="fn-top"><span class="fn-name">st.segmented_control()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, options, default=None, selection_mode='single', format_func, key, help, disabled, label_visibility, on_change</div>
+          <div class="fn-desc">Compact <strong>segmented button group</strong> — like tabs but as a form control.</div>
+          <div class="fn-returns">returns → <span>value | list</span></div>
+        </div>
+
+        <div class="subcat">Sliders, Dates & Files</div>
+
+        <div class="fn-card" data-tags="slider range value min max drag">
+          <div class="fn-top"><span class="fn-name">st.slider()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, min_value, max_value, value, step, format, key, help, on_change, disabled</div>
+          <div class="fn-desc">Drag slider for numbers, dates, or times. Pass a <strong>tuple</strong> as <code>value</code> for a range slider.</div>
+          <div class="fn-returns">returns → <span>value | tuple</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="select slider discrete option step">
+          <div class="fn-top"><span class="fn-name">st.select_slider()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, options, value, format_func, key, help, on_change, disabled</div>
+          <div class="fn-desc">Slider over a <strong>discrete list</strong> of options. Tuple value = range selection.</div>
+          <div class="fn-returns">returns → <span>value | tuple</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="date picker calendar input">
+          <div class="fn-top"><span class="fn-name">st.date_input()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, value='today', min_value, max_value, key, help, on_change, disabled, format</div>
+          <div class="fn-desc">Calendar <strong>date picker</strong>. Returns a <code>datetime.date</code> or tuple of dates for ranges.</div>
+          <div class="fn-returns">returns → <span>date | tuple[date, date]</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="time picker input clock">
+          <div class="fn-top"><span class="fn-name">st.time_input()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, value, key, help, on_change, disabled, step=0:15:00</div>
+          <div class="fn-desc"><strong>Time picker</strong>. Default step is 15 minutes. Returns <code>datetime.time</code>.</div>
+          <div class="fn-returns">returns → <span>time</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="color picker hex rgb colour">
+          <div class="fn-top"><span class="fn-name">st.color_picker()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, value='#000000', key, help, on_change, disabled, label_visibility</div>
+          <div class="fn-desc">Browser native <strong>colour picker</strong>. Returns hex string.</div>
+          <div class="fn-returns">returns → <span>str (hex)</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="file upload input read csv image">
+          <div class="fn-top"><span class="fn-name">st.file_uploader()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, type=None, accept_multiple_files=False, key, help, on_change, disabled, label_visibility</div>
+          <div class="fn-desc"><strong>File upload widget</strong>. Returns an <code>UploadedFile</code> (or list). Read it like a file-like object.</div>
+          <div class="fn-returns">returns → <span>UploadedFile | list | None</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="camera photo selfie capture image input">
+          <div class="fn-top"><span class="fn-name">st.camera_input()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">label, key, help, on_change, disabled, label_visibility</div>
+          <div class="fn-desc">Live <strong>webcam capture</strong>. Returns a JPEG as an <code>UploadedFile</code> or <code>None</code>.</div>
+          <div class="fn-returns">returns → <span>UploadedFile | None</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="chat input message send user text">
+          <div class="fn-top"><span class="fn-name">st.chat_input()</span><span class="fn-badge badge-widget">widget</span></div>
+          <div class="fn-sig">placeholder='Your message', key, max_chars, disabled, on_submit</div>
+          <div class="fn-desc">Pinned-to-bottom <strong>chat input bar</strong>. Returns a string when submitted, else <code>None</code>.</div>
+          <div class="fn-returns">returns → <span>str | None</span></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── LAYOUT & CONTAINERS ── -->
+    <section class="cat-section" id="layout">
+      <div class="cat-header">
+        <div class="cat-icon" style="background:rgba(244,114,182,.12)">🗂️</div>
+        <div class="cat-title" style="color:#f472b6">Layout & Containers</div>
+        <div class="cat-count">10 functions</div>
+      </div>
+      <div class="fn-grid">
+
+        <div class="fn-card" data-tags="columns grid layout side by side horizontal">
+          <div class="fn-top"><span class="fn-name">st.columns()</span><span class="fn-badge badge-layout">layout</span></div>
+          <div class="fn-sig">spec, *, gap='small', vertical_alignment='top'</div>
+          <div class="fn-desc">Creates <strong>N side-by-side columns</strong>. Pass an int or a list of relative widths (e.g. <code>[2,1,1]</code>). Use as context managers or unpack directly.</div>
+          <div class="fn-returns">returns → <span>list[DeltaGenerator]</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="tabs tab panel navigation switch page">
+          <div class="fn-top"><span class="fn-name">st.tabs()</span><span class="fn-badge badge-layout">layout</span></div>
+          <div class="fn-sig">tabs: list[str]</div>
+          <div class="fn-desc">Returns a list of <strong>tab containers</strong> matching the provided labels. Write into each with a <code>with</code> block.</div>
+          <div class="fn-returns">returns → <span>list[DeltaGenerator]</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="expander collapse expand accordion section toggle">
+          <div class="fn-top"><span class="fn-name">st.expander()</span><span class="fn-badge badge-layout">layout</span></div>
+          <div class="fn-sig">label, expanded=False, icon=None</div>
+          <div class="fn-desc"><strong>Collapsible section</strong>. Hides content until expanded. Start <code>expanded=True</code> to open by default.</div>
+          <div class="fn-returns">returns → <span>DeltaGenerator</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="container box group div wrapper">
+          <div class="fn-top"><span class="fn-name">st.container()</span><span class="fn-badge badge-layout">layout</span></div>
+          <div class="fn-sig">height=None, border=False, key=None</div>
+          <div class="fn-desc">An invisible <strong>grouping container</strong>. Set <code>height</code> for a scrollable box, <code>border=True</code> for a visible card.</div>
+          <div class="fn-returns">returns → <span>DeltaGenerator</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="sidebar panel left navigation menu settings">
+          <div class="fn-top"><span class="fn-name">st.sidebar</span><span class="fn-badge badge-layout">layout</span></div>
+          <div class="fn-sig">Attribute — use as context manager or with dot notation</div>
+          <div class="fn-desc">The <strong>left sidebar</strong>. Use <code>with st.sidebar:</code> or <code>st.sidebar.slider()</code> to place widgets inside it.</div>
+        </div>
+
+        <div class="fn-card" data-tags="empty placeholder update slot replace dynamic">
+          <div class="fn-top"><span class="fn-name">st.empty()</span><span class="fn-badge badge-layout">layout</span></div>
+          <div class="fn-sig">(no args)</div>
+          <div class="fn-desc">Reserves a <strong>single-element placeholder</strong>. Call methods on the returned object to write or replace content later (useful in loops).</div>
+          <div class="fn-returns">returns → <span>DeltaGenerator</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="popover popup overlay tooltip dialog">
+          <div class="fn-top"><span class="fn-name">st.popover()</span><span class="fn-badge badge-layout">layout</span></div>
+          <div class="fn-sig">label, *, disabled=False, use_container_width=False, icon=None, help=None</div>
+          <div class="fn-desc">A button that opens a <strong>floating popover panel</strong>. Put any widgets inside.</div>
+          <div class="fn-returns">returns → <span>DeltaGenerator</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="dialog modal popup overlay close">
+          <div class="fn-top"><span class="fn-name">st.dialog()</span><span class="fn-badge badge-layout">layout</span></div>
+          <div class="fn-sig">title, *, width='small'</div>
+          <div class="fn-desc">Decorator that turns a function into a <strong>modal dialog</strong>. Call the function to open it. Use <code>st.rerun()</code> to close.</div>
+        </div>
+
+        <div class="fn-card" data-tags="chat message bubble assistant user avatar ai">
+          <div class="fn-top"><span class="fn-name">st.chat_message()</span><span class="fn-badge badge-layout">layout</span></div>
+          <div class="fn-sig">name, *, avatar=None</div>
+          <div class="fn-desc">A <strong>chat bubble container</strong>. Pass <code>name='user'</code> or <code>'assistant'</code>. Write any content inside with a <code>with</code> block.</div>
+          <div class="fn-returns">returns → <span>DeltaGenerator</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="status spinner running done error context manager">
+          <div class="fn-top"><span class="fn-name">st.status()</span><span class="fn-badge badge-layout">layout</span></div>
+          <div class="fn-sig">label, *, expanded=False, state='running'</div>
+          <div class="fn-desc">A collapsible <strong>status box</strong> for long-running tasks. States: <code>running</code>, <code>complete</code>, <code>error</code>.</div>
+          <div class="fn-returns">returns → <span>DeltaGenerator</span></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── STATE MANAGEMENT ── -->
+    <section class="cat-section" id="state">
+      <div class="cat-header">
+        <div class="cat-icon" style="background:rgba(255,107,107,.12)">🔄</div>
+        <div class="cat-title" style="color:#ff6b6b">State Management</div>
+        <div class="cat-count">4 functions + session_state</div>
+      </div>
+      <div class="note"><strong>Key concept:</strong> Streamlit re-runs the entire script on every interaction. <code>st.session_state</code> is the primary mechanism to persist values across reruns.</div>
+      <div class="fn-grid">
+
+        <div class="fn-card" data-tags="session state persist variable store memory">
+          <div class="fn-top"><span class="fn-name">st.session_state</span><span class="fn-badge badge-state">state</span></div>
+          <div class="fn-sig">Dict-like object — access via attribute or key</div>
+          <div class="fn-desc">Persists data across reruns for a single browser session. <strong>Read:</strong> <code>st.session_state.count</code> or <code>st.session_state['count']</code>. <strong>Write:</strong> same syntax. All widgets with a <code>key</code> are auto-registered here.</div>
+        </div>
+
+        <div class="fn-card" data-tags="rerun refresh reload restart reset trigger">
+          <div class="fn-top"><span class="fn-name">st.rerun()</span><span class="fn-badge badge-state">state</span></div>
+          <div class="fn-sig">(no args)</div>
+          <div class="fn-desc">Immediately <strong>re-executes the script</strong> from the top. Useful after mutating session state or to close dialogs.</div>
+        </div>
+
+        <div class="fn-card" data-tags="stop halt exit abort end execution">
+          <div class="fn-top"><span class="fn-name">st.stop()</span><span class="fn-badge badge-state">state</span></div>
+          <div class="fn-sig">(no args)</div>
+          <div class="fn-desc"><strong>Stops script execution</strong> at the current point. Everything above is rendered; nothing below is run. Like a <code>return</code> for the whole script.</div>
+        </div>
+
+        <div class="fn-card" data-tags="fragment partial rerun isolated component">
+          <div class="fn-top"><span class="fn-name">st.fragment()</span><span class="fn-badge badge-state">state</span></div>
+          <div class="fn-sig">func=None, *, run_every=None</div>
+          <div class="fn-desc">Decorator to mark a function as an <strong>isolated fragment</strong> — only reruns that function (not the full app) on interaction. Use <code>run_every</code> for polling.</div>
+        </div>
+
+        <div class="fn-card" data-tags="query params url state bookmark deep link">
+          <div class="fn-top"><span class="fn-name">st.query_params</span><span class="fn-badge badge-state">state</span></div>
+          <div class="fn-sig">Dict-like object</div>
+          <div class="fn-desc">Read and write <strong>URL query parameters</strong>. Changes update the browser URL instantly without a full rerun.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── CONTROL FLOW ── -->
+    <section class="cat-section" id="flow">
+      <div class="cat-header">
+        <div class="cat-icon" style="background:rgba(100,116,139,.12)">⚙️</div>
+        <div class="cat-title" style="color:#94a3b8">Control Flow & Feedback</div>
+        <div class="cat-count">10 functions</div>
+      </div>
+      <div class="fn-grid">
+
+        <div class="subcat">Notifications</div>
+
+        <div class="fn-card" data-tags="spinner loading progress wait running">
+          <div class="fn-top"><span class="fn-name">st.spinner()</span><span class="fn-badge badge-flow">flow</span></div>
+          <div class="fn-sig">text='In progress…'</div>
+          <div class="fn-desc">Context manager showing an animated <strong>spinner</strong> while the block executes. Disappears when done.</div>
+        </div>
+
+        <div class="fn-card" data-tags="progress bar loading percent complete">
+          <div class="fn-top"><span class="fn-name">st.progress()</span><span class="fn-badge badge-flow">flow</span></div>
+          <div class="fn-sig">value, text=None</div>
+          <div class="fn-desc"><strong>Progress bar</strong> (0–100 or 0.0–1.0). Call <code>.progress(n)</code> on the returned object to update it.</div>
+          <div class="fn-returns">returns → <span>DeltaGenerator</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="toast notification flash message popup brief">
+          <div class="fn-top"><span class="fn-name">st.toast()</span><span class="fn-badge badge-flow">flow</span></div>
+          <div class="fn-sig">body, *, icon=None</div>
+          <div class="fn-desc">Brief <strong>pop-up notification</strong> (bottom-right). Auto-dismisses after a few seconds.</div>
+        </div>
+
+        <div class="fn-card" data-tags="balloons celebration confetti party success">
+          <div class="fn-top"><span class="fn-name">st.balloons()</span><span class="fn-badge badge-flow">flow</span></div>
+          <div class="fn-sig">(no args)</div>
+          <div class="fn-desc">🎈 Floating balloons <strong>celebration animation</strong>. One-shot, purely visual.</div>
+        </div>
+
+        <div class="fn-card" data-tags="snow confetti celebration winter particles">
+          <div class="fn-top"><span class="fn-name">st.snow()</span><span class="fn-badge badge-flow">flow</span></div>
+          <div class="fn-sig">(no args)</div>
+          <div class="fn-desc">❄️ Falling snowflakes <strong>celebration animation</strong>.</div>
+        </div>
+
+        <div class="subcat">Alerts</div>
+
+        <div class="fn-card" data-tags="success green alert message box ok done">
+          <div class="fn-top"><span class="fn-name">st.success()</span><span class="fn-badge badge-flow">flow</span></div>
+          <div class="fn-sig">body, *, icon=None</div>
+          <div class="fn-desc">Green <strong>success alert box</strong>.</div>
+        </div>
+
+        <div class="fn-card" data-tags="info blue alert message box neutral">
+          <div class="fn-top"><span class="fn-name">st.info()</span><span class="fn-badge badge-flow">flow</span></div>
+          <div class="fn-sig">body, *, icon=None</div>
+          <div class="fn-desc">Blue <strong>info alert box</strong>.</div>
+        </div>
+
+        <div class="fn-card" data-tags="warning yellow alert message box caution">
+          <div class="fn-top"><span class="fn-name">st.warning()</span><span class="fn-badge badge-flow">flow</span></div>
+          <div class="fn-sig">body, *, icon=None</div>
+          <div class="fn-desc">Yellow <strong>warning alert box</strong>.</div>
+        </div>
+
+        <div class="fn-card" data-tags="error red alert message box exception fail">
+          <div class="fn-top"><span class="fn-name">st.error()</span><span class="fn-badge badge-flow">flow</span></div>
+          <div class="fn-sig">body, *, icon=None</div>
+          <div class="fn-desc">Red <strong>error alert box</strong>.</div>
+        </div>
+
+        <div class="fn-card" data-tags="exception traceback error debug crash">
+          <div class="fn-top"><span class="fn-name">st.exception()</span><span class="fn-badge badge-flow">flow</span></div>
+          <div class="fn-sig">exception</div>
+          <div class="fn-desc">Renders a formatted <strong>Python exception</strong> with its traceback.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── PERFORMANCE ── -->
+    <section class="cat-section" id="perf">
+      <div class="cat-header">
+        <div class="cat-icon" style="background:rgba(251,146,60,.12)">⚡</div>
+        <div class="cat-title" style="color:#fb923c">Performance & Caching</div>
+        <div class="cat-count">4 decorators</div>
+      </div>
+      <div class="note"><strong>When to use which:</strong> <code>@st.cache_data</code> for data (DataFrames, CSVs, API calls). <code>@st.cache_resource</code> for shared objects (ML models, DB connections). Both skip re-execution unless inputs change.</div>
+      <div class="fn-grid">
+
+        <div class="fn-card" data-tags="cache data decorator function result dataframe csv api">
+          <div class="fn-top"><span class="fn-name">@st.cache_data</span><span class="fn-badge badge-state">cache</span></div>
+          <div class="fn-sig">ttl=None, max_entries=None, show_spinner=True, persist=False, hash_funcs=None, experimental_allow_widgets=False</div>
+          <div class="fn-desc">Caches the <strong>return value</strong> of a function — serialised per user session. Ideal for: loading CSVs, querying APIs, processing DataFrames.</div>
+        </div>
+
+        <div class="fn-card" data-tags="cache resource model database connection shared singleton">
+          <div class="fn-top"><span class="fn-name">@st.cache_resource</span><span class="fn-badge badge-state">cache</span></div>
+          <div class="fn-sig">ttl=None, max_entries=None, show_spinner=True, validate=None, hash_funcs=None, experimental_allow_widgets=False</div>
+          <div class="fn-desc">Caches a <strong>shared resource</strong> — one instance per app (not per user). Ideal for: ML models, DB connection pools, expensive singletons.</div>
+        </div>
+
+        <div class="fn-card" data-tags="clear cache invalidate reset bust">
+          <div class="fn-top"><span class="fn-name">.clear()</span><span class="fn-badge badge-state">cache</span></div>
+          <div class="fn-sig">Called on cached function: my_fn.clear()</div>
+          <div class="fn-desc">Clears all cached entries for that function. Also: <code>st.cache_data.clear()</code> / <code>st.cache_resource.clear()</code> to wipe <strong>all caches</strong> globally.</div>
+        </div>
+
+        <div class="fn-card" data-tags="experimental memo singleton deprecated old cache">
+          <div class="fn-top"><span class="fn-name">@st.cache (deprecated)</span><span class="fn-badge badge-state">cache</span></div>
+          <div class="fn-sig">Legacy decorator — deprecated since 1.18</div>
+          <div class="fn-desc">Old all-in-one cache. <strong>Replaced by</strong> <code>@st.cache_data</code> and <code>@st.cache_resource</code>. Still works but shows a deprecation warning.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── CONNECTIONS & DB ── -->
+    <section class="cat-section" id="conn">
+      <div class="cat-header">
+        <div class="cat-icon" style="background:rgba(56,189,248,.12)">🔌</div>
+        <div class="cat-title" style="color:#38bdf8">Connections & Data Sources</div>
+        <div class="cat-count">1 function + built-in connectors</div>
+      </div>
+      <div class="fn-grid">
+
+        <div class="fn-card" data-tags="connection database sql snowflake bigquery connect">
+          <div class="fn-top"><span class="fn-name">st.connection()</span><span class="fn-badge badge-display">connect</span></div>
+          <div class="fn-sig">name, type=None, max_entries=None, ttl=None, **kwargs</div>
+          <div class="fn-desc">Creates and <strong>caches a data connection</strong>. Built-in types: <code>'sql'</code> (SQLAlchemy), <code>'snowflake'</code>, <code>'bigquery'</code>, <code>'gcs'</code>, <code>'s3'</code>, <code>'file'</code>. Credentials go in <code>secrets.toml</code>.</div>
+          <div class="fn-returns">returns → <span>Connection object</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="secrets config password api key environment toml">
+          <div class="fn-top"><span class="fn-name">st.secrets</span><span class="fn-badge badge-display">config</span></div>
+          <div class="fn-sig">Dict-like — st.secrets['db_password']</div>
+          <div class="fn-desc">Secure access to <code>.streamlit/secrets.toml</code> or environment secrets. <strong>Never hardcode credentials</strong> — use this instead.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── CONFIG & UTILITIES ── -->
+    <section class="cat-section" id="config">
+      <div class="cat-header">
+        <div class="cat-icon" style="background:rgba(192,132,252,.12)">🔧</div>
+        <div class="cat-title" style="color:#c084fc">Config & Utilities</div>
+        <div class="cat-count">6 functions</div>
+      </div>
+      <div class="fn-grid">
+
+        <div class="fn-card" data-tags="page config title icon layout wide narrow favicon">
+          <div class="fn-top"><span class="fn-name">st.set_page_config()</span><span class="fn-badge badge-flow">config</span></div>
+          <div class="fn-sig">page_title, page_icon, layout='centered', initial_sidebar_state, menu_items</div>
+          <div class="fn-desc"><strong>Must be the first Streamlit call</strong> in your script. Sets the browser tab title, favicon, layout width (<code>'centered'</code> or <code>'wide'</code>), and sidebar state.</div>
+        </div>
+
+        <div class="fn-card" data-tags="navigation pages multipage app router page">
+          <div class="fn-top"><span class="fn-name">st.navigation()</span><span class="fn-badge badge-layout">config</span></div>
+          <div class="fn-sig">pages, *, position='sidebar', expanded=True</div>
+          <div class="fn-desc">Defines a <strong>multi-page app</strong> with a navigation menu. Pass a list of <code>st.Page</code> objects. Call <code>.run()</code> on the result.</div>
+          <div class="fn-returns">returns → <span>Page</span></div>
+        </div>
+
+        <div class="fn-card" data-tags="page object multipage define route label icon default">
+          <div class="fn-top"><span class="fn-name">st.Page()</span><span class="fn-badge badge-class">class</span></div>
+          <div class="fn-sig">page, *, title=None, icon=None, url_path=None, default=False</div>
+          <div class="fn-desc">Defines a <strong>single page</strong> in a multi-page app. <code>page</code> can be a Python file path or a callable function.</div>
+        </div>
+
+        <div class="fn-card" data-tags="html component iframe javascript custom embed">
+          <div class="fn-top"><span class="fn-name">st.html()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">body</div>
+          <div class="fn-desc">Injects an <strong>HTML snippet</strong> directly into the app. No JavaScript execution; for JS use <code>st.components.v1.html()</code>.</div>
+        </div>
+
+        <div class="fn-card" data-tags="context info width dpi theme get current">
+          <div class="fn-top"><span class="fn-name">st.context</span><span class="fn-badge badge-flow">util</span></div>
+          <div class="fn-sig">Attribute object</div>
+          <div class="fn-desc">Read-only info about the current session: <code>st.context.headers</code>, <code>st.context.cookies</code>, <code>st.context.locale</code>, and more.</div>
+        </div>
+
+        <div class="fn-card" data-tags="columns spec write stream generator token llm">
+          <div class="fn-top"><span class="fn-name">st.write_stream()</span><span class="fn-badge badge-display">display</span></div>
+          <div class="fn-sig">stream</div>
+          <div class="fn-desc">Streams output from a <strong>generator or LLM stream</strong> token by token. Returns the full accumulated string when done. Perfect for ChatGPT-style streaming.</div>
+          <div class="fn-returns">returns → <span>str | list | dict</span></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── CLASSES & OBJECTS ── -->
+    <section class="cat-section" id="classes">
+      <div class="cat-header">
+        <div class="cat-icon" style="background:rgba(251,191,36,.12)">📦</div>
+        <div class="cat-title" style="color:#fbbf24">Classes & Column Config</div>
+        <div class="cat-count">12 classes</div>
+      </div>
+      <div class="fn-grid">
+
+        <div class="subcat">Column Configuration (used in st.dataframe / st.data_editor)</div>
+
+        <div class="fn-card" data-tags="column config text string dataframe editor">
+          <div class="fn-top"><span class="fn-name">st.column_config.TextColumn()</span><span class="fn-badge badge-class">class</span></div>
+          <div class="fn-sig">label, width, help, disabled, required, default, max_chars, validate</div>
+          <div class="fn-desc">Renders a dataframe column as <strong>editable text</strong>.</div>
+        </div>
+
+        <div class="fn-card" data-tags="column config number numeric dataframe editor">
+          <div class="fn-top"><span class="fn-name">st.column_config.NumberColumn()</span><span class="fn-badge badge-class">class</span></div>
+          <div class="fn-sig">label, width, help, disabled, required, default, min_value, max_value, step, format</div>
+          <div class="fn-desc">Renders column as <strong>numeric input</strong> with optional min/max.</div>
+        </div>
+
+        <div class="fn-card" data-tags="column config checkbox boolean dataframe editor">
+          <div class="fn-top"><span class="fn-name">st.column_config.CheckboxColumn()</span><span class="fn-badge badge-class">class</span></div>
+          <div class="fn-sig">label, width, help, disabled, required, default</div>
+          <div class="fn-desc">Renders boolean column as a <strong>checkbox</strong>.</div>
+        </div>
+
+        <div class="fn-card" data-tags="column config select dropdown dataframe editor">
+          <div class="fn-top"><span class="fn-name">st.column_config.SelectboxColumn()</span><span class="fn-badge badge-class">class</span></div>
+          <div class="fn-sig">label, options, width, help, disabled, required, default</div>
+          <div class="fn-desc">Cell-level <strong>dropdown select</strong> in a data editor column.</div>
+        </div>
+
+        <div class="fn-card" data-tags="column config date calendar dataframe editor">
+          <div class="fn-top"><span class="fn-name">st.column_config.DateColumn()</span><span class="fn-badge badge-class">class</span></div>
+          <div class="fn-sig">label, min_value, max_value, format, step, width, help, disabled, required, default</div>
+          <div class="fn-desc">Date picker in a <strong>data editor cell</strong>.</div>
+        </div>
+
+        <div class="fn-card" data-tags="column config link url href dataframe">
+          <div class="fn-top"><span class="fn-name">st.column_config.LinkColumn()</span><span class="fn-badge badge-class">class</span></div>
+          <div class="fn-sig">label, width, help, disabled, required, default, max_chars, validate, display_text</div>
+          <div class="fn-desc">Renders cell content as a <strong>clickable hyperlink</strong>.</div>
+        </div>
+
+        <div class="fn-card" data-tags="column config image photo url dataframe display">
+          <div class="fn-top"><span class="fn-name">st.column_config.ImageColumn()</span><span class="fn-badge badge-class">class</span></div>
+          <div class="fn-sig">label, width, help</div>
+          <div class="fn-desc">Renders cell values (image URLs) as inline <strong>thumbnail images</strong>.</div>
+        </div>
+
+        <div class="fn-card" data-tags="column config bar chart sparkline dataframe mini">
+          <div class="fn-top"><span class="fn-name">st.column_config.BarChartColumn()</span><span class="fn-badge badge-class">class</span></div>
+          <div class="fn-sig">label, y_min, y_max, width, help</div>
+          <div class="fn-desc">Renders a list/array as an inline <strong>bar sparkline</strong> in each cell.</div>
+        </div>
+
+        <div class="fn-card" data-tags="column config line chart sparkline dataframe mini">
+          <div class="fn-top"><span class="fn-name">st.column_config.LineChartColumn()</span><span class="fn-badge badge-class">class</span></div>
+          <div class="fn-sig">label, y_min, y_max, width, help</div>
+          <div class="fn-desc">Renders a list/array as an inline <strong>line sparkline</strong> in each cell.</div>
+        </div>
+
+        <div class="fn-card" data-tags="column config progress bar value min max dataframe">
+          <div class="fn-top"><span class="fn-name">st.column_config.ProgressColumn()</span><span class="fn-badge badge-class">class</span></div>
+          <div class="fn-sig">label, min_value, max_value, format, width, help</div>
+          <div class="fn-desc">Renders a number as an inline <strong>progress bar</strong>.</div>
+        </div>
+
+        <div class="subcat">Other Key Classes</div>
+
+        <div class="fn-card" data-tags="uploaded file read bytes name type object">
+          <div class="fn-top"><span class="fn-name">UploadedFile</span><span class="fn-badge badge-class">class</span></div>
+          <div class="fn-sig">Returned by st.file_uploader / st.camera_input</div>
+          <div class="fn-desc">File-like object with attributes: <code>.name</code>, <code>.type</code> (MIME), <code>.size</code>. Call <code>.read()</code>, <code>.getvalue()</code>, or use with <code>pd.read_csv()</code> directly.</div>
+        </div>
+
+        <div class="fn-card" data-tags="delta generator container element context manager">
+          <div class="fn-top"><span class="fn-name">DeltaGenerator</span><span class="fn-badge badge-class">class</span></div>
+          <div class="fn-sig">Returned by layout functions (columns, tabs, expander, container…)</div>
+          <div class="fn-desc">The <strong>base container object</strong>. Every st.* function is available as a method on it. Used via <code>with</code> block or dot notation (e.g. <code>col1.metric(…)</code>).</div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+</div><!-- end shell -->
+
+<script>
+  // ── SEARCH ──
+  const search = document.getElementById('search');
+  const cards  = document.querySelectorAll('.fn-card');
+  const noRes  = document.getElementById('no-results');
+  const subcats = document.querySelectorAll('.subcat');
+
+  search.addEventListener('input', () => {
+    const q = search.value.toLowerCase().trim();
+    let visible = 0;
+
+    cards.forEach(c => {
+      const haystack = (c.dataset.tags || '') + ' ' + c.innerText.toLowerCase();
+      const match = !q || haystack.includes(q);
+      c.classList.toggle('hidden', !match);
+      if (match) visible++;
+    });
+
+    // hide subcategory labels if all siblings hidden
+    subcats.forEach(sc => {
+      let sib = sc.nextElementSibling;
+      let anyVisible = false;
+      while (sib && !sib.classList.contains('subcat')) {
+        if (!sib.classList.contains('hidden')) anyVisible = true;
+        sib = sib.nextElementSibling;
+      }
+      sc.style.display = anyVisible ? '' : 'none';
+    });
+
+    // hide entire sections if empty
+    document.querySelectorAll('.cat-section').forEach(sec => {
+      const has = [...sec.querySelectorAll('.fn-card')].some(c => !c.classList.contains('hidden'));
+      sec.style.display = has ? '' : 'none';
+    });
+
+    noRes.style.display = visible === 0 ? 'block' : 'none';
+  });
+
+  // ── SCROLL HIGHLIGHT ──
+  function scrollTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        document.querySelectorAll('.nav-link').forEach(l => {
+          l.classList.toggle('active', l.getAttribute('onclick')?.includes(`'${id}'`));
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  document.querySelectorAll('.cat-section[id]').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
