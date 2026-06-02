@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TensorFlow Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@400;600;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f13;
+    --surface: #16181f;
+    --surface2: #1d2029;
+    --border: #272b38;
+    --text: #e8eaf2;
+    --muted: #7a7f96;
+    --code: #a8d8a8;
+
+    --c-tensor:   #ff6f00;
+    --c-keras:    #e91e63;
+    --c-data:     #00bcd4;
+    --c-nn:       #7c4dff;
+    --c-train:    #4caf50;
+    --c-math:     #ff9800;
+    --c-linalg:   #2196f3;
+    --c-image:    #9c27b0;
+    --c-io:       #607d8b;
+    --c-dist:     #f44336;
+    --c-saved:    #009688;
+    --c-lite:     #795548;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 40px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo span { color: var(--c-tensor); }
+
+  .back-link {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--c-tensor); }
+
+  .search-wrap { margin-left: auto; position: relative; }
+  #search {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 8px 14px 8px 36px;
+    width: 260px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #search:focus { border-color: var(--c-tensor); }
+  #search::placeholder { color: var(--muted); }
+  .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 13px; pointer-events: none; }
+
+  .layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 81px); }
+
+  nav {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 81px;
+    height: calc(100vh - 81px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  nav::-webkit-scrollbar { width: 4px; }
+  nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .nav-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); padding: 12px 20px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 20px; cursor: pointer; transition: background 0.15s, color 0.15s; font-size: 13px; color: var(--muted); text-decoration: none; border-left: 2px solid transparent; }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { color: var(--text); border-left-color: var(--c-tensor); background: var(--surface2); }
+  .nav-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  main { padding: 40px; max-width: 1100px; }
+
+  .section { margin-bottom: 56px; scroll-margin-top: 100px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .section-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .section-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -0.3px; }
+  .section-desc { color: var(--muted); font-size: 13px; margin-left: auto; font-style: italic; }
+
+  .fn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+
+  .fn-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .fn-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--section-color, var(--c-tensor)); border-radius: 10px 0 0 10px; }
+  .fn-card:hover { background: var(--surface2); border-color: var(--section-color, var(--c-tensor)); }
+
+  .fn-name { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600; color: var(--code); margin-bottom: 4px; }
+  .fn-name .prefix { color: var(--muted); font-weight: 400; }
+  .fn-sig { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--muted); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fn-desc { font-size: 12px; color: #a0a4b8; line-height: 1.5; }
+  .fn-tags { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+  .tag { font-family: 'IBM Plex Mono', monospace; font-size: 9px; padding: 2px 6px; border-radius: 4px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); letter-spacing: 0.3px; }
+
+  .subsection { margin-bottom: 24px; }
+  .subsection-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .subsection-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { display: none; }
+    main { padding: 20px; }
+    #search { width: 180px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <rect width="28" height="28" rx="6" fill="#ff6f00" opacity="0.15"/>
+      <path d="M8 6 L8 22 M8 14 L16 10 M16 10 L20 8 M16 18 L20 20 M8 14 L16 18" stroke="#ff6f00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    TensorFlow <span>Reference</span>
+  </div>
+  <a class="back-link" href="index.html">← Back to index</a>
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input id="search" type="text" placeholder="Search functions..." autocomplete="off">
+  </div>
+</header>
+
+<div class="layout">
+
+<nav id="sidebar">
+  <div class="nav-label">Sections</div>
+  <a class="nav-item active" href="#tensors" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-tensor)"></span> Tensors &amp; Ops
+  </a>
+  <a class="nav-item" href="#keras-model" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-keras)"></span> Keras — Models
+  </a>
+  <a class="nav-item" href="#keras-layers" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-keras)"></span> Keras — Layers
+  </a>
+  <a class="nav-item" href="#keras-train" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-train)"></span> Keras — Training
+  </a>
+  <a class="nav-item" href="#data" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-data)"></span> tf.data
+  </a>
+  <a class="nav-item" href="#nn" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-nn)"></span> tf.nn
+  </a>
+  <a class="nav-item" href="#math" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-math)"></span> tf.math
+  </a>
+  <a class="nav-item" href="#linalg" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-linalg)"></span> tf.linalg
+  </a>
+  <a class="nav-item" href="#image" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-image)"></span> tf.image
+  </a>
+  <a class="nav-item" href="#autodiff" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-train)"></span> Autodiff &amp; tf.function
+  </a>
+  <a class="nav-item" href="#distribute" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-dist)"></span> tf.distribute
+  </a>
+  <a class="nav-item" href="#io" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-io)"></span> Saving &amp; IO
+  </a>
+  <a class="nav-item" href="#lite" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-lite)"></span> TFLite &amp; TF-TRT
+  </a>
+</nav>
+
+<main id="main">
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 1. TENSORS & OPS -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="tensors" style="--section-color: var(--c-tensor)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-tensor) 15%, transparent)">⬡</div>
+    <div><div class="section-title" style="color:var(--c-tensor)">Tensors &amp; Operations</div></div>
+    <div class="section-desc">Creation, shaping, indexing, and type casting</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Core Types</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>Tensor</div>
+        <div class="fn-sig">  .shape · .dtype · .numpy() · .device</div>
+        <div class="fn-desc">Immutable multi-dimensional array. Key attributes: <code style="color:var(--code)">.shape</code> (TensorShape), <code style="color:var(--code)">.dtype</code>, <code style="color:var(--code)">.numpy()</code> converts to NumPy array.</div>
+        <div class="fn-tags"><span class="tag">class</span><span class="tag">immutable</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>Variable</div>
+        <div class="fn-sig">(initial_value, trainable=True, name=None, dtype=None)</div>
+        <div class="fn-desc">Mutable tensor. Holds model weights. <code style="color:var(--code)">.assign(v)</code>, <code style="color:var(--code)">.assign_add(v)</code>, <code style="color:var(--code)">.assign_sub(v)</code> for in-place updates.</div>
+        <div class="fn-tags"><span class="tag">class</span><span class="tag">mutable</span><span class="tag">trainable</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>TensorSpec</div>
+        <div class="fn-sig">(shape, dtype=tf.float32, name=None)</div>
+        <div class="fn-desc">Describes a tensor's shape and dtype without holding data. Used in <code style="color:var(--code)">tf.function</code> signatures and <code style="color:var(--code)">tf.data</code>.</div>
+        <div class="fn-tags"><span class="tag">class</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>RaggedTensor</div>
+        <div class="fn-sig">  .from_row_lengths() / .from_value_rowids()</div>
+        <div class="fn-desc">Tensor with non-uniform row lengths — ideal for variable-length sequences (NLP). Supports most tf ops.</div>
+        <div class="fn-tags"><span class="tag">class</span><span class="tag">variable-length</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>SparseTensor</div>
+        <div class="fn-sig">(indices, values, dense_shape)</div>
+        <div class="fn-desc">Efficient representation for tensors with mostly zeros. Convert with <code style="color:var(--code)">tf.sparse.to_dense()</code>.</div>
+        <div class="fn-tags"><span class="tag">class</span><span class="tag">sparse</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Creation</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>constant</div>
+        <div class="fn-sig">(value, dtype=None, shape=None, name='Const')</div>
+        <div class="fn-desc">Creates a constant tensor from a Python value, list, or NumPy array. Result is immutable.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>zeros</div>
+        <div class="fn-sig">(shape, dtype=tf.float32, name=None)</div>
+        <div class="fn-desc">Tensor of zeros. <code style="color:var(--code)">tf.zeros_like(x)</code> creates zeros with the same shape and dtype as <code style="color:var(--code)">x</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>ones</div>
+        <div class="fn-sig">(shape, dtype=tf.float32, name=None)</div>
+        <div class="fn-desc">Tensor of ones. <code style="color:var(--code)">tf.ones_like(x)</code> variant available.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>fill</div>
+        <div class="fn-sig">(dims, value, name=None)</div>
+        <div class="fn-desc">Fills a tensor of shape <code style="color:var(--code)">dims</code> with scalar <code style="color:var(--code)">value</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>range</div>
+        <div class="fn-sig">(start, limit=None, delta=1, dtype=None)</div>
+        <div class="fn-desc">1-D tensor of evenly-spaced values. Mirrors Python <code style="color:var(--code)">range()</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>linspace</div>
+        <div class="fn-sig">(start, stop, num, axis=0, name=None)</div>
+        <div class="fn-desc">Evenly-spaced values over a closed interval [start, stop].</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.random.</span>normal</div>
+        <div class="fn-sig">(shape, mean=0.0, stddev=1.0, dtype=tf.float32, seed=None)</div>
+        <div class="fn-desc">Random values from a normal distribution. Use <code style="color:var(--code)">tf.random.set_seed(n)</code> for reproducibility.</div>
+        <div class="fn-tags"><span class="tag">random</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.random.</span>uniform</div>
+        <div class="fn-sig">(shape, minval=0, maxval=None, dtype=tf.float32, seed=None)</div>
+        <div class="fn-desc">Random values from a uniform distribution.</div>
+        <div class="fn-tags"><span class="tag">random</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.random.</span>shuffle</div>
+        <div class="fn-sig">(value, seed=None, name=None)</div>
+        <div class="fn-desc">Randomly shuffles a tensor along its first dimension.</div>
+        <div class="fn-tags"><span class="tag">random</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Shape &amp; Type</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>reshape</div>
+        <div class="fn-sig">(tensor, shape, name=None)</div>
+        <div class="fn-desc">Returns tensor with new shape. Use <code style="color:var(--code)">-1</code> to infer one dimension. Data order unchanged.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>transpose</div>
+        <div class="fn-sig">(a, perm=None, conjugate=False, name='transpose')</div>
+        <div class="fn-desc">Permutes dimensions. Default reverses all axes. <code style="color:var(--code)">perm=[0,2,1]</code> to swap last two dims.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>expand_dims</div>
+        <div class="fn-sig">(input, axis, name=None)</div>
+        <div class="fn-desc">Inserts a new axis of size 1 at <code style="color:var(--code)">axis</code>. Equivalent to <code style="color:var(--code)">x[..., tf.newaxis]</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>squeeze</div>
+        <div class="fn-sig">(input, axis=None, name=None)</div>
+        <div class="fn-desc">Removes dimensions of size 1. <code style="color:var(--code)">axis</code> to target specific dims.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>cast</div>
+        <div class="fn-sig">(x, dtype, name=None)</div>
+        <div class="fn-desc">Casts tensor to a new dtype (e.g. <code style="color:var(--code)">tf.float32 → tf.float16</code>).</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>shape</div>
+        <div class="fn-sig">(input, out_type=tf.int32, name=None)</div>
+        <div class="fn-desc">Returns the <em>dynamic</em> shape as a 1-D tensor. Use <code style="color:var(--code)">x.shape</code> for static shape.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>size</div>
+        <div class="fn-sig">(input, out_type=tf.int32, name=None)</div>
+        <div class="fn-desc">Returns the total number of elements in the tensor.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>rank</div>
+        <div class="fn-sig">(input, name=None)</div>
+        <div class="fn-desc">Returns the number of dimensions (rank) as a scalar tensor.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Indexing &amp; Slicing</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>gather</div>
+        <div class="fn-sig">(params, indices, axis=None, batch_dims=0, name=None)</div>
+        <div class="fn-desc">Gathers slices from <code style="color:var(--code)">params</code> at <code style="color:var(--code)">indices</code>. Like fancy indexing in NumPy.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>gather_nd</div>
+        <div class="fn-sig">(params, indices, batch_dims=0, name=None)</div>
+        <div class="fn-desc">Gathers elements using multi-dimensional indices. More powerful than <code style="color:var(--code)">tf.gather</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>slice</div>
+        <div class="fn-sig">(input_, begin, size, name=None)</div>
+        <div class="fn-desc">Extracts a sub-tensor starting at <code style="color:var(--code)">begin</code> with given <code style="color:var(--code)">size</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>boolean_mask</div>
+        <div class="fn-sig">(tensor, mask, axis=None, name='boolean_mask')</div>
+        <div class="fn-desc">Applies a boolean mask along an axis — selects elements where mask is True.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>where</div>
+        <div class="fn-sig">(condition, x=None, y=None, name=None)</div>
+        <div class="fn-desc">Element-wise selection: returns <code style="color:var(--code)">x</code> where condition is True, else <code style="color:var(--code)">y</code>. With one arg, returns indices of True elements.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Combining &amp; Splitting</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>concat</div>
+        <div class="fn-sig">(values, axis, name='concat')</div>
+        <div class="fn-desc">Concatenates tensors along an existing axis. All dims except <code style="color:var(--code)">axis</code> must match.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>stack</div>
+        <div class="fn-sig">(values, axis=0, name='stack')</div>
+        <div class="fn-desc">Stacks tensors along a <em>new</em> axis — increases rank by 1.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>unstack</div>
+        <div class="fn-sig">(value, num=None, axis=0, name='unstack')</div>
+        <div class="fn-desc">Unpacks a tensor along an axis into a list of tensors — inverse of <code style="color:var(--code)">tf.stack</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>split</div>
+        <div class="fn-sig">(value, num_or_size_splits, axis=0, name='split')</div>
+        <div class="fn-desc">Splits a tensor into sub-tensors. Pass int for equal splits or list for custom sizes.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>tile</div>
+        <div class="fn-sig">(input, multiples, name=None)</div>
+        <div class="fn-desc">Tiles a tensor by repeating it <code style="color:var(--code)">multiples</code> times along each dimension.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>pad</div>
+        <div class="fn-sig">(tensor, paddings, mode='CONSTANT', constant_values=0)</div>
+        <div class="fn-desc">Pads a tensor. <code style="color:var(--code)">mode</code>: "CONSTANT", "REFLECT", "SYMMETRIC".</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>repeat</div>
+        <div class="fn-sig">(input, repeats, axis=None, name=None)</div>
+        <div class="fn-desc">Repeats elements of a tensor. Mirrors <code style="color:var(--code)">np.repeat</code>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 2. KERAS — MODELS -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="keras-model" style="--section-color: var(--c-keras)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-keras) 15%, transparent)">🧬</div>
+    <div><div class="section-title" style="color:var(--c-keras)">Keras — Models</div></div>
+    <div class="section-desc">Three ways to build a model</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Model APIs</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.keras.</span>Sequential</div>
+        <div class="fn-sig">([layers])</div>
+        <div class="fn-desc">Simplest API — a linear stack of layers. Add with <code style="color:var(--code)">.add(layer)</code> or pass a list. No branching or multiple inputs/outputs.</div>
+        <div class="fn-tags"><span class="tag">beginner</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.keras.</span>Model</div>
+        <div class="fn-sig">(inputs, outputs, name=None)</div>
+        <div class="fn-desc">Functional API — define a DAG of layers. Pass symbolic tensors to build. Supports multiple inputs/outputs and shared layers.</div>
+        <div class="fn-tags"><span class="tag">functional api</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">class MyModel(tf.keras.Model):</div>
+        <div class="fn-sig">  __init__(self) / call(self, inputs, training=False)</div>
+        <div class="fn-desc">Subclassing API — define layers in <code style="color:var(--code)">__init__</code>, forward pass in <code style="color:var(--code)">call()</code>. Most flexible; required for dynamic architectures.</div>
+        <div class="fn-tags"><span class="tag">subclassing</span><span class="tag">advanced</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Model methods</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">model.</span>compile</div>
+        <div class="fn-sig">(optimizer, loss=None, metrics=None, loss_weights=None, run_eagerly=False, steps_per_execution=1, jit_compile=False)</div>
+        <div class="fn-desc">Configures the model for training. Must be called before <code style="color:var(--code)">fit()</code>. Pass string names or objects for optimizer/loss/metrics.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">model.</span>fit</div>
+        <div class="fn-sig">(x=None, y=None, batch_size=32, epochs=1, verbose='auto', callbacks=None, validation_split=0.0, validation_data=None, shuffle=True, class_weight=None, sample_weight=None, initial_epoch=0, steps_per_epoch=None)</div>
+        <div class="fn-desc">Trains the model. Returns a <code style="color:var(--code)">History</code> object. <code style="color:var(--code)">x</code> can be NumPy arrays, <code style="color:var(--code)">tf.data.Dataset</code>, or generators.</div>
+        <div class="fn-tags"><span class="tag">training</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">model.</span>evaluate</div>
+        <div class="fn-sig">(x=None, y=None, batch_size=32, verbose='auto', callbacks=None, return_dict=False)</div>
+        <div class="fn-desc">Computes loss and metrics on test data. Returns scalar(s) or dict.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">model.</span>predict</div>
+        <div class="fn-sig">(x, batch_size=32, verbose='auto', steps=None, callbacks=None)</div>
+        <div class="fn-desc">Runs inference. Returns NumPy array of predictions. No labels needed.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">model.</span>summary</div>
+        <div class="fn-sig">(line_length=None, positions=None, print_fn=None, expand_nested=False, show_trainable=False)</div>
+        <div class="fn-desc">Prints a table of layers, output shapes, and parameter counts.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">model.</span>get_weights / set_weights</div>
+        <div class="fn-sig">() / (weights)</div>
+        <div class="fn-desc">Get/set all weights as a list of NumPy arrays. Useful for manual weight transfer.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">model.</span>save</div>
+        <div class="fn-sig">(filepath, overwrite=True, save_format=None)</div>
+        <div class="fn-desc">Saves model to SavedModel (default) or HDF5 (<code style="color:var(--code)">.h5</code>) format. Includes architecture, weights, and optimizer state.</div>
+        <div class="fn-tags"><span class="tag">serialization</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">model.</span>trainable_variables</div>
+        <div class="fn-sig">→ list[tf.Variable]</div>
+        <div class="fn-desc">All trainable weight variables. Used with <code style="color:var(--code)">GradientTape</code> for custom training loops.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">model.</span>train_on_batch</div>
+        <div class="fn-sig">(x, y, sample_weight=None, return_dict=False)</div>
+        <div class="fn-desc">Runs a single gradient update on one batch of data.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 3. KERAS — LAYERS -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="keras-layers" style="--section-color: var(--c-keras)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-keras) 15%, transparent)">🔲</div>
+    <div><div class="section-title" style="color:var(--c-keras)">Keras — Layers</div></div>
+    <div class="section-desc">All built-in layer types</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Core / Dense</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Dense</div>
+        <div class="fn-sig">(units, activation=None, use_bias=True, kernel_initializer='glorot_uniform', bias_initializer='zeros', kernel_regularizer=None, ...)</div>
+        <div class="fn-desc">Fully-connected layer: <code style="color:var(--code)">output = activation(input @ kernel + bias)</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Activation</div>
+        <div class="fn-sig">(activation, **kwargs)</div>
+        <div class="fn-desc">Applies an activation function as a standalone layer.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Flatten</div>
+        <div class="fn-sig">(data_format=None, **kwargs)</div>
+        <div class="fn-desc">Flattens input to 1-D (keeping batch dim). Commonly used between conv and dense blocks.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Reshape</div>
+        <div class="fn-sig">(target_shape, **kwargs)</div>
+        <div class="fn-desc">Reshapes input to <code style="color:var(--code)">target_shape</code>. Batch dim excluded.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Lambda</div>
+        <div class="fn-sig">(function, output_shape=None, mask=None, arguments=None)</div>
+        <div class="fn-desc">Wraps an arbitrary function as a layer. Not serializable — prefer subclassing for production.</div>
+        <div class="fn-tags"><span class="tag">custom</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Convolutional</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Conv2D</div>
+        <div class="fn-sig">(filters, kernel_size, strides=(1,1), padding='valid', activation=None, use_bias=True, ...)</div>
+        <div class="fn-desc">2D convolution for image data. <code style="color:var(--code)">padding='same'</code> preserves spatial size.</div>
+        <div class="fn-tags"><span class="tag">image</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Conv1D</div>
+        <div class="fn-sig">(filters, kernel_size, strides=1, padding='valid', activation=None, ...)</div>
+        <div class="fn-desc">1D convolution for sequences/text.</div>
+        <div class="fn-tags"><span class="tag">sequence</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Conv3D</div>
+        <div class="fn-sig">(filters, kernel_size, strides=(1,1,1), padding='valid', activation=None, ...)</div>
+        <div class="fn-desc">3D convolution for volumetric data (video, 3D scans).</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>SeparableConv2D</div>
+        <div class="fn-sig">(filters, kernel_size, strides=(1,1), padding='valid', ...)</div>
+        <div class="fn-desc">Depthwise + pointwise convolution. Fewer params than Conv2D — used in MobileNet, Xception.</div>
+        <div class="fn-tags"><span class="tag">efficient</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Conv2DTranspose</div>
+        <div class="fn-sig">(filters, kernel_size, strides=(1,1), padding='valid', ...)</div>
+        <div class="fn-desc">Transposed convolution (deconvolution) — upsamples spatial dims. Used in decoders and GANs.</div>
+        <div class="fn-tags"><span class="tag">upsampling</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>DepthwiseConv2D</div>
+        <div class="fn-sig">(kernel_size, strides=(1,1), padding='valid', depth_multiplier=1, ...)</div>
+        <div class="fn-desc">Per-channel convolution without mixing channels. First step in separable convolutions.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Pooling</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>MaxPooling2D</div>
+        <div class="fn-sig">(pool_size=(2,2), strides=None, padding='valid')</div>
+        <div class="fn-desc">Takes the max in each pooling window. Strides defaults to <code style="color:var(--code)">pool_size</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>AveragePooling2D</div>
+        <div class="fn-sig">(pool_size=(2,2), strides=None, padding='valid')</div>
+        <div class="fn-desc">Average pooling — smoother than max pooling.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>GlobalMaxPooling2D</div>
+        <div class="fn-sig">(data_format=None, keepdims=False)</div>
+        <div class="fn-desc">Reduces spatial dims to 1 value per channel (global max). Outputs shape <code style="color:var(--code)">(batch, filters)</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>GlobalAveragePooling2D</div>
+        <div class="fn-sig">(data_format=None, keepdims=False)</div>
+        <div class="fn-desc">Global average pooling — used in modern CNNs (ResNet, EfficientNet) instead of Flatten.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>MaxPooling1D / AveragePooling1D</div>
+        <div class="fn-sig">(pool_size=2, strides=None, padding='valid')</div>
+        <div class="fn-desc">1D pooling for sequence models.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Recurrent</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>LSTM</div>
+        <div class="fn-sig">(units, activation='tanh', recurrent_activation='sigmoid', return_sequences=False, return_state=False, stateful=False, dropout=0.0, recurrent_dropout=0.0, ...)</div>
+        <div class="fn-desc">Long Short-Term Memory. Set <code style="color:var(--code)">return_sequences=True</code> for stacked LSTMs.</div>
+        <div class="fn-tags"><span class="tag">sequence</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>GRU</div>
+        <div class="fn-sig">(units, activation='tanh', recurrent_activation='sigmoid', return_sequences=False, return_state=False, stateful=False, dropout=0.0, ...)</div>
+        <div class="fn-desc">Gated Recurrent Unit — fewer params than LSTM, similar performance on many tasks.</div>
+        <div class="fn-tags"><span class="tag">sequence</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>SimpleRNN</div>
+        <div class="fn-sig">(units, activation='tanh', return_sequences=False, return_state=False, stateful=False, dropout=0.0, ...)</div>
+        <div class="fn-desc">Basic RNN cell. Suffers from vanishing gradients — prefer LSTM/GRU in practice.</div>
+        <div class="fn-tags"><span class="tag">sequence</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Bidirectional</div>
+        <div class="fn-sig">(layer, merge_mode='concat', weights=None)</div>
+        <div class="fn-desc">Wrapper that runs an RNN both forward and backward and merges the outputs.</div>
+        <div class="fn-tags"><span class="tag">wrapper</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>TimeDistributed</div>
+        <div class="fn-sig">(layer, **kwargs)</div>
+        <div class="fn-desc">Applies a layer to every time step independently. Wraps Dense, Conv2D, etc.</div>
+        <div class="fn-tags"><span class="tag">wrapper</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Attention &amp; Transformers</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>MultiHeadAttention</div>
+        <div class="fn-sig">(num_heads, key_dim, value_dim=None, dropout=0.0, use_bias=True, ...)</div>
+        <div class="fn-desc">Scaled dot-product multi-head attention. Call as <code style="color:var(--code)">layer(query, value, key, attention_mask)</code>.</div>
+        <div class="fn-tags"><span class="tag">transformer</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Attention</div>
+        <div class="fn-sig">(use_scale=False, score_mode='dot', dropout=0.0)</div>
+        <div class="fn-desc">Single-head attention (Bahdanau/Luong-style). Call as <code style="color:var(--code)">layer([query, value])</code>.</div>
+        <div class="fn-tags"><span class="tag">attention</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Normalisation &amp; Regularisation</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>BatchNormalization</div>
+        <div class="fn-sig">(axis=-1, momentum=0.99, epsilon=0.001, center=True, scale=True, ...)</div>
+        <div class="fn-desc">Normalises activations across the batch. Pass <code style="color:var(--code)">training=True</code> in call during training. Behaves differently at train vs inference.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>LayerNormalization</div>
+        <div class="fn-sig">(axis=-1, epsilon=0.001, center=True, scale=True, ...)</div>
+        <div class="fn-desc">Normalises across features (not batch). Preferred in Transformers — independent of batch size.</div>
+        <div class="fn-tags"><span class="tag">transformer</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>GroupNormalization</div>
+        <div class="fn-sig">(groups=32, axis=-1, epsilon=0.001, ...)</div>
+        <div class="fn-desc">Normalises within channel groups. Works well with small batch sizes.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Dropout</div>
+        <div class="fn-sig">(rate, noise_shape=None, seed=None)</div>
+        <div class="fn-desc">Sets <code style="color:var(--code)">rate</code> fraction of inputs to 0 during training. Pass <code style="color:var(--code)">training=True</code> in call.</div>
+        <div class="fn-tags"><span class="tag">regularization</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>SpatialDropout2D</div>
+        <div class="fn-sig">(rate, data_format=None)</div>
+        <div class="fn-desc">Drops entire feature maps instead of individual activations — better for correlated spatial data.</div>
+        <div class="fn-tags"><span class="tag">regularization</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>GaussianNoise</div>
+        <div class="fn-sig">(stddev, seed=None)</div>
+        <div class="fn-desc">Adds zero-centred Gaussian noise during training. Regularization for small datasets.</div>
+        <div class="fn-tags"><span class="tag">regularization</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Embedding &amp; Merging</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Embedding</div>
+        <div class="fn-sig">(input_dim, output_dim, embeddings_initializer='uniform', mask_zero=False, ...)</div>
+        <div class="fn-desc">Turns integer indices into dense vectors of <code style="color:var(--code)">output_dim</code> dims. <code style="color:var(--code)">input_dim</code> = vocab size.</div>
+        <div class="fn-tags"><span class="tag">nlp</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Add / Subtract / Multiply</div>
+        <div class="fn-sig">([tensor_a, tensor_b])</div>
+        <div class="fn-desc">Element-wise merging layers. All inputs must have the same shape.</div>
+        <div class="fn-tags"><span class="tag">merge</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Concatenate</div>
+        <div class="fn-sig">(axis=-1)</div>
+        <div class="fn-desc">Concatenates a list of tensors along <code style="color:var(--code)">axis</code>.</div>
+        <div class="fn-tags"><span class="tag">merge</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Dot</div>
+        <div class="fn-sig">(axes, normalize=False)</div>
+        <div class="fn-desc">Computes dot product between two tensors along <code style="color:var(--code)">axes</code>. <code style="color:var(--code)">normalize=True</code> gives cosine similarity.</div>
+        <div class="fn-tags"><span class="tag">merge</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Upsampling &amp; Preprocessing</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>UpSampling2D</div>
+        <div class="fn-sig">(size=(2,2), data_format=None, interpolation='nearest')</div>
+        <div class="fn-desc">Repeats rows and columns. <code style="color:var(--code)">interpolation='bilinear'</code> for smoother upsampling.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>ZeroPadding2D</div>
+        <div class="fn-sig">(padding=(1,1), data_format=None)</div>
+        <div class="fn-desc">Adds rows/columns of zeros around spatial dimensions.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Rescaling</div>
+        <div class="fn-sig">(scale, offset=0.0, **kwargs)</div>
+        <div class="fn-desc">Rescales inputs: <code style="color:var(--code)">output = input * scale + offset</code>. Use <code style="color:var(--code)">scale=1/255</code> to normalise images.</div>
+        <div class="fn-tags"><span class="tag">preprocessing</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>Normalization</div>
+        <div class="fn-sig">(axis=-1, mean=None, variance=None)</div>
+        <div class="fn-desc">Normalises features to zero-mean/unit-variance. Call <code style="color:var(--code)">.adapt(data)</code> to compute stats from data.</div>
+        <div class="fn-tags"><span class="tag">preprocessing</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>RandomFlip / RandomRotation / RandomZoom</div>
+        <div class="fn-sig">(mode / factor / ...)</div>
+        <div class="fn-desc">Built-in data augmentation layers. Only active during training. Part of the model — no separate augmentation pipeline needed.</div>
+        <div class="fn-tags"><span class="tag">augmentation</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">layers.</span>TextVectorization</div>
+        <div class="fn-sig">(max_tokens=None, standardize='lower_and_strip_punctuation', split='whitespace', ngrams=None, output_mode='int', output_sequence_length=None, ...)</div>
+        <div class="fn-desc">Maps text strings to integer sequences. Call <code style="color:var(--code)">.adapt(text_data)</code> to build vocab.</div>
+        <div class="fn-tags"><span class="tag">nlp</span><span class="tag">preprocessing</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Custom Layer Base Class</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name">class MyLayer(tf.keras.layers.Layer):</div>
+        <div class="fn-sig">  __init__ / build(input_shape) / call(inputs, training=False)</div>
+        <div class="fn-desc"><code style="color:var(--code)">build()</code> creates weights lazily on first call. <code style="color:var(--code)">call()</code> defines forward pass. <code style="color:var(--code)">get_config()</code> for serialization.</div>
+        <div class="fn-tags"><span class="tag">subclassing</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">self.</span>add_weight</div>
+        <div class="fn-sig">(name, shape, initializer='zeros', trainable=True, regularizer=None, constraint=None)</div>
+        <div class="fn-desc">Creates a trainable or non-trainable weight inside a custom layer's <code style="color:var(--code)">build()</code> method.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 4. KERAS — TRAINING -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="keras-train" style="--section-color: var(--c-train)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-train) 15%, transparent)">⚙️</div>
+    <div><div class="section-title" style="color:var(--c-train)">Keras — Training</div></div>
+    <div class="section-desc">Optimizers, losses, metrics, callbacks, and regularizers</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Optimizers</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">optimizers.</span>Adam</div>
+        <div class="fn-sig">(learning_rate=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-07, amsgrad=False, ...)</div>
+        <div class="fn-desc">Adaptive Moment Estimation. The default starting optimizer for most tasks.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">optimizers.</span>AdamW</div>
+        <div class="fn-sig">(learning_rate=0.001, weight_decay=0.004, beta_1=0.9, beta_2=0.999, ...)</div>
+        <div class="fn-desc">Adam with decoupled weight decay. Preferred for Transformer fine-tuning.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">optimizers.</span>SGD</div>
+        <div class="fn-sig">(learning_rate=0.01, momentum=0.0, nesterov=False, ...)</div>
+        <div class="fn-desc">Stochastic Gradient Descent. <code style="color:var(--code)">nesterov=True</code> and <code style="color:var(--code)">momentum=0.9</code> often outperforms Adam for vision.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">optimizers.</span>RMSprop</div>
+        <div class="fn-sig">(learning_rate=0.001, rho=0.9, momentum=0.0, epsilon=1e-07, ...)</div>
+        <div class="fn-desc">Good for RNNs. Maintains a moving average of squared gradients.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">optimizers.schedules.</span>ExponentialDecay</div>
+        <div class="fn-sig">(initial_lr, decay_steps, decay_rate, staircase=False)</div>
+        <div class="fn-desc">Decays LR by <code style="color:var(--code)">decay_rate</code> every <code style="color:var(--code)">decay_steps</code>. Pass as <code style="color:var(--code)">learning_rate</code> to optimizer.</div>
+        <div class="fn-tags"><span class="tag">lr schedule</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">optimizers.schedules.</span>CosineDecay</div>
+        <div class="fn-sig">(initial_lr, decay_steps, alpha=0.0, warmup_steps=0, warmup_target=None)</div>
+        <div class="fn-desc">Cosine annealing LR schedule. Standard for large model training.</div>
+        <div class="fn-tags"><span class="tag">lr schedule</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Loss Functions</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">losses.</span>SparseCategoricalCrossentropy</div>
+        <div class="fn-sig">(from_logits=False, ignore_class=None, reduction='sum_over_batch_size', name=None)</div>
+        <div class="fn-desc">Multi-class classification with integer labels. Use <code style="color:var(--code)">from_logits=True</code> when your last layer has no softmax.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">losses.</span>CategoricalCrossentropy</div>
+        <div class="fn-sig">(from_logits=False, label_smoothing=0.0, ...)</div>
+        <div class="fn-desc">Multi-class classification with one-hot labels. <code style="color:var(--code)">label_smoothing</code> for regularisation.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">losses.</span>BinaryCrossentropy</div>
+        <div class="fn-sig">(from_logits=False, label_smoothing=0.0, ...)</div>
+        <div class="fn-desc">Binary or multi-label classification. Output activation: sigmoid (or none + <code style="color:var(--code)">from_logits=True</code>).</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">losses.</span>MeanSquaredError</div>
+        <div class="fn-sig">(reduction='sum_over_batch_size', name='mean_squared_error')</div>
+        <div class="fn-desc">MSE regression loss.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">losses.</span>MeanAbsoluteError</div>
+        <div class="fn-sig">(reduction=..., name='mean_absolute_error')</div>
+        <div class="fn-desc">MAE — more robust to outliers than MSE.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">losses.</span>Huber</div>
+        <div class="fn-sig">(delta=1.0, reduction=..., name='huber_loss')</div>
+        <div class="fn-desc">Combines MSE (near zero) and MAE (large errors). Good for regression with outliers.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">losses.</span>KLDivergence</div>
+        <div class="fn-sig">(reduction=..., name='kl_divergence')</div>
+        <div class="fn-desc">Kullback-Leibler divergence. Used in VAEs and distribution matching tasks.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">losses.</span>CosineSimilarity</div>
+        <div class="fn-sig">(axis=-1, reduction=..., name='cosine_similarity')</div>
+        <div class="fn-desc">Returns negative cosine similarity (for minimisation). Used in contrastive/embedding learning.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Metrics</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">metrics.</span>Accuracy / SparseCategoricalAccuracy / BinaryAccuracy</div>
+        <div class="fn-sig">(name, dtype)</div>
+        <div class="fn-desc">Classification accuracy variants. <code style="color:var(--code)">Sparse</code> for integer labels, <code style="color:var(--code)">Binary</code> for sigmoid outputs.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">metrics.</span>AUC</div>
+        <div class="fn-sig">(num_thresholds=200, curve='ROC', summation_method='interpolation', thresholds=None, multi_label=False, ...)</div>
+        <div class="fn-desc">Area Under the ROC or PR curve. <code style="color:var(--code)">curve='PR'</code> for precision-recall AUC.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">metrics.</span>Precision / Recall / F1Score</div>
+        <div class="fn-sig">(thresholds=None, top_k=None, class_id=None)</div>
+        <div class="fn-desc">Classification metrics. <code style="color:var(--code)">F1Score</code> added in Keras 2.12+.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">metrics.</span>MeanSquaredError / MeanAbsoluteError</div>
+        <div class="fn-sig">(name, dtype)</div>
+        <div class="fn-desc">Regression metrics tracked across batches.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">metrics.</span>Mean</div>
+        <div class="fn-sig">(name='mean', dtype=None)</div>
+        <div class="fn-desc">Tracks mean of arbitrary scalar values. Useful in custom training loops.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">Custom metric pattern</div>
+        <div class="fn-sig">class MyMetric(tf.keras.metrics.Metric):</div>
+        <div class="fn-desc">Override <code style="color:var(--code)">update_state(y_true, y_pred, sample_weight)</code>, <code style="color:var(--code)">result()</code>, and <code style="color:var(--code)">reset_state()</code>.</div>
+        <div class="fn-tags"><span class="tag">custom</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Callbacks</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">callbacks.</span>ModelCheckpoint</div>
+        <div class="fn-sig">(filepath, monitor='val_loss', save_best_only=False, save_weights_only=False, mode='auto', save_freq='epoch', ...)</div>
+        <div class="fn-desc">Saves the model at each epoch or at best validation performance.</div>
+        <div class="fn-tags"><span class="tag">essential</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">callbacks.</span>EarlyStopping</div>
+        <div class="fn-sig">(monitor='val_loss', min_delta=0, patience=0, mode='auto', baseline=None, restore_best_weights=False)</div>
+        <div class="fn-desc">Stops training when monitored metric stops improving. <code style="color:var(--code)">restore_best_weights=True</code> reloads the best checkpoint.</div>
+        <div class="fn-tags"><span class="tag">essential</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">callbacks.</span>TensorBoard</div>
+        <div class="fn-sig">(log_dir='logs', histogram_freq=0, write_graph=True, write_images=False, update_freq='epoch', profile_batch=0, embeddings_freq=0, ...)</div>
+        <div class="fn-desc">Logs training metrics for TensorBoard visualisation. Run <code style="color:var(--code)">tensorboard --logdir logs</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">callbacks.</span>ReduceLROnPlateau</div>
+        <div class="fn-sig">(monitor='val_loss', factor=0.1, patience=10, mode='auto', min_delta=0.0001, cooldown=0, min_lr=0.0)</div>
+        <div class="fn-desc">Reduces LR by <code style="color:var(--code)">factor</code> when metric plateaus. Essential for cyclic training.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">callbacks.</span>LearningRateScheduler</div>
+        <div class="fn-sig">(schedule, verbose=0)</div>
+        <div class="fn-desc">Calls <code style="color:var(--code)">schedule(epoch, current_lr)</code> to compute the new LR each epoch.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">callbacks.</span>CSVLogger</div>
+        <div class="fn-sig">(filename, separator=',', append=False)</div>
+        <div class="fn-desc">Streams epoch results to a CSV file.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">Custom callback pattern</div>
+        <div class="fn-sig">class MyCallback(tf.keras.callbacks.Callback):</div>
+        <div class="fn-desc">Override hooks: <code style="color:var(--code)">on_epoch_begin/end</code>, <code style="color:var(--code)">on_batch_begin/end</code>, <code style="color:var(--code)">on_train_begin/end</code>. Access <code style="color:var(--code)">self.model</code>.</div>
+        <div class="fn-tags"><span class="tag">custom</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Regularizers &amp; Initializers</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">regularizers.</span>L1 / L2 / L1L2</div>
+        <div class="fn-sig">(l=0.01) / (l=0.01) / (l1=0.0, l2=0.01)</div>
+        <div class="fn-desc">Weight regularization penalties added to the loss. Pass to <code style="color:var(--code)">kernel_regularizer</code> in a layer.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">initializers.</span>GlorotUniform / HeNormal / Orthogonal</div>
+        <div class="fn-sig">(seed=None)</div>
+        <div class="fn-desc">Weight initializers. <code style="color:var(--code)">Glorot</code> (tanh/sigmoid), <code style="color:var(--code)">He</code> (ReLU). Pass to <code style="color:var(--code)">kernel_initializer</code>.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Activation Functions</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">activations.</span>relu / leaky_relu / elu / selu</div>
+        <div class="fn-sig">(x, ...)</div>
+        <div class="fn-desc">Rectified activations. <code style="color:var(--code)">leaky_relu</code> allows small negative gradient. <code style="color:var(--code)">selu</code> self-normalises.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">activations.</span>sigmoid / tanh / softmax / softplus</div>
+        <div class="fn-sig">(x, axis=-1)</div>
+        <div class="fn-desc"><code style="color:var(--code)">sigmoid</code>: binary output. <code style="color:var(--code)">softmax</code>: multi-class probabilities (sums to 1 along axis).</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">activations.</span>gelu / swish / mish</div>
+        <div class="fn-sig">(x, approximate=False)</div>
+        <div class="fn-desc">Modern smooth activations. <code style="color:var(--code)">gelu</code> used in BERT/GPT. <code style="color:var(--code)">swish</code> in EfficientNet.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 5. tf.data -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="data" style="--section-color: var(--c-data)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-data) 15%, transparent)">🌊</div>
+    <div><div class="section-title" style="color:var(--c-data)">tf.data</div></div>
+    <div class="section-desc">Build efficient input pipelines</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Dataset Creation</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.data.Dataset.</span>from_tensor_slices</div>
+        <div class="fn-sig">(tensors)</div>
+        <div class="fn-desc">Creates a dataset from NumPy arrays or tensors. Slices the first dimension — each element is one sample. Most common for in-memory data.</div>
+        <div class="fn-tags"><span class="tag">most common</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.data.Dataset.</span>from_generator</div>
+        <div class="fn-sig">(generator, output_signature=None, output_types=None, output_shapes=None, args=None)</div>
+        <div class="fn-desc">Wraps a Python generator. Use <code style="color:var(--code)">output_signature</code> with <code style="color:var(--code)">TensorSpec</code> for TF2 style.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.data.Dataset.</span>from_tensors</div>
+        <div class="fn-sig">(tensors)</div>
+        <div class="fn-desc">Creates a single-element dataset (the whole tensor as one item). Different from <code style="color:var(--code)">from_tensor_slices</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.data.</span>TFRecordDataset</div>
+        <div class="fn-sig">(filenames, compression_type='', buffer_size=None, num_parallel_reads=None)</div>
+        <div class="fn-desc">Reads TFRecord files. The standard format for large datasets in TF. Pair with <code style="color:var(--code)">tf.io.parse_single_example</code>.</div>
+        <div class="fn-tags"><span class="tag">large scale</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.data.</span>TextLineDataset</div>
+        <div class="fn-sig">(filenames, compression_type='', buffer_size=None, num_parallel_reads=None)</div>
+        <div class="fn-desc">Creates a dataset by reading lines from text files.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.data.Dataset.</span>range</div>
+        <div class="fn-sig">(*args, output_type=tf.int64)</div>
+        <div class="fn-desc">Creates a dataset of integers from a range. Useful for testing pipelines.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Transformations (chainable)</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">dataset.</span>map</div>
+        <div class="fn-sig">(map_func, num_parallel_calls=None, deterministic=None, name=None)</div>
+        <div class="fn-desc">Applies a function to each element. Set <code style="color:var(--code)">num_parallel_calls=tf.data.AUTOTUNE</code> for speed.</div>
+        <div class="fn-tags"><span class="tag">essential</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">dataset.</span>filter</div>
+        <div class="fn-sig">(predicate, name=None)</div>
+        <div class="fn-desc">Filters elements where <code style="color:var(--code)">predicate(element)</code> returns True.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">dataset.</span>batch</div>
+        <div class="fn-sig">(batch_size, drop_remainder=False, num_parallel_calls=None, deterministic=None, name=None)</div>
+        <div class="fn-desc">Batches consecutive elements. <code style="color:var(--code)">drop_remainder=True</code> for fixed batch sizes (required by some models).</div>
+        <div class="fn-tags"><span class="tag">essential</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">dataset.</span>shuffle</div>
+        <div class="fn-sig">(buffer_size, seed=None, reshuffle_each_iteration=True, name=None)</div>
+        <div class="fn-desc">Randomly shuffles using a buffer. Rule of thumb: <code style="color:var(--code)">buffer_size</code> ≥ dataset size for uniform shuffle.</div>
+        <div class="fn-tags"><span class="tag">essential</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">dataset.</span>prefetch</div>
+        <div class="fn-sig">(buffer_size, name=None)</div>
+        <div class="fn-desc">Overlaps data prep and model execution. Always use <code style="color:var(--code)">tf.data.AUTOTUNE</code> at the end of your pipeline.</div>
+        <div class="fn-tags"><span class="tag">performance</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">dataset.</span>cache</div>
+        <div class="fn-sig">(filename='', name=None)</div>
+        <div class="fn-desc">Caches elements in memory (default) or on disk. Speeds up repeated epochs significantly.</div>
+        <div class="fn-tags"><span class="tag">performance</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">dataset.</span>repeat</div>
+        <div class="fn-sig">(count=None, name=None)</div>
+        <div class="fn-desc">Repeats the dataset <code style="color:var(--code)">count</code> times. <code style="color:var(--code)">None</code> repeats indefinitely.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">dataset.</span>flat_map / interleave</div>
+        <div class="fn-sig">(map_func, cycle_length=None, block_length=1, num_parallel_calls=None)</div>
+        <div class="fn-desc"><code style="color:var(--code)">flat_map</code>: map + flatten one level. <code style="color:var(--code)">interleave</code>: interleaves outputs (use for reading multiple files in parallel).</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">dataset.</span>take / skip</div>
+        <div class="fn-sig">(count, name=None)</div>
+        <div class="fn-desc"><code style="color:var(--code)">take(n)</code> returns first n elements. <code style="color:var(--code)">skip(n)</code> skips the first n.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">dataset.</span>zip</div>
+        <div class="fn-sig">(datasets, name=None)</div>
+        <div class="fn-desc">Zips multiple datasets together element-wise. Use for (features, labels) pairing.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">dataset.</span>padded_batch</div>
+        <div class="fn-sig">(batch_size, padded_shapes=None, padding_values=None, drop_remainder=False)</div>
+        <div class="fn-desc">Batches variable-length sequences by padding. Essential for NLP pipelines.</div>
+        <div class="fn-tags"><span class="tag">nlp</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 6. tf.nn -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="nn" style="--section-color: var(--c-nn)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-nn) 15%, transparent)">🔮</div>
+    <div><div class="section-title" style="color:var(--c-nn)">tf.nn</div></div>
+    <div class="section-desc">Low-level neural network primitives</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.nn.</span>relu / relu6 / leaky_relu / elu / selu / gelu / swish</div>
+      <div class="fn-sig">(features, name=None)</div>
+      <div class="fn-desc">Raw activation functions. Use <code style="color:var(--code)">tf.keras.activations</code> for string-based access in layers.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.nn.</span>softmax / sigmoid / tanh / log_softmax</div>
+      <div class="fn-sig">(logits, axis=-1, name=None)</div>
+      <div class="fn-desc">Output activations. <code style="color:var(--code)">log_softmax</code> more numerically stable for NLL losses.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.nn.</span>conv2d</div>
+      <div class="fn-sig">(input, filters, strides, padding, data_format='NHWC', dilations=None, name=None)</div>
+      <div class="fn-desc">Raw 2D convolution op. Most users use <code style="color:var(--code)">layers.Conv2D</code> instead.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.nn.</span>max_pool2d / avg_pool2d</div>
+      <div class="fn-sig">(input, ksize, strides, padding, data_format='NHWC', name=None)</div>
+      <div class="fn-desc">Raw pooling ops.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.nn.</span>dropout</div>
+      <div class="fn-sig">(x, rate, noise_shape=None, seed=None, name=None)</div>
+      <div class="fn-desc">Applies dropout. <code style="color:var(--code)">rate</code> is the drop probability (0.2 → keep 80%).</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.nn.</span>batch_normalization</div>
+      <div class="fn-sig">(x, mean, variance, offset, scale, variance_epsilon, name=None)</div>
+      <div class="fn-desc">Raw batch norm op — requires pre-computed mean/variance. Use <code style="color:var(--code)">layers.BatchNormalization</code> for automatic stats.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.nn.</span>embedding_lookup</div>
+      <div class="fn-sig">(params, ids, max_norm=None, name=None)</div>
+      <div class="fn-desc">Looks up rows in an embedding matrix by integer indices. Equivalent to <code style="color:var(--code)">layers.Embedding</code>.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.nn.</span>sparse_softmax_cross_entropy_with_logits</div>
+      <div class="fn-sig">(labels, logits, name=None)</div>
+      <div class="fn-desc">Fused numerically-stable cross-entropy from logits. Faster and more stable than softmax + log + CE separately.</div>
+      <div class="fn-tags"><span class="tag">numerically stable</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.nn.</span>sigmoid_cross_entropy_with_logits</div>
+      <div class="fn-sig">(labels, logits, name=None)</div>
+      <div class="fn-desc">Fused numerically stable binary cross-entropy from logits.</div>
+      <div class="fn-tags"><span class="tag">numerically stable</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.nn.</span>l2_normalize</div>
+      <div class="fn-sig">(x, axis=None, epsilon=1e-12, name=None)</div>
+      <div class="fn-desc">Normalises along <code style="color:var(--code)">axis</code> to unit L2 norm. Used in metric learning.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.nn.</span>moments</div>
+      <div class="fn-sig">(x, axes, shift=None, keepdims=False, name=None)</div>
+      <div class="fn-desc">Computes mean and variance of <code style="color:var(--code)">x</code> over given axes. Used in manual batch norm.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.nn.</span>ctc_loss / ctc_greedy_decoder</div>
+      <div class="fn-sig">(labels, logits, ...)</div>
+      <div class="fn-desc">Connectionist Temporal Classification — for sequence labelling (speech, OCR) without forced alignment.</div>
+      <div class="fn-tags"><span class="tag">sequence</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 7. tf.math -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="math" style="--section-color: var(--c-math)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-math) 15%, transparent)">∑</div>
+    <div><div class="section-title" style="color:var(--c-math)">tf.math</div></div>
+    <div class="section-desc">Element-wise and reduction operations</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Element-wise</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.math.</span>add / subtract / multiply / divide / floordiv / mod</div>
+        <div class="fn-sig">(x, y, name=None)</div>
+        <div class="fn-desc">Basic arithmetic. Operator overloads (<code style="color:var(--code)">+  -  *  /  //  %</code>) also work on tensors.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.math.</span>pow / sqrt / exp / log / log1p</div>
+        <div class="fn-sig">(x, y=None, name=None)</div>
+        <div class="fn-desc">Power and logarithmic ops. <code style="color:var(--code)">log1p(x) = log(1+x)</code> — stable for small <code style="color:var(--code)">x</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.math.</span>abs / negative / sign / ceil / floor / round</div>
+        <div class="fn-sig">(x, name=None)</div>
+        <div class="fn-desc">Common unary ops.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.math.</span>sin / cos / tan / asin / acos / atan / atan2</div>
+        <div class="fn-sig">(x, name=None)</div>
+        <div class="fn-desc">Trigonometric functions.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.math.</span>maximum / minimum</div>
+        <div class="fn-sig">(x, y, name=None)</div>
+        <div class="fn-desc">Element-wise max/min. Note: different from <code style="color:var(--code)">tf.reduce_max</code> (which reduces over an axis).</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.math.</span>equal / not_equal / less / less_equal / greater / greater_equal</div>
+        <div class="fn-sig">(x, y, name=None)</div>
+        <div class="fn-desc">Element-wise comparisons — return bool tensors.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.math.</span>logical_and / logical_or / logical_not / logical_xor</div>
+        <div class="fn-sig">(x, y, name=None)</div>
+        <div class="fn-desc">Boolean element-wise ops. Inputs must be bool dtype.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Reductions</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>reduce_sum</div>
+        <div class="fn-sig">(input_tensor, axis=None, keepdims=False, name=None)</div>
+        <div class="fn-desc">Sum over specified axes. <code style="color:var(--code)">axis=None</code> sums all elements.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>reduce_mean</div>
+        <div class="fn-sig">(input_tensor, axis=None, keepdims=False, name=None)</div>
+        <div class="fn-desc">Mean over specified axes.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>reduce_max / reduce_min</div>
+        <div class="fn-sig">(input_tensor, axis=None, keepdims=False, name=None)</div>
+        <div class="fn-desc">Max/min over axes. <code style="color:var(--code)">tf.argmax / tf.argmin</code> return the index of the max/min.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>reduce_prod</div>
+        <div class="fn-sig">(input_tensor, axis=None, keepdims=False, name=None)</div>
+        <div class="fn-desc">Product of elements over axes.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>reduce_any / reduce_all</div>
+        <div class="fn-sig">(input_tensor, axis=None, keepdims=False, name=None)</div>
+        <div class="fn-desc">Logical OR / AND reduction over axes. Input must be bool.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.math.</span>cumsum / cumprod</div>
+        <div class="fn-sig">(x, axis=0, exclusive=False, reverse=False, name=None)</div>
+        <div class="fn-desc">Cumulative sum/product along an axis. <code style="color:var(--code)">exclusive=True</code> excludes the current element.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>tensordot</div>
+        <div class="fn-sig">(a, b, axes, name=None)</div>
+        <div class="fn-desc">Generalised dot product over specified axes. Mirrors <code style="color:var(--code)">np.tensordot</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>matmul</div>
+        <div class="fn-sig">(a, b, transpose_a=False, transpose_b=False, adjoint_a=False, adjoint_b=False, a_is_sparse=False, b_is_sparse=False, output_type=None, name=None)</div>
+        <div class="fn-desc">Matrix multiplication. Supports batched matmul for 3D+ tensors. Equivalent to <code style="color:var(--code)">a @ b</code>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 8. tf.linalg -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="linalg" style="--section-color: var(--c-linalg)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-linalg) 15%, transparent)">🔷</div>
+    <div><div class="section-title" style="color:var(--c-linalg)">tf.linalg</div></div>
+    <div class="section-desc">Linear algebra operations</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.linalg.</span>det</div>
+      <div class="fn-sig">(input, name=None)</div>
+      <div class="fn-desc">Computes the determinant of one or more square matrices.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.linalg.</span>inv</div>
+      <div class="fn-sig">(input, adjoint=False, name=None)</div>
+      <div class="fn-desc">Computes the inverse of one or more invertible matrices.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.linalg.</span>solve</div>
+      <div class="fn-sig">(matrix, rhs, adjoint=False, name=None)</div>
+      <div class="fn-desc">Solves linear equations <code style="color:var(--code)">Ax = b</code>. More stable than explicit inverse.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.linalg.</span>svd</div>
+      <div class="fn-sig">(tensor, full_matrices=True, compute_uv=True, name=None)</div>
+      <div class="fn-desc">Singular Value Decomposition. Returns (s, u, v) where <code style="color:var(--code)">a ≈ u @ diag(s) @ v^T</code>.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.linalg.</span>eig / eigvals</div>
+      <div class="fn-sig">(tensor, name=None)</div>
+      <div class="fn-desc">Computes eigenvalues (and optionally eigenvectors) of a square matrix.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.linalg.</span>cholesky</div>
+      <div class="fn-sig">(input, name=None)</div>
+      <div class="fn-desc">Cholesky decomposition. Input must be symmetric positive definite.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.linalg.</span>norm</div>
+      <div class="fn-sig">(tensor, ord='euclidean', axis=None, keepdims=False, name=None)</div>
+      <div class="fn-desc">Computes vector/matrix norms. <code style="color:var(--code)">ord</code>: 'euclidean', 1, 2, np.inf, 'fro', 'nuc'.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.linalg.</span>trace</div>
+      <div class="fn-sig">(x, name=None)</div>
+      <div class="fn-desc">Sum of diagonal elements of each matrix in a batch.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.linalg.</span>diag / diag_part</div>
+      <div class="fn-sig">(diagonal, ...) / (input, ...)</div>
+      <div class="fn-desc"><code style="color:var(--code)">diag</code>: construct diagonal matrix. <code style="color:var(--code)">diag_part</code>: extract diagonal.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.linalg.</span>band_part</div>
+      <div class="fn-sig">(input, num_lower, num_upper, name=None)</div>
+      <div class="fn-desc">Zeroes out bands outside a band. <code style="color:var(--code)">band_part(x, -1, 0)</code> = lower triangular. Used for causal masks.</div>
+      <div class="fn-tags"><span class="tag">masking</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 9. tf.image -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="image" style="--section-color: var(--c-image)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-image) 15%, transparent)">🖼</div>
+    <div><div class="section-title" style="color:var(--c-image)">tf.image</div></div>
+    <div class="section-desc">Image preprocessing and augmentation ops</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.image.</span>resize</div>
+      <div class="fn-sig">(images, size, method=ResizeMethod.BILINEAR, preserve_aspect_ratio=False, antialias=False, name=None)</div>
+      <div class="fn-desc">Resizes images to <code style="color:var(--code)">size=[height, width]</code>. Methods: BILINEAR, NEAREST_NEIGHBOR, BICUBIC, LANCZOS3.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.image.</span>decode_jpeg / decode_png / decode_image</div>
+      <div class="fn-sig">(contents, channels=0, ...)</div>
+      <div class="fn-desc">Decodes raw image bytes to a uint8 tensor. <code style="color:var(--code)">decode_image</code> handles JPEG, PNG, GIF, BMP automatically.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.image.</span>encode_jpeg / encode_png</div>
+      <div class="fn-sig">(image, quality=95, ...)</div>
+      <div class="fn-desc">Encodes a tensor to JPEG/PNG bytes.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.image.</span>random_flip_left_right / random_flip_up_down</div>
+      <div class="fn-sig">(image, seed=None)</div>
+      <div class="fn-desc">Randomly flips images for augmentation.</div>
+      <div class="fn-tags"><span class="tag">augmentation</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.image.</span>random_crop</div>
+      <div class="fn-sig">(value, size, seed=None, name=None)</div>
+      <div class="fn-desc">Crops a random sub-region of <code style="color:var(--code)">size</code>.</div>
+      <div class="fn-tags"><span class="tag">augmentation</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.image.</span>random_brightness / random_contrast / random_saturation / random_hue</div>
+      <div class="fn-sig">(image, max_delta / lower,upper / ...)</div>
+      <div class="fn-desc">Color augmentation ops. Each randomly adjusts the respective channel property.</div>
+      <div class="fn-tags"><span class="tag">augmentation</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.image.</span>per_image_standardization</div>
+      <div class="fn-sig">(image)</div>
+      <div class="fn-desc">Normalises each image to zero-mean, unit-variance independently. Alternative to global normalisation.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.image.</span>adjust_gamma</div>
+      <div class="fn-sig">(image, gamma=1, gain=1)</div>
+      <div class="fn-desc">Applies gamma correction: <code style="color:var(--code)">output = gain * image^gamma</code>.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.image.</span>rgb_to_grayscale / grayscale_to_rgb</div>
+      <div class="fn-sig">(images, name=None)</div>
+      <div class="fn-desc">Colour space conversions using luminance formula.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.image.</span>central_crop</div>
+      <div class="fn-sig">(image, central_fraction)</div>
+      <div class="fn-desc">Crops a centre fraction of an image. <code style="color:var(--code)">central_fraction=0.8</code> keeps the central 80%.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.image.</span>non_max_suppression</div>
+      <div class="fn-sig">(boxes, scores, max_output_size, iou_threshold=0.5, score_threshold=-inf)</div>
+      <div class="fn-desc">NMS for object detection — removes overlapping bounding boxes based on IoU threshold.</div>
+      <div class="fn-tags"><span class="tag">detection</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 10. AUTODIFF & tf.function -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="autodiff" style="--section-color: var(--c-train)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-train) 15%, transparent)">∇</div>
+    <div><div class="section-title" style="color:var(--c-train)">Autodiff &amp; tf.function</div></div>
+    <div class="section-desc">Custom training loops, gradient tapes, and graph compilation</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">GradientTape — custom training</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>GradientTape</div>
+        <div class="fn-sig">(persistent=False, watch_externals=True)</div>
+        <div class="fn-desc">Records operations for automatic differentiation. Use <code style="color:var(--code)">with tf.GradientTape() as tape:</code>. <code style="color:var(--code)">persistent=True</code> allows multiple <code style="color:var(--code)">gradient()</code> calls.</div>
+        <div class="fn-tags"><span class="tag">context manager</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tape.</span>gradient</div>
+        <div class="fn-sig">(target, sources, output_gradients=None, unconnected_gradients='none')</div>
+        <div class="fn-desc">Computes gradient of <code style="color:var(--code)">target</code> w.r.t. each source. Returns list of tensors (same structure as sources).</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tape.</span>jacobian</div>
+        <div class="fn-sig">(target, source, unconnected_gradients='none', parallel_iterations=None, experimental_use_pfor=True)</div>
+        <div class="fn-desc">Computes full Jacobian matrix. Expensive — use only when you need per-sample gradients.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tape.</span>watch</div>
+        <div class="fn-sig">(tensor)</div>
+        <div class="fn-desc">Explicitly watches a non-Variable tensor. <code style="color:var(--code)">tf.Variable</code> is watched automatically.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">optimizer.</span>apply_gradients</div>
+        <div class="fn-sig">(grads_and_vars, name=None)</div>
+        <div class="fn-desc">Applies a list of <code style="color:var(--code)">(gradient, variable)</code> pairs. Typical custom loop: tape → gradient → clip → apply_gradients.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>clip_by_norm / clip_by_global_norm / clip_by_value</div>
+        <div class="fn-sig">(t, clip_norm / t_list, clip_norm / t, clip_value_min, clip_value_max)</div>
+        <div class="fn-desc">Gradient clipping. <code style="color:var(--code)">clip_by_global_norm</code> is the standard approach (clips based on the total gradient norm).</div>
+        <div class="fn-tags"><span class="tag">gradient clipping</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">tf.function — graph compilation</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">@</span>tf.function</div>
+        <div class="fn-sig">(func=None, input_signature=None, autograph=True, jit_compile=False, reduce_retracing=False, ...)</div>
+        <div class="fn-desc">Traces a Python function into a static TF graph for ~2–10× speed-up. First call traces; subsequent calls reuse the graph unless inputs have new shapes.</div>
+        <div class="fn-tags"><span class="tag">decorator</span><span class="tag">performance</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>autograph.experimental.do_not_convert</div>
+        <div class="fn-sig">(func)</div>
+        <div class="fn-desc">Prevents AutoGraph from converting a function — use if you need pure Python control flow inside <code style="color:var(--code)">tf.function</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>py_function</div>
+        <div class="fn-sig">(func, inp, Tout, name=None)</div>
+        <div class="fn-desc">Wraps arbitrary Python code as a TF op. Runs eagerly — no graph compilation. Use as escape hatch for non-TF ops.</div>
+        <div class="fn-tags"><span class="tag">escape hatch</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>numpy_function</div>
+        <div class="fn-sig">(func, inp, Tout, stateful=True, name=None)</div>
+        <div class="fn-desc">Like <code style="color:var(--code)">py_function</code> but inputs are automatically converted to NumPy arrays for <code style="color:var(--code)">func</code>.</div>
+        <div class="fn-tags"><span class="tag">escape hatch</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>cond</div>
+        <div class="fn-sig">(pred, true_fn, false_fn, name=None)</div>
+        <div class="fn-desc">Graph-compatible if/else. Use inside <code style="color:var(--code)">@tf.function</code> for conditional branching.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.</span>while_loop</div>
+        <div class="fn-sig">(cond, body, loop_vars, ...)</div>
+        <div class="fn-desc">Graph-compatible while loop. Supports back-propagation through loop iterations.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 11. tf.distribute -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="distribute" style="--section-color: var(--c-dist)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-dist) 15%, transparent)">🌐</div>
+    <div><div class="section-title" style="color:var(--c-dist)">tf.distribute</div></div>
+    <div class="section-desc">Multi-GPU and multi-machine training strategies</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.distribute.</span>MirroredStrategy</div>
+      <div class="fn-sig">(devices=None, cross_device_ops=None)</div>
+      <div class="fn-desc">Synchronous training across multiple GPUs on one machine. The standard strategy for single-machine multi-GPU. Create model inside <code style="color:var(--code)">strategy.scope()</code>.</div>
+      <div class="fn-tags"><span class="tag">single machine</span><span class="tag">most common</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.distribute.</span>MultiWorkerMirroredStrategy</div>
+      <div class="fn-sig">(cluster_resolver=None, communication_options=None)</div>
+      <div class="fn-desc">Synchronous training across multiple machines. Set <code style="color:var(--code)">TF_CONFIG</code> env var on each worker.</div>
+      <div class="fn-tags"><span class="tag">multi-machine</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.distribute.</span>TPUStrategy</div>
+      <div class="fn-sig">(tpu_cluster_resolver=None)</div>
+      <div class="fn-desc">Synchronous training on Google TPUs. Requires <code style="color:var(--code)">tf.tpu.experimental.initialize_tpu_system()</code>.</div>
+      <div class="fn-tags"><span class="tag">tpu</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.distribute.</span>ParameterServerStrategy</div>
+      <div class="fn-sig">(cluster_resolver, variable_partitioner=None)</div>
+      <div class="fn-desc">Asynchronous training with parameter servers. For very large model training.</div>
+      <div class="fn-tags"><span class="tag">async</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">tf.distribute.</span>OneDeviceStrategy</div>
+      <div class="fn-sig">(device)</div>
+      <div class="fn-desc">Runs on a single device (CPU or single GPU). Useful for debugging multi-GPU code on CPU.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">strategy.</span>scope</div>
+      <div class="fn-sig">()</div>
+      <div class="fn-desc">Context manager. All variables created inside are mirrored across devices. Build + compile model here.</div>
+      <div class="fn-tags"><span class="tag">context manager</span><span class="tag">essential</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">strategy.</span>experimental_distribute_dataset</div>
+      <div class="fn-sig">(dataset, options=None)</div>
+      <div class="fn-desc">Shards a <code style="color:var(--code)">tf.data.Dataset</code> across devices. Used in custom training loops with <code style="color:var(--code)">strategy.run()</code>.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">strategy.</span>run</div>
+      <div class="fn-sig">(fn, args=(), kwargs=None, options=None)</div>
+      <div class="fn-desc">Runs <code style="color:var(--code)">fn</code> on each replica. Use in custom loops instead of calling the train step directly.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 12. SAVING & IO -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="io" style="--section-color: var(--c-saved)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-saved) 15%, transparent)">💾</div>
+    <div><div class="section-title" style="color:var(--c-saved)">Saving &amp; IO</div></div>
+    <div class="section-desc">Model serialization, checkpoints, and file IO</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Model Saving</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.keras.models.</span>save_model / load_model</div>
+        <div class="fn-sig">(model, filepath, overwrite=True, save_format=None, ...) / (filepath, custom_objects=None, compile=True)</div>
+        <div class="fn-desc">Save in SavedModel (dir) or Keras format (<code style="color:var(--code)">.keras</code>, preferred in TF2.12+). Includes architecture, weights, optimizer.</div>
+        <div class="fn-tags"><span class="tag">recommended</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">model.</span>save_weights / load_weights</div>
+        <div class="fn-sig">(filepath, overwrite=True, save_format=None) / (filepath, by_name=False, skip_mismatch=False)</div>
+        <div class="fn-desc">Saves only weights (not architecture). Supports <code style="color:var(--code)">.h5</code>, TF checkpoint, or <code style="color:var(--code)">.weights.h5</code> formats.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.saved_model.</span>save / load</div>
+        <div class="fn-sig">(obj, export_dir, signatures=None, ...) / (export_dir, tags=None)</div>
+        <div class="fn-desc">Lower-level SavedModel API. Works with any <code style="color:var(--code)">tf.Module</code>, not just Keras models. Output deployable to TF Serving.</div>
+        <div class="fn-tags"><span class="tag">deployment</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Checkpoints</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.train.</span>Checkpoint</div>
+        <div class="fn-sig">(**kwargs)</div>
+        <div class="fn-desc">Tracks and restores any <code style="color:var(--code)">tf.Variable</code>, model, or optimizer. More granular than Keras save.</div>
+        <div class="fn-tags"><span class="tag">class</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">checkpoint.</span>save / restore</div>
+        <div class="fn-sig">(file_prefix) / (save_path)</div>
+        <div class="fn-desc"><code style="color:var(--code)">save()</code> writes checkpoint files. <code style="color:var(--code)">restore()</code> loads them. Use with <code style="color:var(--code)">CheckpointManager</code> to keep only the latest N.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.train.</span>CheckpointManager</div>
+        <div class="fn-sig">(checkpoint, directory, max_to_keep=5, keep_checkpoint_every_n_hours=None)</div>
+        <div class="fn-desc">Manages checkpoint files — auto-deletes old ones. <code style="color:var(--code)">.latest_checkpoint</code> returns the most recent path.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">tf.io — File operations</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.io.</span>read_file / write_file</div>
+        <div class="fn-sig">(filename, name=None) / (filename, contents, name=None)</div>
+        <div class="fn-desc">Reads/writes a file as a string tensor. Works in <code style="color:var(--code)">tf.function</code> and on GCS/HDFS paths.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.io.</span>parse_single_example / parse_example</div>
+        <div class="fn-sig">(serialized, features, name=None)</div>
+        <div class="fn-desc">Parses a serialized TFRecord example. <code style="color:var(--code)">features</code> is a dict mapping names to <code style="color:var(--code)">tf.io.FixedLenFeature</code> or <code style="color:var(--code)">VarLenFeature</code>.</div>
+        <div class="fn-tags"><span class="tag">tfrecord</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.io.</span>TFRecordWriter</div>
+        <div class="fn-sig">(path, options=None)</div>
+        <div class="fn-desc">Writes TFRecord files. Use <code style="color:var(--code)">tf.train.Example</code> + <code style="color:var(--code)">writer.write(example.SerializeToString())</code>.</div>
+        <div class="fn-tags"><span class="tag">tfrecord</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.io.</span>gfile.GFile / exists / listdir / makedirs / copy / remove</div>
+        <div class="fn-sig">(filename, mode) / (path) / (path) / (path) / (src, dst)</div>
+        <div class="fn-desc">Filesystem ops compatible with local, GCS (<code style="color:var(--code)">gs://</code>), HDFS, and S3 paths.</div>
+        <div class="fn-tags"><span class="tag">cloud storage</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 13. TFLite & TF-TRT -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="lite" style="--section-color: var(--c-lite)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-lite) 15%, transparent)">📱</div>
+    <div><div class="section-title" style="color:var(--c-lite)">TFLite &amp; Deployment</div></div>
+    <div class="section-desc">Quantization, optimization, and edge deployment</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">TFLite Converter</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.lite.</span>TFLiteConverter.from_keras_model</div>
+        <div class="fn-sig">(model)</div>
+        <div class="fn-desc">Creates a converter from a Keras model. Most common entry point for edge deployment.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.lite.</span>TFLiteConverter.from_saved_model</div>
+        <div class="fn-sig">(saved_model_dir, signature_keys=None, tags=None)</div>
+        <div class="fn-desc">Creates a converter from a SavedModel directory.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">converter.</span>optimizations</div>
+        <div class="fn-sig">= [tf.lite.Optimize.DEFAULT]</div>
+        <div class="fn-desc">Enables post-training quantization. <code style="color:var(--code)">DEFAULT</code> applies dynamic range quantization (~4× model size reduction).</div>
+        <div class="fn-tags"><span class="tag">quantization</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">converter.</span>representative_dataset</div>
+        <div class="fn-sig">= representative_data_gen (generator function)</div>
+        <div class="fn-desc">Required for full integer quantization. Generator yields batches of representative input data.</div>
+        <div class="fn-tags"><span class="tag">int8 quantization</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">converter.</span>convert</div>
+        <div class="fn-sig">() → bytes</div>
+        <div class="fn-desc">Returns the TFLite flatbuffer. Write to <code style="color:var(--code)">.tflite</code> file with <code style="color:var(--code)">open('model.tflite', 'wb').write(tflite_model)</code>.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">TFLite Interpreter (inference)</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.lite.</span>Interpreter</div>
+        <div class="fn-sig">(model_path=None, model_content=None, num_threads=None)</div>
+        <div class="fn-desc">Loads a <code style="color:var(--code)">.tflite</code> model for inference on device.</div>
+        <div class="fn-tags"><span class="tag">class</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">interpreter.</span>allocate_tensors / get_input_details / get_output_details</div>
+        <div class="fn-sig">() / () / ()</div>
+        <div class="fn-desc">Must call <code style="color:var(--code)">allocate_tensors()</code> before inference. Details give index, shape, dtype for each tensor.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">interpreter.</span>set_tensor / invoke / get_tensor</div>
+        <div class="fn-sig">(index, value) / () / (index)</div>
+        <div class="fn-desc">Full inference sequence: set input → invoke → get output. Use indices from <code style="color:var(--code)">get_input/output_details()</code>.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">tf.keras Application Models (pretrained)</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.keras.applications.</span>ResNet50 / ResNet101 / ResNet152</div>
+        <div class="fn-sig">(include_top=True, weights='imagenet', input_shape=None, pooling=None, classes=1000)</div>
+        <div class="fn-desc">ResNet family. <code style="color:var(--code)">include_top=False</code> for transfer learning — removes classification head.</div>
+        <div class="fn-tags"><span class="tag">pretrained</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.keras.applications.</span>EfficientNetB0–B7 / EfficientNetV2S/M/L</div>
+        <div class="fn-sig">(include_top=True, weights='imagenet', input_shape=None, ...)</div>
+        <div class="fn-desc">State-of-the-art CNN family. B0 smallest, B7 largest. V2 variants are faster to train.</div>
+        <div class="fn-tags"><span class="tag">pretrained</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.keras.applications.</span>MobileNetV2 / MobileNetV3Small / Large</div>
+        <div class="fn-sig">(include_top=True, weights='imagenet', alpha=1.0, ...)</div>
+        <div class="fn-desc">Lightweight models optimised for mobile/edge. Best for TFLite deployment.</div>
+        <div class="fn-tags"><span class="tag">pretrained</span><span class="tag">edge</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.keras.applications.</span>VGG16 / VGG19</div>
+        <div class="fn-sig">(include_top=True, weights='imagenet', input_shape=None, ...)</div>
+        <div class="fn-desc">Classic VGG architecture. Useful for feature extraction and style transfer.</div>
+        <div class="fn-tags"><span class="tag">pretrained</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">tf.keras.applications.</span>InceptionV3 / Xception</div>
+        <div class="fn-sig">(include_top=True, weights='imagenet', input_shape=None, ...)</div>
+        <div class="fn-desc">Inception family. Xception uses depthwise separable convolutions throughout.</div>
+        <div class="fn-tags"><span class="tag">pretrained</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">preprocess_input (per-model)</div>
+        <div class="fn-sig">(x)</div>
+        <div class="fn-desc">Each application module exposes its own <code style="color:var(--code)">preprocess_input(x)</code>. Always call it before feeding images to pretrained models.</div>
+        <div class="fn-tags"><span class="tag">essential</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const search = document.getElementById('search');
+  search.addEventListener('input', () => {
+    const q = search.value.toLowerCase().trim();
+    document.querySelectorAll('.fn-card').forEach(card => {
+      card.classList.toggle('hidden', q.length > 0 && !card.textContent.toLowerCase().includes(q));
+    });
+    document.querySelectorAll('.section').forEach(sec => {
+      const vis = [...sec.querySelectorAll('.fn-card')].filter(c => !c.classList.contains('hidden'));
+      sec.style.display = (q.length > 0 && vis.length === 0) ? 'none' : '';
+    });
+    document.querySelectorAll('.subsection').forEach(sub => {
+      const vis = [...sub.querySelectorAll('.fn-card')].filter(c => !c.classList.contains('hidden'));
+      sub.style.display = (q.length > 0 && vis.length === 0) ? 'none' : '';
+    });
+  });
+
+  function setActive(el) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        document.querySelectorAll('.nav-item').forEach(item => {
+          item.classList.toggle('active', item.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '-80px 0px -60% 0px' });
+  document.querySelectorAll('.section').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
