@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeepEval Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@400;600;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f13;
+    --surface: #16181f;
+    --surface2: #1d2029;
+    --border: #272b38;
+    --accent: #22d3ee;
+    --text: #e8eaf2;
+    --muted: #7a7f96;
+    --code: #a8d8a8;
+
+    --c-core:     #22d3ee;
+    --c-metrics:  #f97316;
+    --c-rag:      #c084fc;
+    --c-conv:     #34d399;
+    --c-custom:   #fbbf24;
+    --c-safety:   #fb7185;
+    --c-eval:     #6c8ef5;
+    --c-synth:    #38bdf8;
+    --c-bench:    #a3e635;
+    --c-llm:      #e879f9;
+    --c-red:      #f43f5e;
+    --c-trace:    #818cf8;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 40px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo span { color: var(--accent); }
+
+  .back-link {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--accent); }
+
+  .search-wrap { margin-left: auto; position: relative; }
+  #search {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 8px 14px 8px 36px;
+    width: 260px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #search:focus { border-color: var(--accent); }
+  #search::placeholder { color: var(--muted); }
+  .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 13px; pointer-events: none; }
+
+  .layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 80px); }
+
+  nav {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 81px;
+    height: calc(100vh - 81px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  nav::-webkit-scrollbar { width: 4px; }
+  nav::-webkit-scrollbar-track { background: transparent; }
+  nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .nav-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); padding: 12px 20px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 20px; cursor: pointer; transition: background 0.15s, color 0.15s; font-size: 13px; color: var(--muted); text-decoration: none; border-left: 2px solid transparent; }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { color: var(--text); border-left-color: var(--accent); background: var(--surface2); }
+  .nav-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  main { padding: 40px; max-width: 1100px; }
+
+  .section { margin-bottom: 56px; scroll-margin-top: 100px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+  .section-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .section-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -0.3px; }
+  .section-desc { color: var(--muted); font-size: 13px; margin-left: auto; font-style: italic; }
+
+  .fn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+
+  .fn-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .fn-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--section-color, var(--accent)); border-radius: 10px 0 0 10px; }
+  .fn-card:hover { background: var(--surface2); border-color: var(--section-color, var(--accent)); }
+
+  .fn-name { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600; color: var(--code); margin-bottom: 4px; }
+  .fn-name .prefix { color: var(--muted); font-weight: 400; }
+  .fn-sig { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--muted); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fn-desc { font-size: 12px; color: #a0a4b8; line-height: 1.5; }
+  .fn-tags { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+  .tag { font-family: 'IBM Plex Mono', monospace; font-size: 9px; padding: 2px 6px; border-radius: 4px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); letter-spacing: 0.3px; }
+
+  .subsection { margin-bottom: 24px; }
+  .subsection-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .subsection-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* param enum tables */
+  .param-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 12px; }
+  .param-table th { background: var(--surface2); color: var(--muted); font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 7px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  .param-table td { padding: 7px 12px; border-bottom: 1px solid var(--border); color: #a0a4b8; vertical-align: top; }
+  .param-table td:first-child { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--code); white-space: nowrap; }
+  .param-table tr:last-child td { border-bottom: none; }
+  .param-table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+  .param-table-title { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); padding: 10px 12px 0; letter-spacing: 0.5px; text-transform: uppercase; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { display: none; }
+    main { padding: 20px; }
+    #search { width: 180px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <rect width="28" height="28" rx="6" fill="#22d3ee" opacity="0.15"/>
+      <circle cx="14" cy="10" r="3" stroke="#22d3ee" stroke-width="2"/>
+      <path d="M8 22 C8 17 20 17 20 22" stroke="#22d3ee" stroke-width="2" stroke-linecap="round"/>
+      <path d="M17 12 L22 8 M17 14 L22 16" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    DeepEval <span>Reference</span>
+  </div>
+  <a class="back-link" href="index.html">← Back to index</a>
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input id="search" type="text" placeholder="Search classes &amp; methods..." autocomplete="off">
+  </div>
+</header>
+
+<div class="layout">
+
+<nav id="sidebar">
+  <div class="nav-label">Sections</div>
+  <a class="nav-item active" href="#core" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-core)"></span> Core Objects
+  </a>
+  <a class="nav-item" href="#metrics-llm" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-metrics)"></span> LLM Output Metrics
+  </a>
+  <a class="nav-item" href="#metrics-rag" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-rag)"></span> RAG Metrics
+  </a>
+  <a class="nav-item" href="#metrics-conv" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-conv)"></span> Conversational Metrics
+  </a>
+  <a class="nav-item" href="#metrics-custom" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-custom)"></span> Custom Metrics
+  </a>
+  <a class="nav-item" href="#metrics-safety" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-safety)"></span> Safety Metrics
+  </a>
+  <a class="nav-item" href="#evaluate" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-eval)"></span> Evaluate
+  </a>
+  <a class="nav-item" href="#synthesizer" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-synth)"></span> Synthesizer
+  </a>
+  <a class="nav-item" href="#benchmarks" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-bench)"></span> Benchmarks
+  </a>
+  <a class="nav-item" href="#llm-integration" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-llm)"></span> LLM Integration
+  </a>
+  <a class="nav-item" href="#red-teaming" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-red)"></span> Red Teaming
+  </a>
+  <a class="nav-item" href="#tracing" onclick="setActive(this)">
+    <span class="nav-dot" style="background:var(--c-trace)"></span> Tracing
+  </a>
+</nav>
+
+<main id="main">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 1. CORE OBJECTS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="section" id="core" style="--section-color: var(--c-core)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-core) 15%, transparent)">🧱</div>
+    <div>
+      <div class="section-title" style="color: var(--c-core)">Core Objects</div>
+    </div>
+    <div class="section-desc">Test cases and datasets — the inputs to every evaluation</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Test Cases</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name">LLMTestCase</div>
+        <div class="fn-sig">(input, actual_output, expected_output=None, context=None, retrieval_context=None, tools_called=None, expected_tools=None, comments=None)</div>
+        <div class="fn-desc">The fundamental unit. <code style="color:var(--code)">input</code> = user prompt, <code style="color:var(--code)">actual_output</code> = LLM response. Supply <code style="color:var(--code)">retrieval_context</code> for RAG metrics.</div>
+        <div class="fn-tags"><span class="tag">class</span><span class="tag">required</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">ConversationalTestCase</div>
+        <div class="fn-sig">(messages, chatbot_role=None)</div>
+        <div class="fn-desc">Multi-turn conversation. <code style="color:var(--code)">messages</code> is a list of <code style="color:var(--code)">LLMTestCase</code> objects representing turns. Used by conversational metrics.</div>
+        <div class="fn-tags"><span class="tag">class</span><span class="tag">multi-turn</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">MLLMTestCase</div>
+        <div class="fn-sig">(input, actual_output, expected_output=None, context=None, retrieval_context=None)</div>
+        <div class="fn-desc">Multimodal test case. <code style="color:var(--code)">input</code> and <code style="color:var(--code)">actual_output</code> accept lists of <code style="color:var(--code)">MLLMImage</code> + text.</div>
+        <div class="fn-tags"><span class="tag">class</span><span class="tag">multimodal</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">MLLMImage</div>
+        <div class="fn-sig">(url, local=False)</div>
+        <div class="fn-desc">Image wrapper for multimodal test cases. Set <code style="color:var(--code)">local=True</code> for file-path images.</div>
+        <div class="fn-tags"><span class="tag">class</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">LLMTestCaseParams — field references used in metrics</div>
+    <div class="param-table-wrap">
+      <table class="param-table">
+        <thead><tr><th>Enum Value</th><th>Maps to LLMTestCase field</th></tr></thead>
+        <tbody>
+          <tr><td>INPUT</td><td><code style="color:var(--code)">input</code></td></tr>
+          <tr><td>ACTUAL_OUTPUT</td><td><code style="color:var(--code)">actual_output</code></td></tr>
+          <tr><td>EXPECTED_OUTPUT</td><td><code style="color:var(--code)">expected_output</code></td></tr>
+          <tr><td>CONTEXT</td><td><code style="color:var(--code)">context</code> — ground truth reference docs</td></tr>
+          <tr><td>RETRIEVAL_CONTEXT</td><td><code style="color:var(--code)">retrieval_context</code> — what the RAG system actually retrieved</td></tr>
+          <tr><td>TOOLS_CALLED</td><td><code style="color:var(--code)">tools_called</code> — list of ToolCall objects</td></tr>
+          <tr><td>EXPECTED_TOOLS</td><td><code style="color:var(--code)">expected_tools</code> — list of expected ToolCall objects</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Dataset</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name">EvaluationDataset</div>
+        <div class="fn-sig">(test_cases=[], goldens=[])</div>
+        <div class="fn-desc">Collection of <code style="color:var(--code)">LLMTestCase</code> or <code style="color:var(--code)">Golden</code> objects. Push/pull from Confident AI. Iterable.</div>
+        <div class="fn-tags"><span class="tag">class</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">dataset.</span>add_test_case</div>
+        <div class="fn-sig">(test_case)</div>
+        <div class="fn-desc">Appends an <code style="color:var(--code)">LLMTestCase</code> to the dataset.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">dataset.</span>pull</div>
+        <div class="fn-sig">(alias, auto_convert_goldens_to_test_cases=True)</div>
+        <div class="fn-desc">Fetches a dataset from Confident AI by alias. Requires <code style="color:var(--code)">deepeval login</code>.</div>
+        <div class="fn-tags"><span class="tag">confident ai</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">dataset.</span>push</div>
+        <div class="fn-sig">(alias, overwrite=False)</div>
+        <div class="fn-desc">Uploads the dataset to Confident AI.</div>
+        <div class="fn-tags"><span class="tag">confident ai</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">Golden</div>
+        <div class="fn-sig">(input, expected_output=None, context=None, retrieval_context=None, ...)</div>
+        <div class="fn-desc">Like <code style="color:var(--code)">LLMTestCase</code> but without <code style="color:var(--code)">actual_output</code> — used to store examples before running inference.</div>
+        <div class="fn-tags"><span class="tag">class</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 2. LLM OUTPUT METRICS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="section" id="metrics-llm" style="--section-color: var(--c-metrics)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-metrics) 15%, transparent)">📐</div>
+    <div>
+      <div class="section-title" style="color: var(--c-metrics)">LLM Output Metrics</div>
+    </div>
+    <div class="section-desc">Evaluate correctness, relevancy, and tool use</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <div class="fn-name">AnswerRelevancyMetric</div>
+      <div class="fn-sig">(threshold=0.5, model=None, include_reason=True, strict_mode=False, verbose_mode=False)</div>
+      <div class="fn-desc">Measures whether <code style="color:var(--code)">actual_output</code> is relevant to <code style="color:var(--code)">input</code>. Uses LLM to judge relevance. Required fields: <code style="color:var(--code)">INPUT</code>, <code style="color:var(--code)">ACTUAL_OUTPUT</code>.</div>
+      <div class="fn-tags"><span class="tag">llm-based</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">CorrectnessMetric</div>
+      <div class="fn-sig">(threshold=0.5, model=None, include_reason=True, strict_mode=False)</div>
+      <div class="fn-desc">Compares <code style="color:var(--code)">actual_output</code> against <code style="color:var(--code)">expected_output</code> for factual correctness. Required: <code style="color:var(--code)">ACTUAL_OUTPUT</code>, <code style="color:var(--code)">EXPECTED_OUTPUT</code>.</div>
+      <div class="fn-tags"><span class="tag">llm-based</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">HallucinationMetric</div>
+      <div class="fn-sig">(threshold=0.5, model=None, include_reason=True, strict_mode=False)</div>
+      <div class="fn-desc">Detects factual claims in <code style="color:var(--code)">actual_output</code> that contradict <code style="color:var(--code)">context</code>. Required: <code style="color:var(--code)">ACTUAL_OUTPUT</code>, <code style="color:var(--code)">CONTEXT</code>.</div>
+      <div class="fn-tags"><span class="tag">llm-based</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">SummarizationMetric</div>
+      <div class="fn-sig">(threshold=0.5, model=None, assessment_questions=None, n=5, include_reason=True)</div>
+      <div class="fn-desc">Evaluates summary quality — coverage + factual consistency. <code style="color:var(--code)">input</code> = source text, <code style="color:var(--code)">actual_output</code> = summary. <code style="color:var(--code)">n</code> = number of QA pairs generated.</div>
+      <div class="fn-tags"><span class="tag">llm-based</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">PromptAlignmentMetric</div>
+      <div class="fn-sig">(prompt_instructions, threshold=0.5, model=None, include_reason=True)</div>
+      <div class="fn-desc">Checks whether <code style="color:var(--code)">actual_output</code> follows each instruction in <code style="color:var(--code)">prompt_instructions</code> (list of strings).</div>
+      <div class="fn-tags"><span class="tag">llm-based</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">JsonCorrectnessMetric</div>
+      <div class="fn-sig">(expected_schema, threshold=1.0, include_reason=False)</div>
+      <div class="fn-desc">Validates <code style="color:var(--code)">actual_output</code> is valid JSON matching a Pydantic model schema. <code style="color:var(--code)">expected_schema</code> is a Pydantic BaseModel class.</div>
+      <div class="fn-tags"><span class="tag">non-llm</span><span class="tag">pydantic</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">ToolCorrectnessMetric</div>
+      <div class="fn-sig">(threshold=1.0, include_reason=False, strict_mode=False)</div>
+      <div class="fn-desc">Checks if <code style="color:var(--code)">tools_called</code> matches <code style="color:var(--code)">expected_tools</code>. Required: <code style="color:var(--code)">TOOLS_CALLED</code>, <code style="color:var(--code)">EXPECTED_TOOLS</code>.</div>
+      <div class="fn-tags"><span class="tag">agent</span><span class="tag">non-llm</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">TaskCompletionMetric</div>
+      <div class="fn-sig">(threshold=0.5, model=None, include_reason=True, strict_mode=False)</div>
+      <div class="fn-desc">Judges whether an agentic LLM completed the task described in <code style="color:var(--code)">input</code> based on <code style="color:var(--code)">actual_output</code> and <code style="color:var(--code)">tools_called</code>.</div>
+      <div class="fn-tags"><span class="tag">agent</span><span class="tag">llm-based</span></div>
+    </div>
+  </div>
+
+  <div class="subsection" style="margin-top:20px">
+    <div class="subsection-title">Common metric attributes &amp; methods</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">metric.</span>measure</div>
+        <div class="fn-sig">(test_case, _show_indicator=True)</div>
+        <div class="fn-desc">Runs the metric on a single test case. Populates <code style="color:var(--code)">.score</code>, <code style="color:var(--code)">.reason</code>, <code style="color:var(--code)">.success</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">metric.</span>a_measure</div>
+        <div class="fn-sig">(test_case)</div>
+        <div class="fn-desc">Async version of <code style="color:var(--code)">measure()</code>. Use with <code style="color:var(--code)">await</code> inside async functions.</div>
+        <div class="fn-tags"><span class="tag">async</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">metric.</span>score</div>
+        <div class="fn-sig">→ float (0.0 – 1.0)</div>
+        <div class="fn-desc">Score after calling <code style="color:var(--code)">measure()</code>. Compared against <code style="color:var(--code)">threshold</code> to determine <code style="color:var(--code)">success</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">metric.</span>reason</div>
+        <div class="fn-sig">→ str</div>
+        <div class="fn-desc">LLM-generated explanation of the score. Set <code style="color:var(--code)">include_reason=True</code> in constructor.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">metric.</span>success</div>
+        <div class="fn-sig">→ bool</div>
+        <div class="fn-desc"><code style="color:var(--code)">True</code> if <code style="color:var(--code)">score &gt;= threshold</code> (or <code style="color:var(--code)">&lt;=</code> for inverted metrics).</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">metric.</span>strict_mode</div>
+        <div class="fn-sig">→ bool</div>
+        <div class="fn-desc">When <code style="color:var(--code)">True</code>, threshold is forced to 1.0 — any imperfection fails the test.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 3. RAG METRICS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="section" id="metrics-rag" style="--section-color: var(--c-rag)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-rag) 15%, transparent)">🔍</div>
+    <div>
+      <div class="section-title" style="color: var(--c-rag)">RAG Metrics</div>
+    </div>
+    <div class="section-desc">Evaluate retrieval quality and generation faithfulness</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">RAG Triad — the three core RAG metrics</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name">FaithfulnessMetric</div>
+        <div class="fn-sig">(threshold=0.5, model=None, include_reason=True, strict_mode=False)</div>
+        <div class="fn-desc">Are all claims in <code style="color:var(--code)">actual_output</code> grounded in <code style="color:var(--code)">retrieval_context</code>? High score = no hallucination vs retrieved docs. Required: <code style="color:var(--code)">ACTUAL_OUTPUT</code>, <code style="color:var(--code)">RETRIEVAL_CONTEXT</code>.</div>
+        <div class="fn-tags"><span class="tag">llm-based</span><span class="tag">rag triad</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">ContextualPrecisionMetric</div>
+        <div class="fn-sig">(threshold=0.5, model=None, include_reason=True, strict_mode=False)</div>
+        <div class="fn-desc">Are relevant nodes ranked higher than irrelevant ones in <code style="color:var(--code)">retrieval_context</code>? Measures retriever ranking quality. Required: <code style="color:var(--code)">INPUT</code>, <code style="color:var(--code)">EXPECTED_OUTPUT</code>, <code style="color:var(--code)">RETRIEVAL_CONTEXT</code>.</div>
+        <div class="fn-tags"><span class="tag">llm-based</span><span class="tag">rag triad</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">ContextualRecallMetric</div>
+        <div class="fn-sig">(threshold=0.5, model=None, include_reason=True, strict_mode=False)</div>
+        <div class="fn-desc">Is all information in <code style="color:var(--code)">expected_output</code> covered by <code style="color:var(--code)">retrieval_context</code>? Measures retriever coverage/completeness. Required: <code style="color:var(--code)">EXPECTED_OUTPUT</code>, <code style="color:var(--code)">RETRIEVAL_CONTEXT</code>.</div>
+        <div class="fn-tags"><span class="tag">llm-based</span><span class="tag">rag triad</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Additional RAG Metrics</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name">ContextualRelevancyMetric</div>
+        <div class="fn-sig">(threshold=0.5, model=None, include_reason=True, strict_mode=False)</div>
+        <div class="fn-desc">Is the <code style="color:var(--code)">retrieval_context</code> relevant to the <code style="color:var(--code)">input</code>? Measures retriever precision (topic alignment). Required: <code style="color:var(--code)">INPUT</code>, <code style="color:var(--code)">RETRIEVAL_CONTEXT</code>.</div>
+        <div class="fn-tags"><span class="tag">llm-based</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">RagasMetric</div>
+        <div class="fn-sig">(threshold=0.5, model=None, embeddings=None)</div>
+        <div class="fn-desc">Wrapper that runs the Ragas evaluation suite (faithfulness, answer relevancy, context precision/recall). Requires <code style="color:var(--code)">ragas</code> package installed.</div>
+        <div class="fn-tags"><span class="tag">third-party</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 4. CONVERSATIONAL METRICS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="section" id="metrics-conv" style="--section-color: var(--c-conv)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-conv) 15%, transparent)">💬</div>
+    <div>
+      <div class="section-title" style="color: var(--c-conv)">Conversational Metrics</div>
+    </div>
+    <div class="section-desc">Evaluate multi-turn chat quality — require ConversationalTestCase</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <div class="fn-name">KnowledgeRetentionMetric</div>
+      <div class="fn-sig">(threshold=0.5, model=None, include_reason=True)</div>
+      <div class="fn-desc">Does the chatbot remember facts shared earlier in the conversation? Detects "context amnesia" across turns.</div>
+      <div class="fn-tags"><span class="tag">llm-based</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">ConversationCompletenessMetric</div>
+      <div class="fn-sig">(threshold=0.5, model=None, include_reason=True)</div>
+      <div class="fn-desc">Did the chatbot address all user intentions expressed across the conversation?</div>
+      <div class="fn-tags"><span class="tag">llm-based</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">ConversationRelevancyMetric</div>
+      <div class="fn-sig">(threshold=0.5, model=None, include_reason=True)</div>
+      <div class="fn-desc">Are all chatbot responses relevant to the surrounding conversational context (not just the latest turn)?</div>
+      <div class="fn-tags"><span class="tag">llm-based</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">RoleAdherenceMetric</div>
+      <div class="fn-sig">(threshold=0.5, model=None, include_reason=True)</div>
+      <div class="fn-desc">Does the chatbot consistently stay within its assigned persona/role across the conversation? Pass <code style="color:var(--code)">chatbot_role</code> in <code style="color:var(--code)">ConversationalTestCase</code>.</div>
+      <div class="fn-tags"><span class="tag">llm-based</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 5. CUSTOM METRICS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="section" id="metrics-custom" style="--section-color: var(--c-custom)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-custom) 15%, transparent)">🛠</div>
+    <div>
+      <div class="section-title" style="color: var(--c-custom)">Custom Metrics</div>
+    </div>
+    <div class="section-desc">Build your own evaluation criteria</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <div class="fn-name">GEval</div>
+      <div class="fn-sig">(name, criteria=None, evaluation_steps=None, evaluation_params, threshold=0.5, model=None, strict_mode=False)</div>
+      <div class="fn-desc">Define any metric with natural language <code style="color:var(--code)">criteria</code> or explicit <code style="color:var(--code)">evaluation_steps</code>. <code style="color:var(--code)">evaluation_params</code> is a list of <code style="color:var(--code)">LLMTestCaseParams</code> specifying which fields to pass to the evaluator LLM.</div>
+      <div class="fn-tags"><span class="tag">class</span><span class="tag">llm-based</span><span class="tag">flexible</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">DAGMetric</div>
+      <div class="fn-sig">(name, dag, model=None, verbose_mode=False)</div>
+      <div class="fn-desc">Directed Acyclic Graph metric. Define a decision tree of criteria nodes. <code style="color:var(--code)">dag</code> is a root <code style="color:var(--code)">TaskNode</code> object. Score flows through the graph.</div>
+      <div class="fn-tags"><span class="tag">class</span><span class="tag">advanced</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">BaseMetric</div>
+      <div class="fn-sig">(threshold=0.5)</div>
+      <div class="fn-desc">Abstract base class for fully custom metrics. Override <code style="color:var(--code)">measure(test_case)</code> and set <code style="color:var(--code)">self.score</code>, <code style="color:var(--code)">self.success</code>, <code style="color:var(--code)">self.reason</code>.</div>
+      <div class="fn-tags"><span class="tag">abstract class</span></div>
+    </div>
+  </div>
+
+  <div class="subsection" style="margin-top: 20px">
+    <div class="subsection-title">DAG Node Types</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name">TaskNode</div>
+        <div class="fn-sig">(task, children=[])</div>
+        <div class="fn-desc">Evaluates a free-form LLM task/criteria. Root node of a DAG.</div>
+        <div class="fn-tags"><span class="tag">dag</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">BinaryJudgementNode</div>
+        <div class="fn-sig">(criteria, children_if_true=[], children_if_false=[])</div>
+        <div class="fn-desc">Yes/no binary split. Routes to different sub-graphs based on outcome.</div>
+        <div class="fn-tags"><span class="tag">dag</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">NonBinaryJudgementNode</div>
+        <div class="fn-sig">(criteria, children=[])</div>
+        <div class="fn-desc">Scores 0–1 on a criterion. Continues to children regardless.</div>
+        <div class="fn-tags"><span class="tag">dag</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">VerdictNode</div>
+        <div class="fn-sig">(verdict, score)</div>
+        <div class="fn-desc">Leaf node that assigns a final numeric score.</div>
+        <div class="fn-tags"><span class="tag">dag</span><span class="tag">leaf</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 6. SAFETY METRICS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="section" id="metrics-safety" style="--section-color: var(--c-safety)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-safety) 15%, transparent)">🛡</div>
+    <div>
+      <div class="section-title" style="color: var(--c-safety)">Safety Metrics</div>
+    </div>
+    <div class="section-desc">Detect bias, toxicity, and harmful content</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <div class="fn-name">ToxicityMetric</div>
+      <div class="fn-sig">(threshold=0.5, model=None, include_reason=True, strict_mode=False)</div>
+      <div class="fn-desc">Detects toxic, offensive, or harmful language in <code style="color:var(--code)">actual_output</code>. Lower score = more toxic. Pass if score ≥ threshold.</div>
+      <div class="fn-tags"><span class="tag">llm-based</span><span class="tag">safety</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">BiasMetric</div>
+      <div class="fn-sig">(threshold=0.5, model=None, include_reason=True, strict_mode=False)</div>
+      <div class="fn-desc">Detects gender, racial, political, or other biases in <code style="color:var(--code)">actual_output</code>. Lower score = more biased.</div>
+      <div class="fn-tags"><span class="tag">llm-based</span><span class="tag">safety</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 7. EVALUATE -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="section" id="evaluate" style="--section-color: var(--c-eval)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-eval) 15%, transparent)">🧪</div>
+    <div>
+      <div class="section-title" style="color: var(--c-eval)">Evaluate</div>
+    </div>
+    <div class="section-desc">Run evaluations — standalone or via pytest</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Standalone Evaluation</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">deepeval.</span>evaluate</div>
+        <div class="fn-sig">(test_cases, metrics, hyperparameters=None, run_async=True, show_indicator=True, print_results=True, write_cache=True, use_cache=False, ignore_errors=False, throttle_value=0, max_concurrent=None, skip_on_missing_params=False, verbose_mode=False)</div>
+        <div class="fn-desc">Runs all metrics over all test cases. Returns <code style="color:var(--code)">EvaluationResult</code>. <code style="color:var(--code)">hyperparameters</code> dict logged to Confident AI. Async by default for speed.</div>
+        <div class="fn-tags"><span class="tag">main entrypoint</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">EvaluationResult</div>
+        <div class="fn-sig">  .test_results → list[TestResult]</div>
+        <div class="fn-desc">Returned by <code style="color:var(--code)">evaluate()</code>. Each <code style="color:var(--code)">TestResult</code> holds <code style="color:var(--code)">.success</code>, <code style="color:var(--code)">.metrics_data</code>, and the original test case.</div>
+        <div class="fn-tags"><span class="tag">class</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Pytest Integration</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">deepeval.</span>assert_test</div>
+        <div class="fn-sig">(test_case, metrics, run_async=True)</div>
+        <div class="fn-desc">Calls <code style="color:var(--code)">measure()</code> on each metric and raises <code style="color:var(--code)">AssertionError</code> if any metric fails. Use inside pytest test functions.</div>
+        <div class="fn-tags"><span class="tag">pytest</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">@</span>deepeval.on_test_run_end</div>
+        <div class="fn-sig">()</div>
+        <div class="fn-desc">Decorator for a function called once after a full pytest run completes. Receives the <code style="color:var(--code)">EvaluationResult</code>.</div>
+        <div class="fn-tags"><span class="tag">decorator</span><span class="tag">pytest</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">@pytest.mark.</span>parametrize</div>
+        <div class="fn-sig">  (with deepeval test cases)</div>
+        <div class="fn-desc">Standard pytest parametrize works with <code style="color:var(--code)">assert_test</code>. Wrap test cases in a list, loop with <code style="color:var(--code)">@pytest.mark.parametrize("test_case", test_cases)</code>.</div>
+        <div class="fn-tags"><span class="tag">pytest pattern</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Confident AI Integration</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">deepeval.</span>login_with_confident_api_key</div>
+        <div class="fn-sig">(api_key)</div>
+        <div class="fn-desc">Programmatic login. Alternatively use CLI: <code style="color:var(--code)">deepeval login</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">deepeval.</span>track</div>
+        <div class="fn-sig">(event_name, model, input, response, retrieved_context=None, completion_time=None, token_usage=None, token_cost=None, distinct_id=None, conversation_id=None, additional_data=None, fail_silently=False)</div>
+        <div class="fn-desc">Logs a real production event to Confident AI for monitoring. Decoupled from test evaluation — use in your production inference pipeline.</div>
+        <div class="fn-tags"><span class="tag">production monitoring</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 8. SYNTHESIZER -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="section" id="synthesizer" style="--section-color: var(--c-synth)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-synth) 15%, transparent)">⚗️</div>
+    <div>
+      <div class="section-title" style="color: var(--c-synth)">Synthesizer</div>
+    </div>
+    <div class="section-desc">Auto-generate goldens and test cases from docs or scratch</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <div class="fn-name">Synthesizer</div>
+      <div class="fn-sig">(model=None, embedder=None, multithreading=True, cost_tracking=True, async_mode=True)</div>
+      <div class="fn-desc">Central class for synthetic data generation. Wraps several generation strategies. The <code style="color:var(--code)">model</code> is used for generation; <code style="color:var(--code)">embedder</code> for document chunking/embedding.</div>
+      <div class="fn-tags"><span class="tag">class</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">synthesizer.</span>generate_goldens_from_docs</div>
+      <div class="fn-sig">(document_paths, include_expected_output=True, max_goldens_per_document=5, chunk_size=1024, chunk_overlap=0, num_evolutions=1, evolutions={...}, evolution_limit=None)</div>
+      <div class="fn-desc">Reads document files (PDF, DOCX, TXT), chunks them, and generates question–answer goldens. The most common entry point for RAG evaluation data generation.</div>
+      <div class="fn-tags"><span class="tag">rag</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">synthesizer.</span>generate_goldens_from_contexts</div>
+      <div class="fn-sig">(contexts, include_expected_output=True, max_goldens_per_context=2, num_evolutions=1, evolutions={...})</div>
+      <div class="fn-desc">Generates goldens from pre-chunked context strings you provide. Use when you already have your retrieval chunks.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">synthesizer.</span>generate_goldens_from_scratch</div>
+      <div class="fn-sig">(subject, task, output_format, num_initial_goldens=10, num_evolutions=1, evolutions={...})</div>
+      <div class="fn-desc">Generates goldens from a topic description without source documents. Useful for instruction-following, summarisation, or general LLM tasks.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">synthesizer.</span>generate_red_teaming_goldens</div>
+      <div class="fn-sig">(purpose, num_goldens=25, attacks=[...], vulnerabilities=[...])</div>
+      <div class="fn-desc">Generates adversarial inputs targeting specific vulnerability categories. Returns goldens without <code style="color:var(--code)">expected_output</code>.</div>
+      <div class="fn-tags"><span class="tag">red teaming</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">synthesizer.</span>save_as</div>
+      <div class="fn-sig">(file_type, directory=".")</div>
+      <div class="fn-desc">Saves generated goldens to <code style="color:var(--code)">"json"</code> or <code style="color:var(--code)">"csv"</code>.</div>
+    </div>
+  </div>
+
+  <div class="subsection" style="margin-top: 20px">
+    <div class="subsection-title">Evolution Strategies (used in evolutions= dict)</div>
+    <div class="param-table-wrap">
+      <table class="param-table">
+        <thead><tr><th>Evolution</th><th>Effect on generated question</th></tr></thead>
+        <tbody>
+          <tr><td>Evolution.REASONING</td><td>Requires multi-step deduction to answer</td></tr>
+          <tr><td>Evolution.MULTICONTEXT</td><td>Requires synthesizing information from multiple chunks</td></tr>
+          <tr><td>Evolution.CONCRETIZING</td><td>Makes abstract questions more concrete/specific</td></tr>
+          <tr><td>Evolution.CONSTRAINED</td><td>Adds constraints or conditions to the question</td></tr>
+          <tr><td>Evolution.COMPARATIVE</td><td>Asks to compare two entities from the context</td></tr>
+          <tr><td>Evolution.HYPOTHETICAL</td><td>Poses a hypothetical/counterfactual scenario</td></tr>
+          <tr><td>Evolution.IN_BREADTH</td><td>Generates a new but related topic question</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 9. BENCHMARKS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="section" id="benchmarks" style="--section-color: var(--c-bench)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-bench) 15%, transparent)">🏆</div>
+    <div>
+      <div class="section-title" style="color: var(--c-bench)">Benchmarks</div>
+    </div>
+    <div class="section-desc">Industry-standard LLM benchmark evaluations</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <div class="fn-name">MMLU</div>
+      <div class="fn-sig">(tasks=None, n_shots=0)</div>
+      <div class="fn-desc">Massive Multitask Language Understanding — 57 academic subjects. <code style="color:var(--code)">tasks</code> filters to specific MMLUTask enum values.</div>
+      <div class="fn-tags"><span class="tag">knowledge</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">HellaSwag</div>
+      <div class="fn-sig">(tasks=None, n_shots=0)</div>
+      <div class="fn-desc">Commonsense NLI — sentence completion benchmark.</div>
+      <div class="fn-tags"><span class="tag">reasoning</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">HumanEval</div>
+      <div class="fn-sig">(n=1)</div>
+      <div class="fn-desc">164 Python coding problems. Measures pass@k. <code style="color:var(--code)">n</code> = number of samples per problem.</div>
+      <div class="fn-tags"><span class="tag">code</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">GSM8K</div>
+      <div class="fn-sig">(n_shots=0)</div>
+      <div class="fn-desc">Grade school math word problems requiring multi-step arithmetic reasoning.</div>
+      <div class="fn-tags"><span class="tag">math</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">DROP</div>
+      <div class="fn-sig">(tasks=None, n_shots=0)</div>
+      <div class="fn-desc">Discrete Reasoning Over Paragraphs — reading comprehension + numerical reasoning.</div>
+      <div class="fn-tags"><span class="tag">reasoning</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">TruthfulQA</div>
+      <div class="fn-sig">(tasks=None, n_shots=0)</div>
+      <div class="fn-desc">Tests whether models generate truthful answers on questions humans often get wrong.</div>
+      <div class="fn-tags"><span class="tag">truthfulness</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">BIGBench</div>
+      <div class="fn-sig">(tasks=None, n_shots=0)</div>
+      <div class="fn-desc">Beyond the Imitation Game — diverse tasks beyond standard NLP benchmarks.</div>
+      <div class="fn-tags"><span class="tag">diverse</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">benchmark.</span>evaluate</div>
+      <div class="fn-sig">(model, batch_size=None)</div>
+      <div class="fn-desc">Runs the benchmark against any <code style="color:var(--code)">DeepEvalBaseLLM</code> model. Returns <code style="color:var(--code)">BenchmarkResult</code> with <code style="color:var(--code)">.overall_score</code> and per-task breakdown.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 10. LLM INTEGRATION -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="section" id="llm-integration" style="--section-color: var(--c-llm)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-llm) 15%, transparent)">🤖</div>
+    <div>
+      <div class="section-title" style="color: var(--c-llm)">LLM Integration</div>
+    </div>
+    <div class="section-desc">Use any model as the evaluation judge or inference target</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <div class="fn-name">DeepEvalBaseLLM</div>
+      <div class="fn-sig">  (abstract base class)</div>
+      <div class="fn-desc">Subclass this to use any custom or local LLM as a judge or benchmark target. Must implement <code style="color:var(--code)">get_model_name()</code>, <code style="color:var(--code)">generate(prompt)</code>, and <code style="color:var(--code)">a_generate(prompt)</code>.</div>
+      <div class="fn-tags"><span class="tag">abstract class</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">DeepEvalBaseLLM methods to override</div>
+      <div class="fn-sig">get_model_name() → str</div>
+      <div class="fn-desc"><code style="color:var(--code)">get_model_name()</code> returns a display name; <code style="color:var(--code)">generate(prompt, schema=None)</code> returns a string (or Pydantic object if schema passed); <code style="color:var(--code)">a_generate</code> is the async equivalent.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">GPTModel</div>
+      <div class="fn-sig">(model="gpt-4o", ...)</div>
+      <div class="fn-desc">Built-in OpenAI wrapper. Default judge model if none specified. Set <code style="color:var(--code)">OPENAI_API_KEY</code> env var.</div>
+      <div class="fn-tags"><span class="tag">built-in</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">DeepEvalBaseEmbeddingModel</div>
+      <div class="fn-sig">  (abstract base class)</div>
+      <div class="fn-desc">Subclass for custom embedding models used by the Synthesizer. Must implement <code style="color:var(--code)">embed_text(text)</code> and <code style="color:var(--code)">embed_texts(texts)</code>.</div>
+      <div class="fn-tags"><span class="tag">abstract class</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 11. RED TEAMING -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="section" id="red-teaming" style="--section-color: var(--c-red)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-red) 15%, transparent)">⚔️</div>
+    <div>
+      <div class="section-title" style="color: var(--c-red)">Red Teaming</div>
+    </div>
+    <div class="section-desc">Systematically probe your LLM for safety vulnerabilities</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <div class="fn-name">RedTeamer</div>
+      <div class="fn-sig">(target_purpose, target_system_prompt=None, synthesizer_model=None, evaluation_model=None, async_mode=True)</div>
+      <div class="fn-desc">Orchestrates adversarial attack generation + automatic evaluation. <code style="color:var(--code)">target_purpose</code> is a plain-text description of your LLM's function.</div>
+      <div class="fn-tags"><span class="tag">class</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">red_teamer.</span>scan</div>
+      <div class="fn-sig">(target_model, attacks_per_vulnerability=5, vulnerabilities=[...], attack_enhancements={...})</div>
+      <div class="fn-desc">Runs the full red-team scan. Returns <code style="color:var(--code)">RedTeamingResult</code> with vulnerability scores and attack transcripts.</div>
+      <div class="fn-tags"><span class="tag">main method</span></div>
+    </div>
+  </div>
+
+  <div class="subsection" style="margin-top: 20px">
+    <div class="subsection-title">Vulnerability Categories (RTVulnerability enum)</div>
+    <div class="param-table-wrap">
+      <table class="param-table">
+        <thead><tr><th>Vulnerability</th><th>What it probes</th></tr></thead>
+        <tbody>
+          <tr><td>BIAS</td><td>Discriminatory / stereotypical outputs</td></tr>
+          <tr><td>CONTRACTS</td><td>Unauthorized legal commitments</td></tr>
+          <tr><td>DATA_EXFILTRATION</td><td>Leaking training data or PII</td></tr>
+          <tr><td>EXCESSIVE_AGENCY</td><td>Taking actions beyond granted permissions</td></tr>
+          <tr><td>HALLUCINATION</td><td>Confidently stating false information</td></tr>
+          <tr><td>HARMFUL_CONTENT</td><td>Graphic violence, hate speech, NSFW</td></tr>
+          <tr><td>IMITATION</td><td>Impersonating specific real people</td></tr>
+          <tr><td>MISINFORMATION</td><td>Spreading false factual claims</td></tr>
+          <tr><td>OFFENSIVE</td><td>Insulting or demeaning language</td></tr>
+          <tr><td>PII_API_DB</td><td>Exposing personal data via APIs/DBs</td></tr>
+          <tr><td>PII_DIRECT</td><td>Disclosing personal data in outputs</td></tr>
+          <tr><td>POLITICS</td><td>Partisan political statements</td></tr>
+          <tr><td>PROMPT_EXTRACTION</td><td>Revealing the system prompt</td></tr>
+          <tr><td>RBAC</td><td>Bypassing role-based access controls</td></tr>
+          <tr><td>UNFORMATTED</td><td>Ignoring required output format constraints</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Attack Enhancements (RTAdversarialAttack enum)</div>
+    <div class="param-table-wrap">
+      <table class="param-table">
+        <thead><tr><th>Attack Enhancement</th><th>Technique</th></tr></thead>
+        <tbody>
+          <tr><td>PROMPT_INJECTION</td><td>Inject instructions via user turn to override system prompt</td></tr>
+          <tr><td>GRAY_BOX_ATTACK</td><td>Uses partial knowledge of model to craft targeted inputs</td></tr>
+          <tr><td>JAILBREAK_CRESCENDO</td><td>Gradually escalates conversation toward harmful territory</td></tr>
+          <tr><td>JAILBREAK_LINEAR</td><td>Single-turn direct jailbreak attempt</td></tr>
+          <tr><td>ROT13</td><td>Encodes attack in ROT13 to evade filters</td></tr>
+          <tr><td>BASE64</td><td>Encodes attack in Base64</td></tr>
+          <tr><td>LEETSPEAK</td><td>Encodes attack in leet/1337 speak</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 12. TRACING -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="section" id="tracing" style="--section-color: var(--c-trace)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-trace) 15%, transparent)">🔭</div>
+    <div>
+      <div class="section-title" style="color: var(--c-trace)">Tracing</div>
+    </div>
+    <div class="section-desc">Instrument your LLM pipeline for observability on Confident AI</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">@</span>observe</div>
+      <div class="fn-sig">(*, name=None, type=None, model=None, cost=None, token_usage=None)</div>
+      <div class="fn-desc">Decorator that traces a function call. <code style="color:var(--code)">type</code> is a <code style="color:var(--code)">TraceType</code> enum: <code style="color:var(--code)">LLM</code>, <code style="color:var(--code)">RETRIEVER</code>, <code style="color:var(--code)">TOOL</code>, <code style="color:var(--code)">AGENT</code>, <code style="color:var(--code)">CHAIN</code>, <code style="color:var(--code)">EMBEDDING</code>.</div>
+      <div class="fn-tags"><span class="tag">decorator</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">update_current_span</div>
+      <div class="fn-sig">(*, model=None, input=None, output=None, token_usage=None, cost=None, metadata=None)</div>
+      <div class="fn-desc">Call inside an <code style="color:var(--code)">@observe</code>-decorated function to attach extra metadata to the current trace span at runtime.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">TraceType</div>
+      <div class="fn-sig">  (enum)</div>
+      <div class="fn-desc">Values: <code style="color:var(--code)">LLM</code>, <code style="color:var(--code)">RETRIEVER</code>, <code style="color:var(--code)">TOOL</code>, <code style="color:var(--code)">AGENT</code>, <code style="color:var(--code)">CHAIN</code>, <code style="color:var(--code)">EMBEDDING</code>, <code style="color:var(--code)">RERANKING</code>. Controls the icon shown in the Confident AI trace viewer.</div>
+      <div class="fn-tags"><span class="tag">enum</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">deepeval.</span>trace_manager</div>
+      <div class="fn-sig">  .configure(flush_interval=30, max_queue_size=1000)</div>
+      <div class="fn-desc">Global trace configuration. Set flush interval (seconds) and max buffered spans before flushing to Confident AI.</div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const search = document.getElementById('search');
+  search.addEventListener('input', () => {
+    const q = search.value.toLowerCase().trim();
+    document.querySelectorAll('.fn-card').forEach(card => {
+      card.classList.toggle('hidden', q.length > 0 && !card.textContent.toLowerCase().includes(q));
+    });
+    document.querySelectorAll('.section').forEach(sec => {
+      const visible = [...sec.querySelectorAll('.fn-card')].filter(c => !c.classList.contains('hidden'));
+      sec.style.display = (q.length > 0 && visible.length === 0) ? 'none' : '';
+    });
+    document.querySelectorAll('.subsection').forEach(sub => {
+      const visible = [...sub.querySelectorAll('.fn-card')].filter(c => !c.classList.contains('hidden'));
+      sub.style.display = (q.length > 0 && visible.length === 0) ? 'none' : '';
+    });
+  });
+
+  function setActive(el) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  const sections = document.querySelectorAll('.section');
+  const navItems = document.querySelectorAll('.nav-item');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navItems.forEach(item => {
+          item.classList.toggle('active', item.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '-80px 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
