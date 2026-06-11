@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenAI Agents SDK Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@400;600;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f13;
+    --surface: #16181f;
+    --surface2: #1d2029;
+    --border: #272b38;
+    --text: #e8eaf2;
+    --muted: #7a7f96;
+    --code: #a8d8a8;
+
+    --c-agent:      #10a37f;
+    --c-runner:     #3b82f6;
+    --c-tools:      #f59e0b;
+    --c-handoff:    #8b5cf6;
+    --c-context:    #06b6d4;
+    --c-guardrail:  #f43f5e;
+    --c-streaming:  #22d3ee;
+    --c-results:    #34d399;
+    --c-hooks:      #fb923c;
+    --c-tracing:    #a78bfa;
+    --c-models:     #e879f9;
+    --c-errors:     #ef4444;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 40px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo span { color: var(--c-agent); }
+
+  .back-link {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--c-agent); }
+
+  .search-wrap { margin-left: auto; position: relative; }
+  #search {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 8px 14px 8px 36px;
+    width: 260px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #search:focus { border-color: var(--c-agent); }
+  #search::placeholder { color: var(--muted); }
+  .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 13px; pointer-events: none; }
+
+  .layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 81px); }
+
+  nav {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 81px;
+    height: calc(100vh - 81px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  nav::-webkit-scrollbar { width: 4px; }
+  nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .nav-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); padding: 12px 20px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 8px; padding: 6px 20px; cursor: pointer; transition: background 0.15s, color 0.15s; font-size: 13px; color: var(--muted); text-decoration: none; border-left: 2px solid transparent; }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { color: var(--text); border-left-color: var(--c-agent); background: var(--surface2); }
+  .nav-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  main { padding: 40px; max-width: 1100px; }
+
+  .section { margin-bottom: 56px; scroll-margin-top: 100px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .section-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .section-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -0.3px; }
+  .section-desc { color: var(--muted); font-size: 13px; margin-left: auto; font-style: italic; }
+
+  .fn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+
+  .fn-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .fn-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--section-color, var(--c-agent)); border-radius: 10px 0 0 10px; }
+  .fn-card:hover { background: var(--surface2); border-color: var(--section-color, var(--c-agent)); }
+
+  .fn-name { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600; color: var(--code); margin-bottom: 4px; }
+  .fn-name .prefix { color: var(--muted); font-weight: 400; }
+  .fn-sig { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--muted); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fn-desc { font-size: 12px; color: #a0a4b8; line-height: 1.5; }
+  .fn-tags { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+  .tag { font-family: 'IBM Plex Mono', monospace; font-size: 9px; padding: 2px 6px; border-radius: 4px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); letter-spacing: 0.3px; }
+
+  /* wide card — spans full grid width */
+  .fn-card.wide { grid-column: 1 / -1; }
+
+  .subsection { margin-bottom: 24px; }
+  .subsection-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .subsection-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* flow diagram strip */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .flow-step {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .flow-step.accent { background: color-mix(in srgb, var(--section-color, var(--c-agent)) 15%, transparent); border-color: var(--section-color, var(--c-agent)); color: var(--section-color, var(--c-agent)); }
+  .flow-arrow { color: var(--muted); padding: 0 8px; font-size: 14px; flex-shrink: 0; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { display: none; }
+    main { padding: 20px; }
+    #search { width: 180px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <rect width="28" height="28" rx="6" fill="#10a37f" opacity="0.15"/>
+      <circle cx="14" cy="14" r="5" stroke="#10a37f" stroke-width="2"/>
+      <circle cx="14" cy="5"  r="2" fill="#10a37f"/>
+      <circle cx="14" cy="23" r="2" fill="#10a37f"/>
+      <circle cx="5"  cy="14" r="2" fill="#10a37f"/>
+      <circle cx="23" cy="14" r="2" fill="#10a37f"/>
+    </svg>
+    OpenAI Agents SDK <span>Reference</span>
+  </div>
+  <a class="back-link" href="index.html">← Back to index</a>
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input id="search" type="text" placeholder="Search classes &amp; methods..." autocomplete="off">
+  </div>
+</header>
+
+<div class="layout">
+
+<nav id="sidebar">
+  <div class="nav-label">Sections</div>
+  <a class="nav-item active" href="#agent"      onclick="setActive(this)"><span class="nav-dot" style="background:var(--c-agent)"></span>     Agent</a>
+  <a class="nav-item"        href="#runner"     onclick="setActive(this)"><span class="nav-dot" style="background:var(--c-runner)"></span>    Runner</a>
+  <a class="nav-item"        href="#tools"      onclick="setActive(this)"><span class="nav-dot" style="background:var(--c-tools)"></span>     Tools</a>
+  <a class="nav-item"        href="#handoffs"   onclick="setActive(this)"><span class="nav-dot" style="background:var(--c-handoff)"></span>   Handoffs</a>
+  <a class="nav-item"        href="#context"    onclick="setActive(this)"><span class="nav-dot" style="background:var(--c-context)"></span>   Context</a>
+  <a class="nav-item"        href="#guardrails" onclick="setActive(this)"><span class="nav-dot" style="background:var(--c-guardrail)"></span> Guardrails</a>
+  <a class="nav-item"        href="#streaming"  onclick="setActive(this)"><span class="nav-dot" style="background:var(--c-streaming)"></span> Streaming</a>
+  <a class="nav-item"        href="#results"    onclick="setActive(this)"><span class="nav-dot" style="background:var(--c-results)"></span>   Results &amp; Items</a>
+  <a class="nav-item"        href="#hooks"      onclick="setActive(this)"><span class="nav-dot" style="background:var(--c-hooks)"></span>     Hooks</a>
+  <a class="nav-item"        href="#tracing"    onclick="setActive(this)"><span class="nav-dot" style="background:var(--c-tracing)"></span>   Tracing</a>
+  <a class="nav-item"        href="#models"     onclick="setActive(this)"><span class="nav-dot" style="background:var(--c-models)"></span>    Models &amp; Settings</a>
+  <a class="nav-item"        href="#exceptions" onclick="setActive(this)"><span class="nav-dot" style="background:var(--c-errors)"></span>    Exceptions</a>
+</nav>
+
+<main id="main">
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 1. AGENT -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="agent" style="--section-color: var(--c-agent)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-agent) 15%, transparent)">🤖</div>
+    <div><div class="section-title" style="color:var(--c-agent)">Agent</div></div>
+    <div class="section-desc">The core building block — defines behavior, tools, and routing</div>
+  </div>
+
+  <div class="flow">
+    <span class="flow-step accent">Agent(name, instructions)</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">tools + handoffs</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Runner.run(agent, input)</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">RunResult.final_output</span>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card wide">
+      <div class="fn-name">Agent</div>
+      <div class="fn-sig">(name, instructions=None, model=None, model_settings=None, tools=[], handoffs=[], output_type=None, hooks=None, input_guardrails=[], output_guardrails=[], handoff_description=None)</div>
+      <div class="fn-desc">The primary primitive. <code style="color:var(--code)">instructions</code> is the system prompt — pass a string or a callable <code style="color:var(--code)">(ctx, agent) → str</code> for dynamic prompts. <code style="color:var(--code)">output_type</code> is a Pydantic model class for structured output. <code style="color:var(--code)">handoff_description</code> describes this agent when it appears as a handoff target.</div>
+      <div class="fn-tags"><span class="tag">class</span><span class="tag">dataclass</span><span class="tag">core</span></div>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">agent.</span>name</div>
+      <div class="fn-sig">→ str</div>
+      <div class="fn-desc">Unique identifier. Used in tracing, logs, and as the handoff tool name.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">agent.</span>instructions</div>
+      <div class="fn-sig">→ str | Callable[[RunContextWrapper, Agent], str]</div>
+      <div class="fn-desc">System prompt. When callable, receives live context on every turn — use for dynamic, context-aware instructions.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">agent.</span>model</div>
+      <div class="fn-sig">→ str | Model | None</div>
+      <div class="fn-desc">Model to use. Accepts a string (<code style="color:var(--code)">"gpt-4o"</code>) or a <code style="color:var(--code)">Model</code> instance. Falls back to <code style="color:var(--code)">RunConfig.model</code> if <code style="color:var(--code)">None</code>.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">agent.</span>tools</div>
+      <div class="fn-sig">→ list[Tool]</div>
+      <div class="fn-desc">List of tools the agent can call. Can mix <code style="color:var(--code)">function_tool</code>, hosted tools, and <code style="color:var(--code)">agent.as_tool()</code>.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">agent.</span>handoffs</div>
+      <div class="fn-sig">→ list[Agent | Handoff]</div>
+      <div class="fn-desc">Agents this agent can delegate to. Pass <code style="color:var(--code)">Agent</code> objects directly or wrap with <code style="color:var(--code)">handoff()</code> for customisation.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">agent.</span>output_type</div>
+      <div class="fn-sig">→ type[BaseModel] | None</div>
+      <div class="fn-desc">Pydantic model for structured output. When set, the final output is validated and typed. <code style="color:var(--code)">None</code> = plain string output.</div>
+      <div class="fn-tags"><span class="tag">structured output</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">agent.</span>input_guardrails</div>
+      <div class="fn-sig">→ list[InputGuardrail]</div>
+      <div class="fn-desc">Guardrails that screen the user input before the agent processes it. Tripwire raises <code style="color:var(--code)">InputGuardrailTripwireTriggered</code>.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">agent.</span>output_guardrails</div>
+      <div class="fn-sig">→ list[OutputGuardrail]</div>
+      <div class="fn-desc">Guardrails that screen the final output before it is returned. Tripwire raises <code style="color:var(--code)">OutputGuardrailTripwireTriggered</code>.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">agent.</span>as_tool</div>
+      <div class="fn-sig">(tool_name=None, tool_description=None, custom_output_extractor=None) → FunctionTool</div>
+      <div class="fn-desc">Exposes this agent as a callable tool for another agent. The parent agent calls it like any other tool; the child agent runs to completion and its output is returned as a tool result.</div>
+      <div class="fn-tags"><span class="tag">agent-as-tool</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">agent.</span>clone</div>
+      <div class="fn-sig">(**kwargs) → Agent</div>
+      <div class="fn-desc">Returns a shallow copy of the agent with overridden fields. Useful for creating variants without mutation.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">agent.</span>get_system_prompt</div>
+      <div class="fn-sig">(context: RunContextWrapper) → str | None</div>
+      <div class="fn-desc">Resolves <code style="color:var(--code)">instructions</code> — calls it if callable, returns it if string. Called automatically by the runner each turn.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 2. RUNNER -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="runner" style="--section-color: var(--c-runner)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-runner) 15%, transparent)">▶</div>
+    <div><div class="section-title" style="color:var(--c-runner)">Runner</div></div>
+    <div class="section-desc">Executes the agentic loop — manages turns, tool calls, and handoffs</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Entry Points</div>
+    <div class="fn-grid">
+      <div class="fn-card wide">
+        <div class="fn-name"><span class="prefix">Runner.</span>run</div>
+        <div class="fn-sig">(starting_agent, input, context=None, max_turns=10, hooks=None, run_config=None, previous_response_id=None) → RunResult</div>
+        <div class="fn-desc">Async. Runs the agent loop until a final output is produced or <code style="color:var(--code)">max_turns</code> is exceeded. <code style="color:var(--code)">input</code> can be a plain string or a list of OpenAI message dicts. <code style="color:var(--code)">context</code> is your custom state object. Returns <code style="color:var(--code)">RunResult</code>.</div>
+        <div class="fn-tags"><span class="tag">async</span><span class="tag">main entrypoint</span></div>
+      </div>
+      <div class="fn-card wide">
+        <div class="fn-name"><span class="prefix">Runner.</span>run_sync</div>
+        <div class="fn-sig">(starting_agent, input, context=None, max_turns=10, hooks=None, run_config=None, previous_response_id=None) → RunResult</div>
+        <div class="fn-desc">Synchronous wrapper around <code style="color:var(--code)">Runner.run()</code>. Identical parameters. Use when you are not inside an async context.</div>
+        <div class="fn-tags"><span class="tag">sync</span></div>
+      </div>
+      <div class="fn-card wide">
+        <div class="fn-name"><span class="prefix">Runner.</span>run_streamed</div>
+        <div class="fn-sig">(starting_agent, input, context=None, max_turns=10, hooks=None, run_config=None, previous_response_id=None) → StreamedRunResult</div>
+        <div class="fn-desc">Async. Returns a <code style="color:var(--code)">StreamedRunResult</code> immediately. Iterate with <code style="color:var(--code)">async for event in result.stream_events():</code> to receive token-by-token output and agent events.</div>
+        <div class="fn-tags"><span class="tag">async</span><span class="tag">streaming</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">RunConfig — global run settings</div>
+    <div class="fn-grid">
+      <div class="fn-card wide">
+        <div class="fn-name">RunConfig</div>
+        <div class="fn-sig">(model=None, model_provider=None, model_settings=None, handoff_input_filter=None, input_guardrails=[], output_guardrails=[], tracing_disabled=False, trace_include_sensitive_data=True, workflow_name='Agent workflow', trace_id=None, group_id=None)</div>
+        <div class="fn-desc">Run-level configuration passed to <code style="color:var(--code)">Runner.run()</code>. <code style="color:var(--code)">model</code> / <code style="color:var(--code)">model_settings</code> override agent-level settings. <code style="color:var(--code)">handoff_input_filter</code> is a global filter applied to all handoffs. <code style="color:var(--code)">tracing_disabled</code> suppresses all trace output.</div>
+        <div class="fn-tags"><span class="tag">dataclass</span></div>
+      </div>
+
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">RunConfig.</span>model</div>
+        <div class="fn-sig">→ str | Model | None</div>
+        <div class="fn-desc">Overrides every agent's model for the entire run. Useful for global model switching in tests.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">RunConfig.</span>model_settings</div>
+        <div class="fn-sig">→ ModelSettings | None</div>
+        <div class="fn-desc">Overrides temperature, max_tokens, and other generation params for all agents in the run.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">RunConfig.</span>handoff_input_filter</div>
+        <div class="fn-sig">→ HandoffInputFilter | None</div>
+        <div class="fn-desc">Applied to every handoff's input. Lets you strip or transform message history globally (e.g. redact PII before handoff).</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">RunConfig.</span>trace_include_sensitive_data</div>
+        <div class="fn-sig">→ bool  (default True)</div>
+        <div class="fn-desc">When <code style="color:var(--code)">False</code>, LLM inputs/outputs are omitted from traces. Use in production to avoid logging user data.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 3. TOOLS -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="tools" style="--section-color: var(--c-tools)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-tools) 15%, transparent)">🔧</div>
+    <div><div class="section-title" style="color:var(--c-tools)">Tools</div></div>
+    <div class="section-desc">Function tools, hosted tools, and the tool base class</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Function Tools — turning Python functions into tools</div>
+    <div class="fn-grid">
+      <div class="fn-card wide">
+        <div class="fn-name"><span class="prefix">@</span>function_tool</div>
+        <div class="fn-sig">(func=None, *, name_override=None, description_override=None, docstring_style=None, use_docstring_info=True, strict_mode=True, failure_error_function=None)</div>
+        <div class="fn-desc">Decorator that converts a Python function into a <code style="color:var(--code)">FunctionTool</code>. The function signature becomes the JSON schema. Type hints and the docstring (<code style="color:var(--code)">use_docstring_info=True</code>) are used to generate the tool description and parameter descriptions automatically. The first parameter can be <code style="color:var(--code)">RunContextWrapper[T]</code> to receive live context — it is excluded from the schema.</div>
+        <div class="fn-tags"><span class="tag">decorator</span><span class="tag">most common</span></div>
+      </div>
+
+      <div class="fn-card">
+        <div class="fn-name">FunctionTool</div>
+        <div class="fn-sig">(name, description, params_json_schema, on_invoke_tool, strict_json_schema=True, failure_error_function=None)</div>
+        <div class="fn-desc">Raw tool class. <code style="color:var(--code)">on_invoke_tool(ctx, args_json_str) → str | Awaitable[str]</code>. Use when you need to construct the schema manually or wrap a dynamic callable.</div>
+        <div class="fn-tags"><span class="tag">class</span><span class="tag">advanced</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">FunctionTool.</span>name</div>
+        <div class="fn-sig">→ str</div>
+        <div class="fn-desc">The tool name shown to the model. Defaults to the function name. Override with <code style="color:var(--code)">name_override</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">FunctionTool.</span>description</div>
+        <div class="fn-sig">→ str</div>
+        <div class="fn-desc">Shown to the model. Defaults to the function docstring's first paragraph.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">FunctionTool.</span>params_json_schema</div>
+        <div class="fn-sig">→ dict</div>
+        <div class="fn-desc">JSON Schema for the tool's parameters, derived from the function signature.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">FunctionTool.</span>strict_json_schema</div>
+        <div class="fn-sig">→ bool  (default True)</div>
+        <div class="fn-desc">Enforces strict JSON schema validation. Disable only if using union types or other schema features OpenAI strict mode doesn't support.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Hosted Tools — run server-side, no code needed</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name">WebSearchTool</div>
+        <div class="fn-sig">(user_location=None, search_context_size='medium')</div>
+        <div class="fn-desc">Gives the agent live web search via the Responses API. <code style="color:var(--code)">user_location</code> is a <code style="color:var(--code)">WebSearchLocation</code> dict for geo-targeted results. <code style="color:var(--code)">search_context_size</code>: "low" | "medium" | "high".</div>
+        <div class="fn-tags"><span class="tag">hosted</span><span class="tag">no code</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">FileSearchTool</div>
+        <div class="fn-sig">(vector_store_ids, max_num_results=None, include_search_results=False, ranking_options=None, filters=None)</div>
+        <div class="fn-desc">Searches files in OpenAI Vector Stores. <code style="color:var(--code)">vector_store_ids</code> is a list of store IDs. <code style="color:var(--code)">include_search_results=True</code> adds raw chunks to the context.</div>
+        <div class="fn-tags"><span class="tag">hosted</span><span class="tag">rag</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">CodeInterpreterTool</div>
+        <div class="fn-sig">(tool_config=None)</div>
+        <div class="fn-desc">Runs Python in a sandboxed OpenAI environment. Can produce files and images. Use <code style="color:var(--code)">tool_config</code> to pass a <code style="color:var(--code)">CodeInterpreterToolConfig</code> with <code style="color:var(--code)">container</code> settings.</div>
+        <div class="fn-tags"><span class="tag">hosted</span><span class="tag">code execution</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">ComputerTool</div>
+        <div class="fn-sig">(computer, screenshot_scale_factor=1.0)</div>
+        <div class="fn-desc">Gives the agent computer-use capabilities. <code style="color:var(--code)">computer</code> must implement the <code style="color:var(--code)">Computer</code> protocol (screenshot, click, type, scroll…). Used for CUA (Computer Use Agent) workflows.</div>
+        <div class="fn-tags"><span class="tag">hosted</span><span class="tag">computer use</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">HostedMCPTool</div>
+        <div class="fn-sig">(tool_config)</div>
+        <div class="fn-desc">Connects to a remote MCP (Model Context Protocol) server hosted by OpenAI. <code style="color:var(--code)">tool_config</code> specifies the server URL and auth. Tools are discovered and called server-side.</div>
+        <div class="fn-tags"><span class="tag">hosted</span><span class="tag">mcp</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Tool Base Class &amp; Protocol</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name">Tool</div>
+        <div class="fn-sig">  (abstract base — union of all tool types)</div>
+        <div class="fn-desc">Not instantiated directly. Any object in <code style="color:var(--code)">agent.tools</code> must be a <code style="color:var(--code)">FunctionTool</code>, a hosted tool, or an object implementing the tool protocol.</div>
+        <div class="fn-tags"><span class="tag">type alias</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">default_tool_error_function</div>
+        <div class="fn-sig">(ctx, error) → str</div>
+        <div class="fn-desc">Default error handler for tool exceptions. Returns a formatted error string to the model. Override per-tool with <code style="color:var(--code)">failure_error_function</code>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 4. HANDOFFS -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="handoffs" style="--section-color: var(--c-handoff)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-handoff) 15%, transparent)">🤝</div>
+    <div><div class="section-title" style="color:var(--c-handoff)">Handoffs</div></div>
+    <div class="section-desc">Delegate control from one agent to another</div>
+  </div>
+
+  <div class="flow">
+    <span class="flow-step">Agent A produces output</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step accent">model calls transfer_to_agent_b</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">on_handoff callback</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Agent B continues the run</span>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card wide">
+      <div class="fn-name">handoff</div>
+      <div class="fn-sig">(agent, on_handoff=None, tool_name_override=None, tool_description_override=None, input_type=None, input_filter=None) → Handoff</div>
+      <div class="fn-desc">Customises how an agent appears as a handoff target. <code style="color:var(--code)">on_handoff(ctx, input?) → None</code> is called when the handoff is triggered — use it to log, mutate context, or validate. <code style="color:var(--code)">input_type</code> is a Pydantic model: if set, the model must pass structured data when handing off. <code style="color:var(--code)">input_filter</code> transforms the message history before the target agent sees it.</div>
+      <div class="fn-tags"><span class="tag">factory</span></div>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-name">Handoff</div>
+      <div class="fn-sig">  .agent · .tool_name · .tool_description · .input_json_schema · .on_invoke_handoff · .input_filter</div>
+      <div class="fn-desc">Object returned by <code style="color:var(--code)">handoff()</code>. Passed directly into <code style="color:var(--code)">agent.handoffs</code>. When the model calls the handoff tool, control transfers to <code style="color:var(--code)">.agent</code>.</div>
+      <div class="fn-tags"><span class="tag">class</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">Handoff.</span>tool_name</div>
+      <div class="fn-sig">→ str</div>
+      <div class="fn-desc">The tool name the model sees — defaults to <code style="color:var(--code)">transfer_to_{agent.name}</code> (lowercased, spaces → underscores). Override with <code style="color:var(--code)">tool_name_override</code>.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">Handoff.</span>input_filter</div>
+      <div class="fn-sig">→ HandoffInputFilter | None</div>
+      <div class="fn-desc">Called with <code style="color:var(--code)">HandoffInputData</code> before the target agent receives the history. Use to remove, redact, or summarise prior messages.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">HandoffInputData</div>
+      <div class="fn-sig">  .input_history · .pre_handoff_items · .new_items</div>
+      <div class="fn-desc">Passed to <code style="color:var(--code)">input_filter</code>. <code style="color:var(--code)">input_history</code> = original user input, <code style="color:var(--code)">pre_handoff_items</code> = items before handoff, <code style="color:var(--code)">new_items</code> = items from the handing-off agent's turn.</div>
+      <div class="fn-tags"><span class="tag">dataclass</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">HandoffInputFilter</div>
+      <div class="fn-sig">  (HandoffInputData) → HandoffInputData</div>
+      <div class="fn-desc">Callable type alias. Return a modified <code style="color:var(--code)">HandoffInputData</code> to control exactly what history the next agent sees.</div>
+      <div class="fn-tags"><span class="tag">type alias</span></div>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-name">handoff_filters.remove_all_tools</div>
+      <div class="fn-sig">(data: HandoffInputData) → HandoffInputData</div>
+      <div class="fn-desc">Built-in filter: strips all tool call and tool result items from the history before handoff. Keeps only user/assistant text messages.</div>
+      <div class="fn-tags"><span class="tag">built-in filter</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">handoff_filters.keep_last_n_items</div>
+      <div class="fn-sig">(n: int) → HandoffInputFilter</div>
+      <div class="fn-desc">Factory that returns a filter keeping only the last <code style="color:var(--code)">n</code> run items (not counting original input). Trims long histories before handoff.</div>
+      <div class="fn-tags"><span class="tag">built-in filter</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 5. CONTEXT -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="context" style="--section-color: var(--c-context)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-context) 15%, transparent)">🗄</div>
+    <div><div class="section-title" style="color:var(--c-context)">Context</div></div>
+    <div class="section-desc">Pass and share state across agents, tools, and hooks within a single run</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card wide">
+      <div class="fn-name">RunContextWrapper<span style="color:var(--muted)">[TContext]</span></div>
+      <div class="fn-sig">  .context · .usage · .model_name_hint</div>
+      <div class="fn-desc">Wrapper around your custom context object, passed as the first argument to tools (when typed), hooks, dynamic instructions, and guardrails. Access your state via <code style="color:var(--code)">.context</code>. <code style="color:var(--code)">TContext</code> is your user-defined type (any Python object — dataclass, Pydantic model, plain dict). The same <code style="color:var(--code)">RunContextWrapper</code> instance is shared across all agents and tools within one run.</div>
+      <div class="fn-tags"><span class="tag">class</span><span class="tag">generic</span></div>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">wrapper.</span>context</div>
+      <div class="fn-sig">→ TContext</div>
+      <div class="fn-desc">Your custom state object. Mutable — modifications made in tools or hooks are visible everywhere in the same run.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">wrapper.</span>usage</div>
+      <div class="fn-sig">→ Usage</div>
+      <div class="fn-desc">Tracks token usage accumulated so far in the run. <code style="color:var(--code)">.input_tokens</code>, <code style="color:var(--code)">.output_tokens</code>, <code style="color:var(--code)">.total_tokens</code>.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">Context in tools — pattern</div>
+      <div class="fn-sig">def my_tool(ctx: RunContextWrapper[MyCtx], arg: str) → str</div>
+      <div class="fn-desc">Declare the first parameter as <code style="color:var(--code)">RunContextWrapper[T]</code>. The SDK injects the context automatically; the parameter is excluded from the JSON schema sent to the model.</div>
+      <div class="fn-tags"><span class="tag">pattern</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">Context in instructions — pattern</div>
+      <div class="fn-sig">instructions=lambda ctx, agent: f"User is {ctx.context.username}"</div>
+      <div class="fn-desc">Pass a callable to <code style="color:var(--code)">Agent.instructions</code>. It receives <code style="color:var(--code)">RunContextWrapper</code> and the current <code style="color:var(--code)">Agent</code>. Evaluated fresh every turn.</div>
+      <div class="fn-tags"><span class="tag">pattern</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">Usage</div>
+      <div class="fn-sig">  .input_tokens · .output_tokens · .total_tokens</div>
+      <div class="fn-desc">Token consumption for the entire run. Accessed via <code style="color:var(--code)">RunContextWrapper.usage</code> during the run, or <code style="color:var(--code)">RunResult.input_guardrail_results / output_guardrail_results</code> after.</div>
+      <div class="fn-tags"><span class="tag">dataclass</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 6. GUARDRAILS -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="guardrails" style="--section-color: var(--c-guardrail)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-guardrail) 15%, transparent)">🛡</div>
+    <div><div class="section-title" style="color:var(--c-guardrail)">Guardrails</div></div>
+    <div class="section-desc">Screen inputs and outputs — run in parallel with the agent</div>
+  </div>
+
+  <div class="flow">
+    <span class="flow-step">User input arrives</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step accent">InputGuardrail runs (parallel)</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Agent runs</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step accent">OutputGuardrail runs (parallel)</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">Result returned</span>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card wide">
+      <div class="fn-name"><span class="prefix">@</span>input_guardrail</div>
+      <div class="fn-sig">(func) → InputGuardrail</div>
+      <div class="fn-desc">Decorator. The decorated async function receives <code style="color:var(--code)">(ctx: RunContextWrapper, agent: Agent, input: str | list)</code> and must return <code style="color:var(--code)">GuardrailFunctionOutput</code>. When <code style="color:var(--code)">tripwire_triggered=True</code>, the run is aborted immediately and <code style="color:var(--code)">InputGuardrailTripwireTriggered</code> is raised. Input guardrails run in parallel with the first agent turn.</div>
+      <div class="fn-tags"><span class="tag">decorator</span></div>
+    </div>
+    <div class="fn-card wide">
+      <div class="fn-name"><span class="prefix">@</span>output_guardrail</div>
+      <div class="fn-sig">(func) → OutputGuardrail</div>
+      <div class="fn-desc">Decorator. The decorated async function receives <code style="color:var(--code)">(ctx: RunContextWrapper, agent: Agent, output: T)</code> where <code style="color:var(--code)">T</code> is the agent's output type. Must return <code style="color:var(--code)">GuardrailFunctionOutput</code>. When tripped, raises <code style="color:var(--code)">OutputGuardrailTripwireTriggered</code>. Output guardrails run only on the <em>final</em> agent's output.</div>
+      <div class="fn-tags"><span class="tag">decorator</span></div>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-name">GuardrailFunctionOutput</div>
+      <div class="fn-sig">(tripwire_triggered: bool, output_info: Any = None)</div>
+      <div class="fn-desc">Returned by every guardrail function. <code style="color:var(--code)">tripwire_triggered=True</code> halts the run. <code style="color:var(--code)">output_info</code> can hold any debug data — accessible on the raised exception.</div>
+      <div class="fn-tags"><span class="tag">dataclass</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">InputGuardrail</div>
+      <div class="fn-sig">(guardrail_function, name=None)</div>
+      <div class="fn-desc">Class returned by the <code style="color:var(--code)">@input_guardrail</code> decorator. Can also be constructed directly. <code style="color:var(--code)">name</code> appears in traces.</div>
+      <div class="fn-tags"><span class="tag">class</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">OutputGuardrail</div>
+      <div class="fn-sig">(guardrail_function, name=None)</div>
+      <div class="fn-desc">Class returned by the <code style="color:var(--code)">@output_guardrail</code> decorator.</div>
+      <div class="fn-tags"><span class="tag">class</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">InputGuardrailResult</div>
+      <div class="fn-sig">  .guardrail · .output</div>
+      <div class="fn-desc">Stored in <code style="color:var(--code)">RunResult.input_guardrail_results</code>. <code style="color:var(--code)">.output</code> is the <code style="color:var(--code)">GuardrailFunctionOutput</code> from the guardrail.</div>
+      <div class="fn-tags"><span class="tag">dataclass</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">OutputGuardrailResult</div>
+      <div class="fn-sig">  .guardrail · .agent · .agent_output · .output</div>
+      <div class="fn-desc">Stored in <code style="color:var(--code)">RunResult.output_guardrail_results</code>. Includes which agent produced the output and what the guardrail returned.</div>
+      <div class="fn-tags"><span class="tag">dataclass</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 7. STREAMING -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="streaming" style="--section-color: var(--c-streaming)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-streaming) 15%, transparent)">📡</div>
+    <div><div class="section-title" style="color:var(--c-streaming)">Streaming</div></div>
+    <div class="section-desc">Token-by-token output and real-time agent events</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card wide">
+      <div class="fn-name">StreamedRunResult</div>
+      <div class="fn-sig">  .stream_events() · .final_output · .current_agent · .is_complete · .new_items · .last_agent</div>
+      <div class="fn-desc">Returned by <code style="color:var(--code)">Runner.run_streamed()</code>. Use <code style="color:var(--code)">async for event in result.stream_events()</code> to receive events. After the generator exhausts, <code style="color:var(--code)">.final_output</code> and <code style="color:var(--code)">.new_items</code> are populated. Always consume the stream fully before accessing final results.</div>
+      <div class="fn-tags"><span class="tag">class</span></div>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">stream_result.</span>stream_events</div>
+      <div class="fn-sig">() → AsyncIterator[StreamEvent]</div>
+      <div class="fn-desc">Async generator yielding all stream events. Exhausting this generator is what drives the run — do not call <code style="color:var(--code)">final_output</code> before iterating fully.</div>
+      <div class="fn-tags"><span class="tag">async generator</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">stream_result.</span>final_output</div>
+      <div class="fn-sig">→ T  (populated after stream completes)</div>
+      <div class="fn-desc">The typed final output, same as <code style="color:var(--code)">RunResult.final_output</code>. Available only after the stream is fully consumed.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name"><span class="prefix">stream_result.</span>current_agent</div>
+      <div class="fn-sig">→ Agent  (updates live)</div>
+      <div class="fn-desc">The currently-executing agent. Changes when a handoff occurs. Read after <code style="color:var(--code)">AgentUpdatedStreamEvent</code> to get the new agent.</div>
+    </div>
+  </div>
+
+  <div class="subsection" style="margin-top:20px">
+    <div class="subsection-title">Stream Event Types</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name">RawResponsesStreamEvent</div>
+        <div class="fn-sig">  .data → ResponseStreamEvent  .type = "raw_response_event"</div>
+        <div class="fn-desc">Passes through the raw OpenAI Responses API streaming event. Contains token deltas, tool call deltas, etc. Use when you need maximum control.</div>
+        <div class="fn-tags"><span class="tag">low-level</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">RunItemStreamEvent</div>
+        <div class="fn-sig">  .item → RunItem  .name → str  .type = "run_item_stream_event"</div>
+        <div class="fn-desc">Emitted when a complete <code style="color:var(--code)">RunItem</code> is produced (message, tool call, tool output, handoff). Higher-level than raw events — use for chat UIs.</div>
+        <div class="fn-tags"><span class="tag">high-level</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">AgentUpdatedStreamEvent</div>
+        <div class="fn-sig">  .new_agent → Agent  .type = "agent_updated_stream_event"</div>
+        <div class="fn-desc">Emitted when the run switches to a new agent via handoff. <code style="color:var(--code)">.new_agent</code> is the incoming agent.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">StreamEvent.type values</div>
+        <div class="fn-sig">  "raw_response_event" | "run_item_stream_event" | "agent_updated_stream_event"</div>
+        <div class="fn-desc">Discriminator field on every event. Use <code style="color:var(--code)">isinstance()</code> checks or match on <code style="color:var(--code)">.type</code> to route handling logic.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 8. RESULTS & ITEMS -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="results" style="--section-color: var(--c-results)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-results) 15%, transparent)">📦</div>
+    <div><div class="section-title" style="color:var(--c-results)">Results &amp; Items</div></div>
+    <div class="section-desc">What Runner.run() returns and the items produced during a run</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">RunResult</div>
+    <div class="fn-grid">
+      <div class="fn-card wide">
+        <div class="fn-name">RunResult</div>
+        <div class="fn-sig">  .final_output · .new_items · .last_agent · .input · .input_guardrail_results · .output_guardrail_results</div>
+        <div class="fn-desc">Returned by <code style="color:var(--code)">Runner.run()</code> and <code style="color:var(--code)">Runner.run_sync()</code>. <code style="color:var(--code)">final_output</code> is typed (<code style="color:var(--code)">str</code> or your Pydantic model). <code style="color:var(--code)">new_items</code> is the full list of <code style="color:var(--code)">RunItem</code> objects from the run. <code style="color:var(--code)">last_agent</code> is the agent that produced the final output.</div>
+        <div class="fn-tags"><span class="tag">dataclass</span></div>
+      </div>
+
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">result.</span>final_output</div>
+        <div class="fn-sig">→ str | T  (T = agent.output_type)</div>
+        <div class="fn-desc">The last agent's final response. Typed to <code style="color:var(--code)">agent.output_type</code> when set; plain <code style="color:var(--code)">str</code> otherwise.</div>
+        <div class="fn-tags"><span class="tag">most used</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">result.</span>new_items</div>
+        <div class="fn-sig">→ list[RunItem]</div>
+        <div class="fn-desc">All items produced during the run — messages, tool calls, tool outputs, handoff events. Use to reconstruct the full run history.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">result.</span>last_agent</div>
+        <div class="fn-sig">→ Agent</div>
+        <div class="fn-desc">The agent that produced <code style="color:var(--code)">final_output</code>. May differ from <code style="color:var(--code)">starting_agent</code> after handoffs.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">result.</span>to_input_list</div>
+        <div class="fn-sig">() → list</div>
+        <div class="fn-desc">Converts the run result to a list of input messages suitable for passing as <code style="color:var(--code)">input</code> in the next run. Used for multi-turn conversations.</div>
+        <div class="fn-tags"><span class="tag">multi-turn</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">RunItem types — elements in result.new_items</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name">MessageOutputItem</div>
+        <div class="fn-sig">  .agent · .raw_item  .type = "message_output_item"</div>
+        <div class="fn-desc">A text message produced by an agent. <code style="color:var(--code)">ItemHelpers.text_message_output(item)</code> extracts the plain text.</div>
+        <div class="fn-tags"><span class="tag">run item</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">ToolCallItem</div>
+        <div class="fn-sig">  .agent · .raw_item  .type = "tool_call_item"</div>
+        <div class="fn-desc">A tool invocation by the model — contains the tool name and raw arguments.</div>
+        <div class="fn-tags"><span class="tag">run item</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">ToolCallOutputItem</div>
+        <div class="fn-sig">  .agent · .raw_item · .output  .type = "tool_call_output_item"</div>
+        <div class="fn-desc">The result of a tool call. <code style="color:var(--code)">.output</code> is the string returned by your tool function.</div>
+        <div class="fn-tags"><span class="tag">run item</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">HandoffCallItem</div>
+        <div class="fn-sig">  .agent · .raw_item  .type = "handoff_call_item"</div>
+        <div class="fn-desc">Emitted when the model decides to hand off — before the target agent starts.</div>
+        <div class="fn-tags"><span class="tag">run item</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">HandoffOutputItem</div>
+        <div class="fn-sig">  .agent · .source_agent · .target_agent  .type = "handoff_output_item"</div>
+        <div class="fn-desc">Emitted after a handoff completes. Identifies both source and target agents.</div>
+        <div class="fn-tags"><span class="tag">run item</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">ReasoningItem</div>
+        <div class="fn-sig">  .agent · .raw_item  .type = "reasoning_item"</div>
+        <div class="fn-desc">Extended thinking / reasoning token output from <code style="color:var(--code)">o1</code>/<code style="color:var(--code)">o3</code> models. Contains the model's reasoning trace.</div>
+        <div class="fn-tags"><span class="tag">run item</span><span class="tag">o-series</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">ItemHelpers — utility functions for RunItems</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">ItemHelpers.</span>text_message_output</div>
+        <div class="fn-sig">(item: MessageOutputItem) → str</div>
+        <div class="fn-desc">Extracts plain text from a <code style="color:var(--code)">MessageOutputItem</code>.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">ItemHelpers.</span>text_message_output_from_message</div>
+        <div class="fn-sig">(message) → str</div>
+        <div class="fn-desc">Extracts text from a raw message object.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">ItemHelpers.</span>input_to_new_input_list</div>
+        <div class="fn-sig">(input: str | list) → list</div>
+        <div class="fn-desc">Normalises the input into the list-of-messages format used internally.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">ItemHelpers.</span>tool_call_output_item</div>
+        <div class="fn-sig">(tool_call, output: str) → dict</div>
+        <div class="fn-desc">Constructs a tool output message dict — used when manually building message histories.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 9. HOOKS -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="hooks" style="--section-color: var(--c-hooks)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-hooks) 15%, transparent)">🪝</div>
+    <div><div class="section-title" style="color:var(--c-hooks)">Hooks</div></div>
+    <div class="section-desc">Lifecycle callbacks — observe and act on every step of the agentic loop</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">RunHooks — attached to a single run via Runner.run(hooks=...)</div>
+    <div class="fn-grid">
+      <div class="fn-card wide">
+        <div class="fn-name">RunHooks<span style="color:var(--muted)">[TContext]</span></div>
+        <div class="fn-sig">  class RunHooks(Generic[TContext]):</div>
+        <div class="fn-desc">Subclass and override any combination of async methods. A single instance is shared across all agents in the run. All methods receive <code style="color:var(--code)">context: RunContextWrapper[TContext]</code> as the first argument.</div>
+        <div class="fn-tags"><span class="tag">base class</span></div>
+      </div>
+
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">RunHooks.</span>on_agent_start</div>
+        <div class="fn-sig">(context, agent) → None</div>
+        <div class="fn-desc">Called before an agent begins its turn. Also fires on the initial agent and after each handoff.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">RunHooks.</span>on_agent_end</div>
+        <div class="fn-sig">(context, agent, output) → None</div>
+        <div class="fn-desc">Called when an agent produces a final output (not when it hands off). <code style="color:var(--code)">output</code> is the typed result.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">RunHooks.</span>on_tool_start</div>
+        <div class="fn-sig">(context, agent, tool) → None</div>
+        <div class="fn-desc">Called before a tool is invoked. <code style="color:var(--code)">tool</code> is the <code style="color:var(--code)">FunctionTool</code> or hosted tool object.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">RunHooks.</span>on_tool_end</div>
+        <div class="fn-sig">(context, agent, tool, result) → None</div>
+        <div class="fn-desc">Called after a tool returns. <code style="color:var(--code)">result</code> is the string returned by the tool.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">RunHooks.</span>on_handoff</div>
+        <div class="fn-sig">(context, from_agent, to_agent) → None</div>
+        <div class="fn-desc">Called when a handoff is triggered. Both source and target agents are provided.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">AgentHooks — attached to a specific agent via Agent(hooks=...)</div>
+    <div class="fn-grid">
+      <div class="fn-card wide">
+        <div class="fn-name">AgentHooks<span style="color:var(--muted)">[TContext]</span></div>
+        <div class="fn-sig">  class AgentHooks(Generic[TContext]):</div>
+        <div class="fn-desc">Same interface as <code style="color:var(--code)">RunHooks</code> but fires only for the agent it is attached to. Use for per-agent observability (e.g. logging a specialist agent's tool calls separately).</div>
+        <div class="fn-tags"><span class="tag">base class</span></div>
+      </div>
+
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">AgentHooks.</span>on_start</div>
+        <div class="fn-sig">(context, agent) → None</div>
+        <div class="fn-desc">Called before this agent's turn begins.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">AgentHooks.</span>on_end</div>
+        <div class="fn-sig">(context, agent, output) → None</div>
+        <div class="fn-desc">Called when this agent produces its final output.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">AgentHooks.</span>on_tool_start / on_tool_end</div>
+        <div class="fn-sig">(context, agent, tool) / (context, agent, tool, result)</div>
+        <div class="fn-desc">Called before/after each tool invocation for this agent.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">AgentHooks.</span>on_handoff</div>
+        <div class="fn-sig">(context, agent, source) → None</div>
+        <div class="fn-desc">Called on the <em>receiving</em> agent when it is handed off to. <code style="color:var(--code)">source</code> is the handing-off agent.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 10. TRACING -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="tracing" style="--section-color: var(--c-tracing)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-tracing) 15%, transparent)">🔭</div>
+    <div><div class="section-title" style="color:var(--c-tracing)">Tracing</div></div>
+    <div class="section-desc">Built-in observability — view on OpenAI dashboard or export to custom backends</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card wide">
+      <div class="fn-name">trace</div>
+      <div class="fn-sig">(workflow_name, trace_id=None, group_id=None, disabled=False, metadata=None) → context manager</div>
+      <div class="fn-desc">Creates a top-level trace span. Use <code style="color:var(--code)">with trace("my workflow"):</code> to wrap a multi-run workflow so all runs share the same trace ID on the dashboard. <code style="color:var(--code)">group_id</code> groups multiple traces into one conversation thread.</div>
+      <div class="fn-tags"><span class="tag">context manager</span></div>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-name">custom_span</div>
+      <div class="fn-sig">(name, data=None) → context manager</div>
+      <div class="fn-desc">Creates a custom child span inside an existing trace. Use to instrument non-agent code (database calls, pre-processing) within the same trace tree.</div>
+      <div class="fn-tags"><span class="tag">context manager</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">agent_span</div>
+      <div class="fn-sig">(name, handoffs=None, tools=None, output_type=None) → context manager</div>
+      <div class="fn-desc">Creates an agent-type span. Emitted automatically by the runner — use manually only in custom integrations.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">function_span</div>
+      <div class="fn-sig">(name, input=None, output=None) → context manager</div>
+      <div class="fn-desc">Creates a function/tool-type span. Emitted automatically for tool calls.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">generation_span</div>
+      <div class="fn-sig">(model=None, model_config=None, input=None, output=None, usage=None) → context manager</div>
+      <div class="fn-desc">Wraps an LLM call. Automatically created by model providers — use manually when integrating a custom model.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">guardrail_span</div>
+      <div class="fn-sig">(name, triggered=None) → context manager</div>
+      <div class="fn-desc">Wraps a guardrail check. Auto-created for registered guardrails.</div>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-name">add_trace_processor</div>
+      <div class="fn-sig">(processor: TracingProcessor) → None</div>
+      <div class="fn-desc">Registers an additional processor alongside the default OpenAI exporter. Use to stream spans to Datadog, Langfuse, custom loggers, etc.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">set_trace_processors</div>
+      <div class="fn-sig">(processors: list[TracingProcessor]) → None</div>
+      <div class="fn-desc">Replaces the entire processor list. Pass <code style="color:var(--code)">[]</code> to disable all tracing output.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">set_tracing_disabled</div>
+      <div class="fn-sig">(disabled: bool) → None</div>
+      <div class="fn-desc">Globally toggles tracing on or off. Equivalent to setting <code style="color:var(--code)">RunConfig.tracing_disabled</code> on every run.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">set_tracing_export_api_key</div>
+      <div class="fn-sig">(api_key: str) → None</div>
+      <div class="fn-desc">Overrides the API key used to export traces. Defaults to <code style="color:var(--code)">OPENAI_API_KEY</code>.</div>
+    </div>
+
+    <div class="fn-card">
+      <div class="fn-name">TracingProcessor</div>
+      <div class="fn-sig">  on_trace_start(trace) / on_trace_end(trace) / on_span_start(span) / on_span_end(span) / shutdown() / force_flush()</div>
+      <div class="fn-desc">Abstract base class for custom trace exporters. Override any combination of methods. Register with <code style="color:var(--code)">add_trace_processor()</code>.</div>
+      <div class="fn-tags"><span class="tag">abstract class</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">Trace / Span</div>
+      <div class="fn-sig">  .trace_id · .name · .start_time · .end_time · .spans · .error</div>
+      <div class="fn-desc">Objects passed to <code style="color:var(--code)">TracingProcessor</code> hooks. <code style="color:var(--code)">Span</code> has <code style="color:var(--code)">.span_data</code> (typed payload) and <code style="color:var(--code)">.parent_id</code>.</div>
+      <div class="fn-tags"><span class="tag">dataclass</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 11. MODELS & SETTINGS -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="models" style="--section-color: var(--c-models)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-models) 15%, transparent)">🧠</div>
+    <div><div class="section-title" style="color:var(--c-models)">Models &amp; Settings</div></div>
+    <div class="section-desc">Configure which model runs and how</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">ModelSettings — generation parameters</div>
+    <div class="fn-grid">
+      <div class="fn-card wide">
+        <div class="fn-name">ModelSettings</div>
+        <div class="fn-sig">(temperature=None, top_p=None, frequency_penalty=None, presence_penalty=None, tool_choice=None, parallel_tool_calls=None, truncation=None, max_tokens=None, reasoning=None, include_usage=None, extra_query=None, extra_body=None, extra_headers=None)</div>
+        <div class="fn-desc">Dataclass for LLM sampling parameters. <code style="color:var(--code)">None</code> fields use the model default. Pass to <code style="color:var(--code)">Agent(model_settings=...)</code> or <code style="color:var(--code)">RunConfig(model_settings=...)</code>. Run-level settings override agent-level.</div>
+        <div class="fn-tags"><span class="tag">dataclass</span></div>
+      </div>
+
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">ModelSettings.</span>tool_choice</div>
+        <div class="fn-sig">→ "auto" | "required" | "none" | str</div>
+        <div class="fn-desc"><code style="color:var(--code)">"auto"</code> (default) lets the model decide. <code style="color:var(--code)">"required"</code> forces a tool call every turn. <code style="color:var(--code)">"none"</code> prevents tool calls. Pass a tool name string to force a specific tool.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">ModelSettings.</span>parallel_tool_calls</div>
+        <div class="fn-sig">→ bool | None</div>
+        <div class="fn-desc">When <code style="color:var(--code)">True</code>, the model may call multiple tools in one turn. When <code style="color:var(--code)">False</code>, tool calls are serial.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">ModelSettings.</span>truncation</div>
+        <div class="fn-sig">→ "auto" | "disabled" | None</div>
+        <div class="fn-desc">Context truncation strategy for the Responses API. <code style="color:var(--code)">"auto"</code> drops oldest messages when context exceeds the model's limit.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name"><span class="prefix">ModelSettings.</span>reasoning</div>
+        <div class="fn-sig">→ Reasoning | None</div>
+        <div class="fn-desc">Controls extended reasoning for <code style="color:var(--code)">o1</code>/<code style="color:var(--code)">o3</code>/<code style="color:var(--code)">o4-mini</code> models. <code style="color:var(--code)">Reasoning(effort="medium")</code> — effort: "low" | "medium" | "high".</div>
+        <div class="fn-tags"><span class="tag">o-series</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Model Implementations</div>
+    <div class="fn-grid">
+      <div class="fn-card">
+        <div class="fn-name">OpenAIResponsesModel</div>
+        <div class="fn-sig">(model: str, openai_client: AsyncOpenAI)</div>
+        <div class="fn-desc">Uses the <strong>Responses API</strong> (<code style="color:var(--code)">/v1/responses</code>). Default when passing a model string to an agent. Supports stateful conversation, built-in tools, and streaming natively.</div>
+        <div class="fn-tags"><span class="tag">default</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">OpenAIChatCompletionsModel</div>
+        <div class="fn-sig">(model: str, openai_client: AsyncOpenAI)</div>
+        <div class="fn-desc">Uses the standard <strong>Chat Completions API</strong> (<code style="color:var(--code)">/v1/chat/completions</code>). Compatible with OpenAI-compatible third-party providers (Groq, Mistral, Ollama, etc.).</div>
+        <div class="fn-tags"><span class="tag">chat completions</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">Model</div>
+        <div class="fn-sig">  get_response() / stream_response() (protocol)</div>
+        <div class="fn-desc">Protocol (interface) that custom model wrappers must implement. Use to integrate any LLM provider.</div>
+        <div class="fn-tags"><span class="tag">protocol</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">ModelProvider</div>
+        <div class="fn-sig">  get_model(model_name: str) → Model  (protocol)</div>
+        <div class="fn-desc">Factory protocol. Implement to swap all model creation in a run via <code style="color:var(--code)">RunConfig(model_provider=...)</code>.</div>
+        <div class="fn-tags"><span class="tag">protocol</span></div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">OpenAIProvider</div>
+        <div class="fn-sig">(api_key=None, base_url=None, openai_client=None, use_responses=True)</div>
+        <div class="fn-desc">Default model provider. Set <code style="color:var(--code)">use_responses=False</code> to switch to Chat Completions for all agents. Change <code style="color:var(--code)">base_url</code> to point at a compatible endpoint.</div>
+      </div>
+      <div class="fn-card">
+        <div class="fn-name">set_default_openai_client / set_default_openai_api</div>
+        <div class="fn-sig">(client: AsyncOpenAI) / (api: "chat_completions" | "responses")</div>
+        <div class="fn-desc">Global helpers. <code style="color:var(--code)">set_default_openai_client</code> lets you pass a custom <code style="color:var(--code)">AsyncOpenAI</code> instance (e.g. with Azure endpoint). <code style="color:var(--code)">set_default_openai_api</code> switches the default API type globally.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- 12. EXCEPTIONS -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="exceptions" style="--section-color: var(--c-errors)">
+  <div class="section-header">
+    <div class="section-icon" style="background: color-mix(in srgb, var(--c-errors) 15%, transparent)">⚠️</div>
+    <div><div class="section-title" style="color:var(--c-errors)">Exceptions</div></div>
+    <div class="section-desc">All exceptions raised by the SDK</div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <div class="fn-name">AgentsException</div>
+      <div class="fn-sig">  (base class for all SDK exceptions)</div>
+      <div class="fn-desc">Root exception class. Catch this to handle any SDK error.</div>
+      <div class="fn-tags"><span class="tag">base</span></div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">MaxTurnsExceeded</div>
+      <div class="fn-sig">  .max_turns</div>
+      <div class="fn-desc">Raised when the run reaches <code style="color:var(--code)">max_turns</code> without producing a final output. Increase <code style="color:var(--code)">max_turns</code> or redesign the agent to terminate sooner.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">InputGuardrailTripwireTriggered</div>
+      <div class="fn-sig">  .guardrail_result → InputGuardrailResult</div>
+      <div class="fn-desc">Raised when an input guardrail returns <code style="color:var(--code)">tripwire_triggered=True</code>. Access <code style="color:var(--code)">.guardrail_result.output.output_info</code> for debug data.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">OutputGuardrailTripwireTriggered</div>
+      <div class="fn-sig">  .guardrail_result → OutputGuardrailResult</div>
+      <div class="fn-desc">Raised when an output guardrail trips. The run completed but output was blocked. Use <code style="color:var(--code)">.guardrail_result.agent_output</code> to inspect what was blocked.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">ModelBehaviorError</div>
+      <div class="fn-sig">  (message: str)</div>
+      <div class="fn-desc">Raised when the model returns something the SDK cannot parse — e.g. invalid JSON for a structured output, unknown tool name, or malformed handoff. Usually indicates a prompt or schema issue.</div>
+    </div>
+    <div class="fn-card">
+      <div class="fn-name">UserError</div>
+      <div class="fn-sig">  (message: str)</div>
+      <div class="fn-desc">Raised for incorrect SDK usage — e.g. calling a method with invalid arguments, using a non-async function as an async tool, or misconfiguring an agent. Fix the calling code.</div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const search = document.getElementById('search');
+  search.addEventListener('input', () => {
+    const q = search.value.toLowerCase().trim();
+    document.querySelectorAll('.fn-card').forEach(card => {
+      card.classList.toggle('hidden', q.length > 0 && !card.textContent.toLowerCase().includes(q));
+    });
+    document.querySelectorAll('.section').forEach(sec => {
+      const vis = [...sec.querySelectorAll('.fn-card')].filter(c => !c.classList.contains('hidden'));
+      sec.style.display = (q.length > 0 && vis.length === 0) ? 'none' : '';
+    });
+    document.querySelectorAll('.subsection').forEach(sub => {
+      const vis = [...sub.querySelectorAll('.fn-card')].filter(c => !c.classList.contains('hidden'));
+      sub.style.display = (q.length > 0 && vis.length === 0) ? 'none' : '';
+    });
+  });
+
+  function setActive(el) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        document.querySelectorAll('.nav-item').forEach(item => {
+          item.classList.toggle('active', item.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '-80px 0px -60% 0px' });
+  document.querySelectorAll('.section').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
