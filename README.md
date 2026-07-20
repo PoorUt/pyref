@@ -2,7 +2,7 @@
 
 A clean, interactive reference site for popular Python libraries. Each library is documented as a collapsible API tree so you can explore modules, classes, functions, and attributes at a glance — without digging through official docs.
 
-**Live site →** https://PoorUt.github.io/pyref/
+**Live site →** https://PoorUt.github.io/PyRef/
 
 ---
 
